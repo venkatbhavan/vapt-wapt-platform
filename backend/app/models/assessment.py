@@ -66,3 +66,64 @@ class ScanJob(Base):
     result_json = Column(String, nullable=True)
 
     assessment = relationship("Assessment", back_populates="scan_jobs")
+    findings = relationship("Finding", back_populates="scan_job", cascade="all, delete-orphan")
+
+class FindingSeverity(str, enum.Enum):
+    info = "info"
+    low = "low"
+    medium = "medium"
+    high = "high"
+    critical = "critical"
+
+class FindingConfidence(str, enum.Enum):
+    low = "low"
+    medium = "medium"
+    high = "high"
+
+class FindingStatus(str, enum.Enum):
+    open = "open"
+    accepted = "accepted"
+    false_positive = "false_positive"
+    resolved = "resolved"
+
+class EvidenceType(str, enum.Enum):
+    text = "text"
+    http_request = "http_request"
+    http_response = "http_response"
+    command_output = "command_output"
+    screenshot = "screenshot"
+    metadata = "metadata"
+
+class Finding(Base):
+    __tablename__ = "findings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    scan_job_id = Column(Integer, ForeignKey("scan_jobs.id"), nullable=False)
+    title = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    severity = Column(Enum(FindingSeverity), nullable=False)
+    confidence = Column(Enum(FindingConfidence), nullable=True)
+    category = Column(String, nullable=True)
+    location = Column(String, nullable=True)
+    impact = Column(String, nullable=True)
+    remediation = Column(String, nullable=True)
+    status = Column(Enum(FindingStatus), default=FindingStatus.open)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    scan_job = relationship("ScanJob", back_populates="findings")
+    evidence_list = relationship("Evidence", back_populates="finding", cascade="all, delete-orphan")
+
+class Evidence(Base):
+    __tablename__ = "evidence"
+
+    id = Column(Integer, primary_key=True, index=True)
+    finding_id = Column(Integer, ForeignKey("findings.id"), nullable=False)
+    evidence_type = Column(Enum(EvidenceType), nullable=False)
+    title = Column(String, nullable=True)
+    content = Column(String, nullable=True) # E.g. raw text, JSON string, or a path/identifier for screenshots
+    source = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    finding = relationship("Finding", back_populates="evidence_list")
+

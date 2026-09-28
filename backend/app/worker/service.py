@@ -43,6 +43,32 @@ def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
         scanner = get_scanner(scan_job.scan_profile)
         result = scanner.scan(target=assessment.target, scan_profile=scan_job.scan_profile)
         
+        # Persist Findings and Evidence
+        from app.models.assessment import Finding as FindingModel, FindingSeverity, Evidence as EvidenceModel, EvidenceType
+        
+        for f_data in result.findings:
+            severity_mapped = f_data.severity if hasattr(FindingSeverity, f_data.severity) else "info"
+            db_finding = FindingModel(
+                scan_job_id=scan_job.id,
+                title=f_data.title,
+                description=f_data.description,
+                severity=severity_mapped
+            )
+            db.add(db_finding)
+            db.flush() # flush to get the finding id
+
+            for e_data in f_data.evidence:
+                evidence_type_mapped = e_data.evidence_type if hasattr(EvidenceType, e_data.evidence_type) else "text"
+                db_evidence = EvidenceModel(
+                    finding_id=db_finding.id,
+                    evidence_type=evidence_type_mapped,
+                    title=e_data.title,
+                    content=e_data.content,
+                    source=e_data.source
+                )
+                db.add(db_evidence)
+
+            
         # 7. Transition to Completed
         scan_job.status = ScanJobStatus.completed
         scan_job.result_json = result.model_dump_json()

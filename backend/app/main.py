@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import projects, assessments, scan_jobs
+from app.api import projects, assessments, scan_jobs, findings
 from app.models.assessment import Base
 from app.core.database import engine
 
@@ -25,6 +25,8 @@ app.add_middleware(
 app.include_router(projects.router)
 app.include_router(assessments.router)
 app.include_router(scan_jobs.router)
+app.include_router(findings.router)
+
 
 
 

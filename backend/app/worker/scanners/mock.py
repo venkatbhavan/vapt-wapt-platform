@@ -1,5 +1,5 @@
 from .base import ScannerAdapter
-from .models import ScannerResult, Finding
+from .models import ScannerResult, Finding, EvidenceItem
 
 class MockScannerAdapter(ScannerAdapter):
     """
@@ -15,7 +15,15 @@ class MockScannerAdapter(ScannerAdapter):
                 Finding(
                     title="Mock Security Finding",
                     severity="low",
-                    description="This is a simulated finding used only for development."
+                    description="This is a simulated finding used only for development.",
+                    evidence=[
+                        EvidenceItem(
+                            evidence_type="text",
+                            title="Mock Evidence",
+                            content="This is simulated evidence providing safe, local-development context.",
+                            source="mock"
+                        )
+                    ]
                 )
             ]
         )
