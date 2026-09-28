@@ -9,6 +9,7 @@ class ScanProfile(str, enum.Enum):
     passive = "passive"
     safe = "safe"
     standard = "standard"
+    active = "active"
     deep = "deep"
 
 class AssessmentStatus(str, enum.Enum):
@@ -58,6 +59,7 @@ class ScanJob(Base):
     id = Column(Integer, primary_key=True, index=True)
     assessment_id = Column(Integer, ForeignKey("assessments.id"), nullable=False)
     scan_profile = Column(Enum(ScanProfile), nullable=False)
+    active_scan_confirmed = Column(Boolean, nullable=False, default=False)
     status = Column(Enum(ScanJobStatus), default=ScanJobStatus.queued)
     created_at = Column(DateTime, default=datetime.utcnow)
     started_at = Column(DateTime, nullable=True)

@@ -159,6 +159,7 @@ export function AssessmentsView({ projectId, onBack, onSelectAssessment }: Asses
               <option value="passive">Passive</option>
               <option value="safe">Safe</option>
               <option value="standard">Standard</option>
+              <option value="active">Active</option>
               <option value="deep">Deep</option>
             </select>
           </div>

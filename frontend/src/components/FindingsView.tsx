@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, AlertTriangle, Shield, CheckCircle, ChevronRight, Activity, FileText } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Shield, CheckCircle, ChevronRight, Activity, FileText, ShieldAlert } from 'lucide-react';
 
 interface ScanJob {
   id: number;
@@ -180,17 +180,29 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
     }
   };
 
-  const handleRunScan = async () => {
+  const [showActiveModal, setShowActiveModal] = useState(false);
+
+  const handleRunScan = async (confirmed = false) => {
     setStartingScan(true);
     setError('');
     try {
       const res = await fetch(`http://localhost:8000/api/assessments/${assessmentId}/scan-jobs`, {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ active_scan_confirmed: confirmed })
       });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
+        if (res.status === 400 && errData.detail === "Explicit confirmation is required for active/deep scans") {
+          setShowActiveModal(true);
+          setStartingScan(false);
+          return;
+        }
         throw new Error(errData.detail || 'Failed to start scan');
       }
+      setShowActiveModal(false);
       await fetchScanJobs();
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -199,12 +211,43 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
         setError('Error starting scan');
       }
     } finally {
-      setStartingScan(false);
+      if (!showActiveModal) {
+        setStartingScan(false);
+      }
     }
   };
 
   return (
     <div className="space-y-6">
+      {/* Active Scan Confirmation Modal */}
+      {showActiveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-gray-900 border border-red-900/50 rounded-lg p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-semibold text-red-500 mb-2 flex items-center gap-2">
+              <ShieldAlert size={24} />
+              Active Scan Warning
+            </h3>
+            <p className="text-gray-300 mb-6 text-sm">
+              You are about to launch an active/deep scan. This may send intrusive payloads, test for vulnerabilities aggressively, and potentially impact the target's availability. Do you have explicit authorization to perform an active scan on this target?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => { setShowActiveModal(false); setStartingScan(false); }}
+                className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleRunScan(true)}
+                className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Confirm & Run Scan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center">
         <button 
           onClick={onBack}
@@ -213,7 +256,7 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
           <ArrowLeft size={16} /> Back to Assessments
         </button>
         <button
-          onClick={handleRunScan}
+          onClick={() => handleRunScan(false)}
           disabled={startingScan}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors disabled:opacity-50"
         >
