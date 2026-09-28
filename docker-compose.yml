@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  # Placeholder for Database
+  # db:
+  #   image: postgres:15
+  #   environment:
+  #     POSTGRES_USER: user
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: vapt_platform
+
+  # Placeholder for Redis
+  # redis:
+  #   image: redis:7
+
+  # Placeholder for Backend
+  # backend:
+  #   build: ./backend
+  #   ports:
+  #     - "8000:8000"
+
+  # Placeholder for Frontend
+  # frontend:
+  #   build: ./frontend
+  #   ports:
+  #     - "5173:5173"
