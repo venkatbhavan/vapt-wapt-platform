@@ -63,5 +63,6 @@ class ScanJob(Base):
     started_at = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
     error_message = Column(String, nullable=True)
+    result_json = Column(String, nullable=True)
 
     assessment = relationship("Assessment", back_populates="scan_jobs")

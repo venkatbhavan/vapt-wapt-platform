@@ -37,9 +37,27 @@ def get_assessment_scan_jobs(assessment_id: int, skip: int = 0, limit: int = 100
     scan_jobs = db.query(ScanJobModel).filter(ScanJobModel.assessment_id == assessment_id).offset(skip).limit(limit).all()
     return scan_jobs
 
+from app.worker.service import process_scan_job
+
 @router.get("/api/scan-jobs/{scan_job_id}", response_model=ScanJob)
 def get_scan_job(scan_job_id: int, db: Session = Depends(get_db)):
     db_scan_job = db.query(ScanJobModel).filter(ScanJobModel.id == scan_job_id).first()
     if not db_scan_job:
         raise HTTPException(status_code=404, detail="Scan job not found")
     return db_scan_job
+
+@router.post("/api/scan-jobs/{scan_job_id}/run", response_model=ScanJob)
+def run_scan_job(scan_job_id: int, db: Session = Depends(get_db)):
+    # Verify the scan job exists
+    db_scan_job = db.query(ScanJobModel).filter(ScanJobModel.id == scan_job_id).first()
+    if not db_scan_job:
+        raise HTTPException(status_code=404, detail="Scan job not found")
+        
+    try:
+        # Process the job via worker service
+        updated_job = process_scan_job(db, scan_job_id)
+        return updated_job
+    except ValueError as e:
+        # Catch safe validation errors and return them as HTTP 400
+        raise HTTPException(status_code=400, detail=str(e))
+
