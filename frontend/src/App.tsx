@@ -3,11 +3,13 @@ import { Shield, Activity, Database, Server } from 'lucide-react';
 import { ProjectsView } from './components/ProjectsView';
 import { AssessmentsView } from './components/AssessmentsView';
 import { FindingsView } from './components/FindingsView';
+import { AssessmentDashboard } from './components/AssessmentDashboard';
 
 function App() {
   const [apiStatus, setApiStatus] = useState<string>('Checking...');
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [selectedAssessmentId, setSelectedAssessmentId] = useState<number | null>(null);
+  const [viewingFindings, setViewingFindings] = useState<{jobId?: number; findingId?: number} | false>(false);
 
   useEffect(() => {
     fetch('http://localhost:8000/api/health')
@@ -75,10 +77,23 @@ function App() {
       {/* Main Content Area */}
       <div className="w-full">
         {selectedAssessmentId ? (
-          <FindingsView 
-            assessmentId={selectedAssessmentId} 
-            onBack={() => setSelectedAssessmentId(null)} 
-          />
+          viewingFindings ? (
+            <FindingsView 
+              assessmentId={selectedAssessmentId} 
+              initialJobId={viewingFindings.jobId}
+              initialFindingId={viewingFindings.findingId}
+              onBack={() => setViewingFindings(false)} 
+            />
+          ) : (
+            <AssessmentDashboard
+              assessmentId={selectedAssessmentId}
+              onBack={() => {
+                setSelectedAssessmentId(null);
+                setViewingFindings(false);
+              }}
+              onViewFindings={(jobId, findingId) => setViewingFindings({jobId, findingId})}
+            />
+          )
         ) : selectedProjectId ? (
           <AssessmentsView 
             projectId={selectedProjectId} 

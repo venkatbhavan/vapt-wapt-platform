@@ -240,7 +240,7 @@ export function AssessmentsView({ projectId, onBack, onSelectAssessment }: Asses
                         onClick={() => onSelectAssessment(a.id)}
                         className="text-blue-400 hover:text-blue-300 text-sm font-medium px-3 py-1 bg-blue-500/10 hover:bg-blue-500/20 rounded transition-colors"
                       >
-                        View Scans
+                        View Dashboard
                       </button>
                     </td>
                   </tr>

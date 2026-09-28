@@ -43,6 +43,8 @@ interface Evidence {
 
 interface FindingsViewProps {
   assessmentId: number;
+  initialJobId?: number | null;
+  initialFindingId?: number | null;
   onBack: () => void;
 }
 
@@ -68,7 +70,7 @@ const getRiskColor = (riskLevel: string | null) => {
   }
 };
 
-export function FindingsView({ assessmentId, onBack }: FindingsViewProps) {
+export function FindingsView({ assessmentId, initialJobId, initialFindingId, onBack }: FindingsViewProps) {
   const [scanJobs, setScanJobs] = useState<ScanJob[]>([]);
   const [selectedJob, setSelectedJob] = useState<ScanJob | null>(null);
   
@@ -92,7 +94,10 @@ export function FindingsView({ assessmentId, onBack }: FindingsViewProps) {
       // Sort jobs newest first
       data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       setScanJobs(data);
-      if (data.length > 0 && !selectedJob) {
+      if (initialJobId && !selectedJob) {
+        const job = data.find(j => j.id === initialJobId);
+        setSelectedJob(job || data[0]);
+      } else if (data.length > 0 && !selectedJob) {
         setSelectedJob(data[0]);
       } else if (selectedJob) {
         // Refresh selected job
@@ -142,6 +147,11 @@ export function FindingsView({ assessmentId, onBack }: FindingsViewProps) {
       if (!res.ok) throw new Error('Failed to fetch findings');
       const data: Finding[] = await res.json();
       setFindings(data);
+      
+      if (initialFindingId && !selectedFinding) {
+        const f = data.find(x => x.id === initialFindingId);
+        if (f) handleSelectFinding(f);
+      }
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message || 'API error fetching findings');
