@@ -1,77 +1,86 @@
-import subprocess
+import json
 import logging
-from typing import List, Tuple
+import urllib.request
+import urllib.error
+import urllib.parse
+import time
+from typing import List, Tuple, Dict, Any
 from .base import ScannerAdapter
 from .models import ScannerResult, Finding, ScannerError, EvidenceItem
-from .zap_config import get_zap_config_for_profile, build_zap_command
+from .zap_config import get_zap_config_for_profile
 from .zap_parser import parse_zap_json
 
 logger = logging.getLogger(__name__)
 
 class ZapScannerAdapter(ScannerAdapter):
-    def __init__(self, timeout: int = 600):
+    def __init__(self, api_url: str = "http://127.0.0.1:8080", api_key: str = "VAPT_LOCAL_TEST_KEY_2026", timeout: int = 600):
+        self.api_url = api_url.rstrip("/")
+        self.api_key = api_key
         self.timeout = timeout
 
-    def scan(self, target: str, scan_profile: str) -> ScannerResult:
-        config = get_zap_config_for_profile(scan_profile)
-        cmd = build_zap_command(target, config)
-        
-        json_output, error_msg, returncode = self._execute_zap(cmd)
-        
-        if error_msg and not json_output.strip():
-            # Failed before producing any JSON output
-            raise ScannerError(error_msg)
-            
-        findings = []
-        if json_output.strip():
-            findings = parse_zap_json(json_output)
-            
-        if returncode != 0:
-            # Partial/Error state with some output or fatal failure after partial JSON
-            err_finding = Finding(
-                title="ZAP Scan Completed with Errors",
-                severity="info",
-                description="The ZAP process exited with a non-zero status code, indicating a partial or failed scan.",
-                category="Scanner Error",
-                evidence=[EvidenceItem(
-                    evidence_type="text",
-                    title="ZAP Stderr",
-                    content=error_msg or "Unknown non-zero exit",
-                    source="owasp-zap"
-                )]
-            )
-            findings.append(err_finding)
-            
-        return ScannerResult(
-            scanner="zap",
-            target=target,
-            scan_profile=scan_profile,
-            findings=findings
-        )
-
-    def _execute_zap(self, cmd: List[str]) -> Tuple[str, str, int]:
-        """
-        Executes ZAP safely, returning (json_output, error_message, returncode).
-        Catches timeouts and missing executable gracefully.
-        """
+    def _api_request(self, endpoint: str) -> Dict[str, Any]:
+        url = f"{self.api_url}/JSON/{endpoint}"
+        req = urllib.request.Request(url)
+        req.add_header("X-ZAP-API-Key", self.api_key)
         try:
-            # shell=False ALWAYS for security to prevent command injection
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=self.timeout,
-                shell=False
+            with urllib.request.urlopen(req, timeout=10) as response:
+                return json.loads(response.read().decode('utf-8'))
+        except urllib.error.URLError as e:
+            logger.error(f"ZAP API connection error: {e}")
+            raise ScannerError(f"ZAP API connection failed: {e}")
+        except json.JSONDecodeError as e:
+            logger.error(f"ZAP API decode error: {e}")
+            raise ScannerError(f"Invalid JSON from ZAP API: {e}")
+
+    def scan(self, target: str, scan_profile: str) -> ScannerResult:
+        # We only support passive scan initially as requested
+        config = get_zap_config_for_profile(scan_profile)
+        
+        try:
+            # 1. Start Spider to seed the passive scanner
+            encoded_target = urllib.parse.quote(target, safe='')
+            spider_res = self._api_request(f"spider/action/scan/?url={encoded_target}")
+            scan_id = spider_res.get("scan")
+            
+            if scan_id is None:
+                raise ScannerError(f"Failed to start ZAP spider. Response: {spider_res}")
+
+            # 2. Wait for spider to complete
+            start_time = time.time()
+            while True:
+                if time.time() - start_time > self.timeout:
+                    raise ScannerError(f"ZAP scan timed out after {self.timeout} seconds.")
+                
+                status_res = self._api_request(f"spider/view/status/?scanId={scan_id}")
+                if int(status_res.get("status", 0)) >= 100:
+                    break
+                time.sleep(2)
+                
+            # 3. Wait for passive scanner to finish processing records
+            while True:
+                if time.time() - start_time > self.timeout:
+                    raise ScannerError(f"ZAP passive scan timed out waiting for records to empty.")
+                    
+                records_res = self._api_request("pscan/view/recordsToScan/")
+                if int(records_res.get("recordsToScan", 100)) == 0:
+                    break
+                time.sleep(1)
+
+            # 4. Fetch Alerts
+            alerts_res = self._api_request("core/view/alerts/")
+            
+            # Use the existing parser which was updated to handle flat list of alerts
+            findings = parse_zap_json(json.dumps(alerts_res))
+
+            return ScannerResult(
+                scanner="zap",
+                target=target,
+                scan_profile=scan_profile,
+                findings=findings
             )
             
-            return result.stdout, result.stderr, result.returncode
-
-        except FileNotFoundError:
-            logger.error("ZAP executable not found.")
-            return "", "ZAP executable not found", 1
-        except subprocess.TimeoutExpired:
-            logger.error(f"ZAP scan timed out after {self.timeout} seconds.")
-            return "", "Scan timed out", 1
+        except ScannerError:
+            raise
         except Exception as e:
-            logger.error(f"Unexpected error executing ZAP: {str(e)}")
-            return "", f"Unexpected error: {str(e)}", 1
+            logger.error(f"Unexpected error in ZAP adapter: {e}")
+            raise ScannerError(f"Unexpected error: {str(e)}")

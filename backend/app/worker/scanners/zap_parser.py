@@ -39,8 +39,29 @@ def parse_zap_json(json_content: str) -> List[Finding]:
     except json.JSONDecodeError:
         return findings
 
-    alerts = data.get("alerts", [])
-    for alert in alerts:
+    raw_alerts = data.get("alerts", [])
+    
+    # Group flat alerts by title if they don't have instances
+    grouped_alerts = {}
+    for alert in raw_alerts:
+        title = alert.get("alert", "Unknown ZAP Alert")
+        if title not in grouped_alerts:
+            grouped_alerts[title] = {k: v for k, v in alert.items() if k != "instances"}
+            grouped_alerts[title]["instances"] = []
+                
+        if "instances" in alert and alert["instances"]:
+            grouped_alerts[title]["instances"].extend(alert["instances"])
+        # Otherwise, if it's a flat API response, extract the instance data from the alert itself
+        elif "url" in alert or "evidence" in alert:
+            inst = {
+                "uri": alert.get("url", ""),
+                "param": alert.get("param", ""),
+                "evidence": alert.get("evidence", "")
+            }
+            if inst["uri"] or inst["evidence"]:
+                grouped_alerts[title]["instances"].append(inst)
+
+    for alert in grouped_alerts.values():
         title = alert.get("alert", "Unknown ZAP Alert")
         severity = map_severity(alert.get("risk", "Informational"))
         confidence = map_confidence(alert.get("confidence", "Low"))
