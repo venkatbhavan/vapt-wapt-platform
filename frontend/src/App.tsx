@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Shield, Activity, Database, Server } from 'lucide-react';
+import { ProjectsView } from './components/ProjectsView';
+import { AssessmentsView } from './components/AssessmentsView';
 
 function App() {
   const [apiStatus, setApiStatus] = useState<string>('Checking...');
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
 
   useEffect(() => {
     fetch('http://localhost:8000/api/health')
@@ -46,11 +49,11 @@ function App() {
           <div className="flex justify-between items-start mb-4">
             <div>
               <p className="text-sm text-gray-400">Total Projects</p>
-              <h2 className="text-3xl font-bold text-white mt-1">1</h2>
+              <h2 className="text-3xl font-bold text-white mt-1">--</h2>
             </div>
             <Database className="text-gray-500" size={24} />
           </div>
-          <p className="text-xs text-gray-500">Default workspace</p>
+          <p className="text-xs text-gray-500">Manage your projects below</p>
         </div>
 
         {/* Card 3 */}
@@ -68,16 +71,15 @@ function App() {
       </div>
 
       {/* Main Content Area */}
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-8">
-        <h3 className="text-xl font-bold text-white mb-4">Phase 1 Authorized Scope</h3>
-        <p className="text-gray-400 mb-6 max-w-3xl">
-          Welcome to the VAPT/WAPT platform. This environment is currently in Phase 1 (Foundation). 
-          The interface is running, and the database schema is prepared. 
-          No active security checks, network mapping, or arbitrary command execution is currently enabled.
-        </p>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded transition-colors disabled:opacity-50" disabled>
-          Create New Assessment (Planned)
-        </button>
+      <div className="w-full">
+        {selectedProjectId ? (
+          <AssessmentsView 
+            projectId={selectedProjectId} 
+            onBack={() => setSelectedProjectId(null)} 
+          />
+        ) : (
+          <ProjectsView onSelectProject={setSelectedProjectId} />
+        )}
       </div>
 
     </div>
