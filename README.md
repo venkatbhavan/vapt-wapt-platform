@@ -14,7 +14,7 @@
 
 The **Security Assessment Intelligence Platform** is an authorized security assessment platform designed to bring vulnerability assessment and penetration testing workflows into a single, explainable system.
 
-Instead of simply reporting scanner output, the platform is designed to connect:
+Instead of simply reporting scanner output, the platform connects:
 
 ```text
 Target
@@ -35,6 +35,6 @@ Compliance Mapping
    ↓
 Remediation
    ↓
-Retesting
+Verified Retesting
    ↓
 Security Posture
