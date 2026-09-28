@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy.orm import Session
 from app.models.assessment import ScanJob, Assessment, ScanJobStatus
-from .mock_scanner import MockScanner
+from .scanners import get_scanner
 
 def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
     # 1. Load ScanJob
@@ -37,19 +37,20 @@ def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
     scan_job.started_at = datetime.utcnow()
     db.commit()
 
-    # 6. Execute Mock Scanner
+    # 6. Execute Scanner Adapter
     try:
-        result_json = MockScanner.run_scan(target=assessment.target, scan_profile=scan_job.scan_profile)
+        scanner = get_scanner(scan_job.scan_profile)
+        result = scanner.scan(target=assessment.target, scan_profile=scan_job.scan_profile)
         
         # 7. Transition to Completed
         scan_job.status = ScanJobStatus.completed
-        scan_job.result_json = result_json
+        scan_job.result_json = result.model_dump_json()
         scan_job.completed_at = datetime.utcnow()
         db.commit()
     except Exception as e:
         # 8. Transition to Failed on internal error
         scan_job.status = ScanJobStatus.failed
-        scan_job.error_message = f"Mock scanner error: {str(e)}"
+        scan_job.error_message = f"Scanner error: {str(e)}"
         scan_job.completed_at = datetime.utcnow()
         db.commit()
 
