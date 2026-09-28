@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 from app.models.assessment import FindingSeverity, FindingConfidence, FindingStatus, EvidenceType
+from app.risk.models import RiskLevel
 
 class EvidenceBase(BaseModel):
     evidence_type: EvidenceType
@@ -29,7 +30,6 @@ class FindingBase(BaseModel):
     status: FindingStatus = FindingStatus.open
     
     # Risk fields
-    from app.risk.models import RiskLevel
     risk_score: Optional[float] = None
     risk_level: Optional[RiskLevel] = None
     risk_rationale: Optional[str] = None
