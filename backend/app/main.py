@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import projects
+from app.api import projects, assessments
 from app.models.assessment import Base
 from app.core.database import engine
 
@@ -23,6 +23,7 @@ app.add_middleware(
 )
 
 app.include_router(projects.router)
+app.include_router(assessments.router)
 
 
 @app.get("/api/health")

@@ -1,21 +1,21 @@
-from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Boolean
+from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
 import enum
 
 Base = declarative_base()
 
-class ScanProfile(enum.Enum):
-    PASSIVE = "Passive"
-    SAFE = "Safe"
-    STANDARD = "Standard"
-    DEEP = "Deep"
+class ScanProfile(str, enum.Enum):
+    passive = "passive"
+    safe = "safe"
+    standard = "standard"
+    deep = "deep"
 
-class AssessmentStatus(enum.Enum):
-    DRAFT = "Draft"
-    RUNNING = "Running"
-    COMPLETED = "Completed"
-    FAILED = "Failed"
+class AssessmentStatus(str, enum.Enum):
+    draft = "draft"
+    running = "running"
+    completed = "completed"
+    failed = "failed"
 
 class Project(Base):
     __tablename__ = "projects"
@@ -26,6 +26,8 @@ class Project(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    assessments = relationship("Assessment", back_populates="project", cascade="all, delete-orphan")
+
 class Assessment(Base):
     __tablename__ = "assessments"
     
@@ -33,8 +35,11 @@ class Assessment(Base):
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
     name = Column(String, index=True, nullable=False)
     target = Column(String, nullable=False)
-    scope_rules = Column(String, nullable=False) # Simplified for Phase 1
-    scan_profile = Column(Enum(ScanProfile), default=ScanProfile.PASSIVE)
-    status = Column(Enum(AssessmentStatus), default=AssessmentStatus.DRAFT)
+    authorization_confirmed = Column(Boolean, nullable=False, default=False)
+    scope = Column(String, nullable=False)
+    scan_profile = Column(Enum(ScanProfile), default=ScanProfile.passive)
+    status = Column(Enum(AssessmentStatus), default=AssessmentStatus.draft)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    project = relationship("Project", back_populates="assessments")
