@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Shield, Activity, Database, Server } from 'lucide-react';
 import { ProjectsView } from './components/ProjectsView';
 import { AssessmentsView } from './components/AssessmentsView';
+import { FindingsView } from './components/FindingsView';
 
 function App() {
   const [apiStatus, setApiStatus] = useState<string>('Checking...');
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [selectedAssessmentId, setSelectedAssessmentId] = useState<number | null>(null);
 
   useEffect(() => {
     fetch('http://localhost:8000/api/health')
@@ -72,10 +74,16 @@ function App() {
 
       {/* Main Content Area */}
       <div className="w-full">
-        {selectedProjectId ? (
+        {selectedAssessmentId ? (
+          <FindingsView 
+            assessmentId={selectedAssessmentId} 
+            onBack={() => setSelectedAssessmentId(null)} 
+          />
+        ) : selectedProjectId ? (
           <AssessmentsView 
             projectId={selectedProjectId} 
-            onBack={() => setSelectedProjectId(null)} 
+            onBack={() => setSelectedProjectId(null)}
+            onSelectAssessment={setSelectedAssessmentId}
           />
         ) : (
           <ProjectsView onSelectProject={setSelectedProjectId} />

@@ -16,9 +16,10 @@ interface Assessment {
 interface AssessmentsViewProps {
   projectId: number;
   onBack: () => void;
+  onSelectAssessment: (assessmentId: number) => void;
 }
 
-export function AssessmentsView({ projectId, onBack }: AssessmentsViewProps) {
+export function AssessmentsView({ projectId, onBack, onSelectAssessment }: AssessmentsViewProps) {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -204,7 +205,8 @@ export function AssessmentsView({ projectId, onBack }: AssessmentsViewProps) {
                   <th className="pb-3 pr-4 font-medium">Profile</th>
                   <th className="pb-3 pr-4 font-medium">Status</th>
                   <th className="pb-3 pr-4 font-medium">Auth</th>
-                  <th className="pb-3 font-medium">Created</th>
+                  <th className="pb-3 pr-4 font-medium">Created</th>
+                  <th className="pb-3"></th>
                 </tr>
               </thead>
               <tbody className="text-sm">
@@ -230,8 +232,16 @@ export function AssessmentsView({ projectId, onBack }: AssessmentsViewProps) {
                         <span className="text-red-500 text-xs">Missing</span>
                       )}
                     </td>
-                    <td className="py-3 text-gray-500">
+                    <td className="py-3 pr-4 text-gray-500">
                       {new Date(a.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 text-right">
+                      <button
+                        onClick={() => onSelectAssessment(a.id)}
+                        className="text-blue-400 hover:text-blue-300 text-sm font-medium px-3 py-1 bg-blue-500/10 hover:bg-blue-500/20 rounded transition-colors"
+                      >
+                        View Scans
+                      </button>
                     </td>
                   </tr>
                 ))}
