@@ -45,14 +45,23 @@ def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
         
         # Persist Findings and Evidence
         from app.models.assessment import Finding as FindingModel, FindingSeverity, Evidence as EvidenceModel, EvidenceType
+        from app.risk.engine import calculate_risk
         
         for f_data in result.findings:
             severity_mapped = f_data.severity if hasattr(FindingSeverity, f_data.severity) else "info"
+            
+            # Extract confidence if available; mock scanner doesn't produce it currently, but handle safely
+            confidence = getattr(f_data, 'confidence', None)
+            risk_result = calculate_risk(severity_mapped, confidence)
+            
             db_finding = FindingModel(
                 scan_job_id=scan_job.id,
                 title=f_data.title,
                 description=f_data.description,
-                severity=severity_mapped
+                severity=severity_mapped,
+                risk_score=risk_result.score,
+                risk_level=risk_result.level,
+                risk_rationale=risk_result.rationale
             )
             db.add(db_finding)
             db.flush() # flush to get the finding id

@@ -41,6 +41,9 @@ def test_findings_persistence():
         finding = findings[0]
         assert finding.title == "Mock Security Finding"
         assert finding.severity == "low"
+        assert finding.risk_score == 0.75 # low(1) * default medium(0.75)
+        assert finding.risk_level == "low"
+        assert "Confidence was not provided" in finding.risk_rationale
         
         # Verify evidence was created
         evidence_list = db.query(Evidence).filter(Evidence.finding_id == finding.id).all()

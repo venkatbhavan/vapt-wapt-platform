@@ -27,6 +27,12 @@ class FindingBase(BaseModel):
     impact: Optional[str] = None
     remediation: Optional[str] = None
     status: FindingStatus = FindingStatus.open
+    
+    # Risk fields
+    from app.risk.models import RiskLevel
+    risk_score: Optional[float] = None
+    risk_level: Optional[RiskLevel] = None
+    risk_rationale: Optional[str] = None
 
 class Finding(FindingBase):
     id: int

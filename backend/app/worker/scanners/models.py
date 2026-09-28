@@ -11,6 +11,7 @@ class Finding(BaseModel):
     title: str
     severity: str
     description: str
+    confidence: Optional[str] = None
     evidence: List[EvidenceItem] = Field(default_factory=list)
 
 class ScannerResult(BaseModel):

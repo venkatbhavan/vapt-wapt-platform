@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Boolean, Float
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
 import enum
@@ -108,6 +108,13 @@ class Finding(Base):
     impact = Column(String, nullable=True)
     remediation = Column(String, nullable=True)
     status = Column(Enum(FindingStatus), default=FindingStatus.open)
+    
+    # Risk Engine Fields
+    from app.risk.models import RiskLevel
+    risk_score = Column(Float, nullable=True)
+    risk_level = Column(Enum(RiskLevel), nullable=True)
+    risk_rationale = Column(String, nullable=True)
+    
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
