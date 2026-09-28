@@ -43,3 +43,25 @@ class Assessment(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     project = relationship("Project", back_populates="assessments")
+    scan_jobs = relationship("ScanJob", back_populates="assessment", cascade="all, delete-orphan")
+
+class ScanJobStatus(str, enum.Enum):
+    queued = "queued"
+    running = "running"
+    completed = "completed"
+    failed = "failed"
+    cancelled = "cancelled"
+
+class ScanJob(Base):
+    __tablename__ = "scan_jobs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    assessment_id = Column(Integer, ForeignKey("assessments.id"), nullable=False)
+    scan_profile = Column(Enum(ScanProfile), nullable=False)
+    status = Column(Enum(ScanJobStatus), default=ScanJobStatus.queued)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    started_at = Column(DateTime, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
+    error_message = Column(String, nullable=True)
+
+    assessment = relationship("Assessment", back_populates="scan_jobs")
