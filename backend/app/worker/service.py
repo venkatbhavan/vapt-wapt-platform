@@ -2,6 +2,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from app.models.assessment import ScanJob, Assessment, ScanJobStatus
 from .scanners import get_scanner
+from app.core.database import SessionLocal
 
 def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
     # 1. Load ScanJob
@@ -56,3 +57,16 @@ def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
 
     db.refresh(scan_job)
     return scan_job
+
+def run_scan_job_background(scan_job_id: int):
+    """
+    Background wrapper to safely execute a scan job using its own database session.
+    """
+    db = SessionLocal()
+    try:
+        process_scan_job(db, scan_job_id)
+    except Exception as e:
+        # Errors handled gracefully by process_scan_job, but catch unexpected failures here just in case.
+        print(f"Background task execution aborted for Job ID {scan_job_id}: {e}")
+    finally:
+        db.close()
