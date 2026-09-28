@@ -59,6 +59,11 @@ def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
                 title=f_data.title,
                 description=f_data.description,
                 severity=severity_mapped,
+                confidence=confidence,
+                category=getattr(f_data, 'category', None),
+                location=getattr(f_data, 'location', None),
+                impact=getattr(f_data, 'impact', None),
+                remediation=getattr(f_data, 'remediation', None),
                 risk_score=risk_result.score,
                 risk_level=risk_result.level,
                 risk_rationale=risk_result.rationale
