@@ -3,6 +3,23 @@ from typing import Optional, List
 from datetime import datetime
 
 # ----------------------------------------
+# Findings (Attack Surface Scope)
+# ----------------------------------------
+class AttackSurfaceFinding(BaseModel):
+    id: int
+    title: str
+    severity: str
+    confidence: str
+    risk_score: Optional[float] = None
+    risk_level: Optional[str] = None
+    status: str
+    category: Optional[str] = None
+    location: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ----------------------------------------
 # Endpoints
 # ----------------------------------------
 class WebEndpointBase(BaseModel):
@@ -20,6 +37,7 @@ class WebEndpointResponse(WebEndpointBase):
     web_application_id: int
     created_at: datetime
     updated_at: datetime
+    findings: List[AttackSurfaceFinding] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -45,6 +63,7 @@ class WebApplicationResponse(WebApplicationBase):
     created_at: datetime
     updated_at: datetime
     endpoints: List[WebEndpointResponse] = []
+    findings: List[AttackSurfaceFinding] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -70,6 +89,7 @@ class NetworkServiceResponse(NetworkServiceBase):
     created_at: datetime
     updated_at: datetime
     web_applications: List[WebApplicationResponse] = []
+    findings: List[AttackSurfaceFinding] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -94,5 +114,13 @@ class AssetResponse(AssetBase):
     updated_at: datetime
     services: List[NetworkServiceResponse] = []
     web_applications: List[WebApplicationResponse] = []
+    findings: List[AttackSurfaceFinding] = []
 
     model_config = ConfigDict(from_attributes=True)
+
+# ----------------------------------------
+# Root Response
+# ----------------------------------------
+class AttackSurfaceRootResponse(BaseModel):
+    assessment_id: int
+    assets: List[AssetResponse] = []

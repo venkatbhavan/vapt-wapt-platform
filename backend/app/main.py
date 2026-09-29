@@ -28,6 +28,9 @@ app.include_router(assessments.router)
 app.include_router(scan_jobs.router)
 app.include_router(findings.router)
 
+from app.api import attack_surface
+app.include_router(attack_surface.router)
+
 
 
 
