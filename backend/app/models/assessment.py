@@ -20,7 +20,7 @@ class AssessmentStatus(str, enum.Enum):
 
 class Project(Base):
     __tablename__ = "projects"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True, nullable=False)
     description = Column(String, nullable=True)
@@ -31,7 +31,7 @@ class Project(Base):
 
 class Assessment(Base):
     __tablename__ = "assessments"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
     name = Column(String, index=True, nullable=False)
@@ -45,6 +45,7 @@ class Assessment(Base):
 
     project = relationship("Project", back_populates="assessments")
     scan_jobs = relationship("ScanJob", back_populates="assessment", cascade="all, delete-orphan")
+    assets = relationship("Asset", back_populates="assessment", cascade="all, delete-orphan")
 
 class ScanJobStatus(str, enum.Enum):
     queued = "queued"
@@ -55,7 +56,7 @@ class ScanJobStatus(str, enum.Enum):
 
 class ScanJob(Base):
     __tablename__ = "scan_jobs"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     assessment_id = Column(Integer, ForeignKey("assessments.id"), nullable=False)
     scan_profile = Column(Enum(ScanProfile), nullable=False)
@@ -110,18 +111,29 @@ class Finding(Base):
     impact = Column(String, nullable=True)
     remediation = Column(String, nullable=True)
     status = Column(Enum(FindingStatus), default=FindingStatus.open)
-    
+
     # Risk Engine Fields
     from app.risk.models import RiskLevel
     risk_score = Column(Float, nullable=True)
     risk_level = Column(Enum(RiskLevel), nullable=True)
     risk_rationale = Column(String, nullable=True)
-    
+
+    # Phase 6D: Correlate Findings to Attack Surface
+    asset_id = Column(Integer, ForeignKey("assets.id", ondelete="SET NULL"), nullable=True)
+    network_service_id = Column(Integer, ForeignKey("network_services.id", ondelete="SET NULL"), nullable=True)
+    web_application_id = Column(Integer, ForeignKey("web_applications.id", ondelete="SET NULL"), nullable=True)
+    web_endpoint_id = Column(Integer, ForeignKey("web_endpoints.id", ondelete="SET NULL"), nullable=True)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     scan_job = relationship("ScanJob", back_populates="findings")
     evidence_list = relationship("Evidence", back_populates="finding", cascade="all, delete-orphan")
+
+    asset = relationship("Asset", back_populates="findings")
+    network_service = relationship("NetworkService", back_populates="findings")
+    web_application = relationship("WebApplication", back_populates="findings")
+    web_endpoint = relationship("WebEndpoint", back_populates="findings")
 
 class Evidence(Base):
     __tablename__ = "evidence"
@@ -135,4 +147,7 @@ class Evidence(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     finding = relationship("Finding", back_populates="evidence_list")
+
+# Import attack_surface at the end to ensure tables are registered with Base metadata
+import app.models.attack_surface
 
