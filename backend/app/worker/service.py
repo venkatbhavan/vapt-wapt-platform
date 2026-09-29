@@ -142,6 +142,144 @@ def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
                         if s_data.extra_info:
                             svc.extra_info = s_data.extra_info
 
+        # Ingestion of Web Attack Surface Data (Phase 6C)
+        if hasattr(result, 'web_applications') and result.web_applications:
+            import socket
+            import ipaddress
+            import logging
+
+            def is_ip_address(addr: str) -> bool:
+                try:
+                    ipaddress.ip_address(addr)
+                    return True
+                except ValueError:
+                    return False
+
+            from app.models.attack_surface import WebApplication, WebEndpoint
+            for w_data in result.web_applications:
+                # 1. Identity Resolution Strategy
+                is_ip = is_ip_address(w_data.hostname)
+                asset = None
+
+                if is_ip:
+                    asset = db.query(Asset).filter(
+                        Asset.assessment_id == assessment.id,
+                        Asset.ip_address == w_data.hostname
+                    ).first()
+                else:
+                    # Hostname-first strategy
+                    asset = db.query(Asset).filter(
+                        Asset.assessment_id == assessment.id,
+                        Asset.hostname == w_data.hostname
+                    ).first()
+
+                    if not asset:
+                        # Attempt safe resolution to find an existing IP
+                        try:
+                            resolved_ip = socket.gethostbyname(w_data.hostname)
+                            asset = db.query(Asset).filter(
+                                Asset.assessment_id == assessment.id,
+                                Asset.ip_address == resolved_ip
+                            ).first()
+                        except Exception:
+                            pass
+
+                # 2. Asset Creation with Semantic Safety
+                if not asset:
+                    if is_ip:
+                        ip_to_use = w_data.hostname
+                        host_to_use = None
+                    else:
+                        try:
+                            ip_to_use = socket.gethostbyname(w_data.hostname)
+                        except Exception:
+                            ip_to_use = None
+                        host_to_use = w_data.hostname
+
+                    if not ip_to_use:
+                        logging.getLogger(__name__).warning(
+                            f"Schema limitation: Cannot ingest attack surface for {w_data.hostname} because it cannot be resolved to an IP address."
+                        )
+                        continue # Skip to next web_application
+
+                    asset = Asset(
+                        assessment_id=assessment.id,
+                        ip_address=ip_to_use,
+                        hostname=host_to_use
+                    )
+                    db.add(asset)
+                    db.flush()
+
+
+                # 2. Find or create NetworkService
+                svc = db.query(NetworkService).filter(
+                    NetworkService.asset_id == asset.id,
+                    NetworkService.port == w_data.port,
+                    NetworkService.protocol == "tcp"
+                ).first()
+
+                if not svc:
+                    svc = NetworkService(
+                        asset_id=asset.id,
+                        port=w_data.port,
+                        protocol="tcp",
+                        state="open",
+                        service_name=w_data.scheme
+                    )
+                    db.add(svc)
+                    db.flush()
+
+                # 3. Find or Create Web Application
+                app = db.query(WebApplication).filter(
+                    WebApplication.asset_id == asset.id,
+                    WebApplication.base_url == w_data.base_url
+                ).first()
+
+                if not app:
+                    app = WebApplication(
+                        asset_id=asset.id,
+                        network_service_id=svc.id,
+                        base_url=w_data.base_url,
+                        hostname=w_data.hostname,
+                        port=w_data.port,
+                        scheme=w_data.scheme,
+                        title=w_data.title,
+                        tech_info=w_data.tech_info
+                    )
+                    db.add(app)
+                    db.flush()
+                else:
+                    if w_data.title:
+                        app.title = w_data.title
+                    if w_data.tech_info:
+                        app.tech_info = w_data.tech_info
+
+                # 4. Find or Create Endpoints
+                for ep_data in w_data.endpoints:
+                    ep = db.query(WebEndpoint).filter(
+                        WebEndpoint.web_application_id == app.id,
+                        WebEndpoint.path == ep_data.path,
+                        WebEndpoint.method == ep_data.method
+                    ).first()
+
+                    if not ep:
+                        ep = WebEndpoint(
+                            web_application_id=app.id,
+                            path=ep_data.path,
+                            method=ep_data.method,
+                            status_code=ep_data.status_code,
+                            content_type=ep_data.content_type,
+                            source=ep_data.discovered_from
+                        )
+                        db.add(ep)
+                    else:
+                        if ep_data.status_code is not None:
+                            ep.status_code = ep_data.status_code
+                        if ep_data.content_type is not None:
+                            ep.content_type = ep_data.content_type
+                        if ep_data.discovered_from is not None:
+                            ep.source = ep_data.discovered_from
+
         # 7. Transition to Completed
         scan_job.status = ScanJobStatus.completed
         scan_job.result_json = result.model_dump_json()

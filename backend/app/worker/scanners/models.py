@@ -37,9 +37,27 @@ class HostObservation(BaseModel):
     os: Optional[str] = None
     services: List[ServiceObservation] = Field(default_factory=list)
 
+class WebEndpointObservation(BaseModel):
+    url: str
+    path: str
+    method: str
+    status_code: Optional[int] = None
+    content_type: Optional[str] = None
+    discovered_from: Optional[str] = None
+
+class WebApplicationObservation(BaseModel):
+    base_url: str
+    scheme: str
+    hostname: str
+    port: int
+    title: Optional[str] = None
+    tech_info: Optional[str] = None
+    endpoints: List[WebEndpointObservation] = Field(default_factory=list)
+
 class ScannerResult(BaseModel):
     scanner: str
     target: str
     scan_profile: str
     findings: List[Finding] = Field(default_factory=list)
     hosts: List[HostObservation] = Field(default_factory=list)
+    web_applications: List[WebApplicationObservation] = Field(default_factory=list)

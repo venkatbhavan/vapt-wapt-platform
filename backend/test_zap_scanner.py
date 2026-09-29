@@ -104,8 +104,8 @@ class TestZapScanner(unittest.TestCase):
             adapter.scan("http://127.0.0.1", "passive")
 
     def test_malformed_json_safe(self):
-        self.assertEqual(parse_zap_json(""), [])
-        self.assertEqual(parse_zap_json("{ invalid json"), [])
+        self.assertEqual(parse_zap_json("")[0], [])
+        self.assertEqual(parse_zap_json("{ invalid json")[0], [])
 
     def test_zap_json_parsing(self):
         json_data = {
@@ -124,7 +124,7 @@ class TestZapScanner(unittest.TestCase):
                 }
             ]
         }
-        findings = parse_zap_json(json.dumps(json_data))
+        findings, _ = parse_zap_json(json.dumps(json_data))
         self.assertEqual(len(findings), 2)
         self.assertEqual(findings[0].title, "Alert 1")
         self.assertEqual(findings[1].title, "Alert 2")
@@ -155,7 +155,7 @@ class TestZapScanner(unittest.TestCase):
                 "instances": [{"uri": "http://127.0.0.1/test"}]
             }]
         }
-        f = parse_zap_json(json.dumps(json_data))[0]
+        f = parse_zap_json(json.dumps(json_data))[0][0]
         self.assertEqual(f.title, "Test Alert")
         self.assertEqual(f.severity, "medium")
         self.assertEqual(f.confidence, "high")
@@ -176,7 +176,7 @@ class TestZapScanner(unittest.TestCase):
                 ]
             }]
         }
-        f = parse_zap_json(json.dumps(json_data))[0]
+        f = parse_zap_json(json.dumps(json_data))[0][0]
         self.assertEqual(f.location, "http://127.0.0.1/1, http://127.0.0.1/2")
         self.assertIn("found with 2 parameter/attack variations", f.description)
         self.assertEqual(len(f.evidence), 2)

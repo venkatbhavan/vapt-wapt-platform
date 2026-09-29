@@ -1,7 +1,8 @@
 import re
 import json
-from typing import List
-from .models import Finding, EvidenceItem
+from urllib.parse import urlparse
+from typing import List, Tuple, Dict, Optional
+from .models import Finding, EvidenceItem, WebApplicationObservation, WebEndpointObservation
 
 def map_severity(zap_risk: str) -> str:
     risk = zap_risk.lower().strip()
@@ -28,15 +29,91 @@ def redact_secrets(text: str) -> str:
     text = re.sub(r'(?i)(password\s*[:=]\s*)[^\r\n&]+', r'\1[REDACTED]', text)
     return text
 
-def parse_zap_json(json_content: str) -> List[Finding]:
+def normalize_url(raw_url: str, method: str = "GET") -> Optional[Tuple[str, str, str, int, str, str]]:
+    if not raw_url:
+        return None
+
+    try:
+        parsed = urlparse(raw_url)
+        if not parsed.scheme or not parsed.netloc:
+            return None
+
+        scheme = parsed.scheme.lower()
+        hostname = parsed.hostname.lower() if parsed.hostname else ""
+        if not hostname:
+            return None
+
+        if parsed.port:
+            port = parsed.port
+        else:
+            port = 443 if scheme == "https" else 80
+
+        base_url = f"{scheme}://{hostname}"
+        if (scheme == "http" and port != 80) or (scheme == "https" and port != 443):
+            base_url += f":{port}"
+
+        path = parsed.path
+        if not path:
+            path = "/"
+        if not path.startswith("/"):
+            path = "/" + path
+
+        norm_method = method.upper().strip() if method else "GET"
+        if not norm_method:
+            norm_method = "GET"
+
+        return base_url, scheme, hostname, port, path, norm_method
+
+    except Exception:
+        return None
+
+
+def parse_zap_json(json_content: str, raw_urls: List[str] = None) -> Tuple[List[Finding], List[WebApplicationObservation]]:
     findings = []
+    web_apps_map: Dict[str, WebApplicationObservation] = {}
+    endpoints_set = set() # (base_url, path, method)
+
+    if raw_urls is None:
+        raw_urls = []
+
+    def _process_url(url: str, method: str = "GET", discovered_from: str = None):
+        norm = normalize_url(url, method)
+        if not norm:
+            return
+        base_url, scheme, hostname, port, path, norm_method = norm
+
+        if base_url not in web_apps_map:
+            web_apps_map[base_url] = WebApplicationObservation(
+                base_url=base_url,
+                scheme=scheme,
+                hostname=hostname,
+                port=port,
+                endpoints=[]
+            )
+
+        ep_key = (base_url, path, norm_method)
+        if ep_key not in endpoints_set:
+            endpoints_set.add(ep_key)
+            ep = WebEndpointObservation(
+                url=url, # Keep first seen full URL for reference
+                path=path,
+                method=norm_method,
+                discovered_from=discovered_from
+            )
+            web_apps_map[base_url].endpoints.append(ep)
+
+
+    # Pre-process raw urls
+    for r_url in raw_urls:
+        _process_url(r_url, discovered_from="zap_spider")
+
     if not json_content or not json_content.strip():
-        return findings
+        return findings, list(web_apps_map.values())
 
     try:
         data = json.loads(json_content)
     except json.JSONDecodeError:
-        return findings
+        return findings, list(web_apps_map.values())
 
     raw_alerts = data.get("alerts", [])
 
@@ -44,6 +121,10 @@ def parse_zap_json(json_content: str) -> List[Finding]:
     for alert in raw_alerts:
         title = alert.get("name") or alert.get("alert") or "Unknown ZAP Alert"
         url = alert.get("url", "")
+
+        if url:
+            _process_url(url, method=alert.get("method", "GET"), discovered_from="zap_alert")
+
         key = f"{title}::{url}"
 
         if key not in grouped_alerts:
@@ -57,7 +138,8 @@ def parse_zap_json(json_content: str) -> List[Finding]:
                 "uri": alert.get("url", ""),
                 "param": alert.get("param", ""),
                 "attack": alert.get("attack", ""),
-                "evidence": alert.get("evidence", "")
+                "evidence": alert.get("evidence", ""),
+                "method": alert.get("method", "GET")
             }
             grouped_alerts[key]["instances"].append(inst)
 
@@ -80,6 +162,13 @@ def parse_zap_json(json_content: str) -> List[Finding]:
             description += f"\n\nReferences:\n{reference}"
 
         instances = alert.get("instances", [])
+
+        # Also map instances' urls for attack surface!
+        for inst in instances:
+            i_uri = inst.get("uri")
+            i_meth = inst.get("method", "GET")
+            if i_uri:
+                _process_url(i_uri, method=i_meth, discovered_from="zap_alert_instance")
 
         unique_uris = list(dict.fromkeys(inst.get("uri", "") for inst in instances if inst.get("uri")))
         location = ", ".join(unique_uris)[:255] if unique_uris else ""
@@ -121,4 +210,4 @@ def parse_zap_json(json_content: str) -> List[Finding]:
             evidence=evidence_list
         ))
 
-    return findings
+    return findings, list(web_apps_map.values())

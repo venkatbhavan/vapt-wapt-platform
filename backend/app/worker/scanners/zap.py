@@ -95,13 +95,19 @@ class ZapScannerAdapter(ScannerAdapter):
 
             alerts_json = alerts_json.replace("host.docker.internal", "127.0.0.1")
 
-            findings = parse_zap_json(alerts_json)
+            # Extract full known URLs for web attack surface
+            urls_res = self._api_request(f"core/view/urls/?baseurl={encoded_target}")
+            urls_list = urls_res.get("urls", [])
+            urls_list = [u.replace("host.docker.internal", "127.0.0.1") for u in urls_list]
+
+            findings, web_apps = parse_zap_json(alerts_json, urls_list)
 
             return ScannerResult(
                 scanner="zap",
                 target=target,
                 scan_profile=scan_profile,
-                findings=findings
+                findings=findings,
+                web_applications=web_apps
             )
         except ScannerError:
             raise
