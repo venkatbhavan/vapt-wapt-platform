@@ -22,8 +22,24 @@ class Finding(BaseModel):
     remediation: Optional[str] = None
     evidence: List[EvidenceItem] = Field(default_factory=list)
 
+class ServiceObservation(BaseModel):
+    port: int
+    protocol: str
+    state: str
+    service_name: Optional[str] = None
+    service_product: Optional[str] = None
+    service_version: Optional[str] = None
+    extra_info: Optional[str] = None
+
+class HostObservation(BaseModel):
+    ip_address: str
+    hostname: Optional[str] = None
+    os: Optional[str] = None
+    services: List[ServiceObservation] = Field(default_factory=list)
+
 class ScannerResult(BaseModel):
     scanner: str
     target: str
     scan_profile: str
-    findings: List[Finding]
+    findings: List[Finding] = Field(default_factory=list)
+    hosts: List[HostObservation] = Field(default_factory=list)

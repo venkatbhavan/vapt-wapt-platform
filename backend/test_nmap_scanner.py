@@ -129,8 +129,9 @@ class TestNmapScanner(unittest.TestCase):
     # XML open ports
     def test_xml_one_open_port(self):
         xml_data = """<?xml version="1.0"?><nmaprun><host><status state="up"/><address addr="192.168.1.1"/><ports><port protocol="tcp" portid="80"><state state="open" reason="syn-ack"/></port></ports></host></nmaprun>"""
-        findings = parse_nmap_xml(xml_data)
+        findings, hosts = parse_nmap_xml(xml_data)
         self.assertEqual(len(findings), 1)
+        self.assertEqual(len(hosts), 1)
 
     # Missing Nmap raises ScannerError
     @patch("subprocess.run")

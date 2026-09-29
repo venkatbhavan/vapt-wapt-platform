@@ -23,8 +23,9 @@ class NmapScannerAdapter(ScannerAdapter):
             raise ScannerError(error_msg)
             
         findings = []
+        hosts = []
         if xml_output.strip():
-            findings = parse_nmap_xml(xml_output)
+            findings, hosts = parse_nmap_xml(xml_output)
             
         if returncode != 0:
             # Partial/Error state with some XML
@@ -46,7 +47,8 @@ class NmapScannerAdapter(ScannerAdapter):
             scanner="nmap",
             target=target,
             scan_profile=scan_profile,
-            findings=findings
+            findings=findings,
+            hosts=hosts
         )
 
     def _execute_nmap(self, cmd: List[str]) -> Tuple[str, str, int]:

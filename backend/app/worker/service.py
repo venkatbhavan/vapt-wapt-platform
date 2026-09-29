@@ -42,18 +42,18 @@ def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
     try:
         scanner = get_scanner(scan_job.scan_profile)
         result = scanner.scan(target=assessment.target, scan_profile=scan_job.scan_profile)
-        
+
         # Persist Findings and Evidence
         from app.models.assessment import Finding as FindingModel, FindingSeverity, Evidence as EvidenceModel, EvidenceType
         from app.risk.engine import calculate_risk
-        
+
         for f_data in result.findings:
             severity_mapped = f_data.severity if hasattr(FindingSeverity, f_data.severity) else "info"
-            
+
             # Extract confidence if available; mock scanner doesn't produce it currently, but handle safely
             confidence = getattr(f_data, 'confidence', None)
             risk_result = calculate_risk(severity_mapped, confidence)
-            
+
             db_finding = FindingModel(
                 scan_job_id=scan_job.id,
                 title=f_data.title,
@@ -82,13 +82,73 @@ def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
                 )
                 db.add(db_evidence)
 
-            
+        # Ingestion of Attack Surface Data (Phase 6B)
+        from app.models.attack_surface import Asset, NetworkService
+
+        if hasattr(result, 'hosts') and result.hosts:
+            for h_data in result.hosts:
+                # 1. Find or create Asset idempotenly
+                asset = db.query(Asset).filter(
+                    Asset.assessment_id == assessment.id,
+                    Asset.ip_address == h_data.ip_address
+                ).first()
+
+                if not asset:
+                    asset = Asset(
+                        assessment_id=assessment.id,
+                        ip_address=h_data.ip_address,
+                        hostname=h_data.hostname,
+                        os=h_data.os
+                    )
+                    db.add(asset)
+                    db.flush()
+                else:
+                    # Update mutable fields
+                    if h_data.hostname and not asset.hostname:
+                        asset.hostname = h_data.hostname
+                    if h_data.os and not asset.os:
+                        asset.os = h_data.os
+
+                # 2. Find or create Services idempotenly
+                for s_data in h_data.services:
+                    svc = db.query(NetworkService).filter(
+                        NetworkService.asset_id == asset.id,
+                        NetworkService.port == s_data.port,
+                        NetworkService.protocol == s_data.protocol
+                    ).first()
+
+                    if not svc:
+                        svc = NetworkService(
+                            asset_id=asset.id,
+                            port=s_data.port,
+                            protocol=s_data.protocol,
+                            state=s_data.state,
+                            service_name=s_data.service_name,
+                            service_product=s_data.service_product,
+                            service_version=s_data.service_version,
+                            extra_info=s_data.extra_info
+                        )
+                        db.add(svc)
+                    else:
+                        # Update mutable fields with better information
+                        if s_data.state:
+                            svc.state = s_data.state
+                        if s_data.service_name and s_data.service_name != 'unknown':
+                            svc.service_name = s_data.service_name
+                        if s_data.service_product:
+                            svc.service_product = s_data.service_product
+                        if s_data.service_version:
+                            svc.service_version = s_data.service_version
+                        if s_data.extra_info:
+                            svc.extra_info = s_data.extra_info
+
         # 7. Transition to Completed
         scan_job.status = ScanJobStatus.completed
         scan_job.result_json = result.model_dump_json()
         scan_job.completed_at = datetime.utcnow()
         db.commit()
     except Exception as e:
+        db.rollback()
         # 8. Transition to Failed on internal error
         scan_job.status = ScanJobStatus.failed
         scan_job.error_message = f"Scanner error: {str(e)}"
