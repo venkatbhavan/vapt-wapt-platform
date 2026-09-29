@@ -174,10 +174,6 @@ class TestNmapScanner(unittest.TestCase):
         with self.assertRaisesRegex(ScannerError, "Fatal error: Nmap cannot run"):
             self.adapter.scan("127.0.0.1", "safe")
 
-    # Verify MockScannerAdapter still works
-    def test_mock_scanner_registry(self):
-        scanner = get_scanner("standard")
-        self.assertIsInstance(scanner, MockScannerAdapter)
 
     # No arbitrary flags
     def test_no_arbitrary_flags(self):

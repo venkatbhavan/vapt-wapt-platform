@@ -16,10 +16,14 @@ Base.metadata.create_all(bind=engine)
 database.SessionLocal = SessionLocal
 
 from app.worker.service import process_scan_job, run_scan_job_background
-
+from app.worker.scanners.mock import MockScannerAdapter
+import app.worker.service
 
 def test_worker():
     db = SessionLocal()
+    # Explicitly mock scanner selection for tests so production doesn't need to guess
+    app.worker.service.get_scanner = lambda profile: MockScannerAdapter()
+
     try:
         # Seed test data
         project = Project(name="Test Project")
@@ -36,7 +40,7 @@ def test_worker():
             authorization_confirmed=True
         )
         db.add(assessment_auth)
-        
+
         # 2. Unauthorized Assessment
         assessment_no_auth = Assessment(
             project_id=project.id,
@@ -66,17 +70,17 @@ def test_worker():
 
         # Test 2: queued job successfully becomes completed & result_json is stored using background execution
         db.commit() # ensure everything is fully committed before new session
-        
+
         print(f"Status before background execution: {job_valid.status}")
-        
+
         # Using background wrapper which opens its own session
         run_scan_job_background(job_valid.id)
-        
+
         # Must expire/refresh the object to load changes made by another session
         db.expire_all()
         db.refresh(job_valid)
         print(f"Status after background execution: {job_valid.status}")
-        
+
         assert job_valid.status == ScanJobStatus.completed
         assert job_valid.result_json is not None
         result_data = json.loads(job_valid.result_json)

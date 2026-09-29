@@ -31,10 +31,16 @@ def test_findings_persistence():
         job = ScanJob(assessment_id=assessment.id, scan_profile=ScanProfile.passive)
         db.add(job)
         db.commit()
-        
+
         from app.worker.service import process_scan_job
+        import app.worker.service
+        from app.worker.scanners.mock import MockScannerAdapter
+
+        # Explicit dependency injection via patching for this test
+        app.worker.service.get_scanner = lambda profile: MockScannerAdapter()
+
         completed_job = process_scan_job(db, job.id)
-        
+
         # Verify findings were created
         findings = db.query(Finding).filter(Finding.scan_job_id == completed_job.id).all()
         assert len(findings) == 1
@@ -44,7 +50,7 @@ def test_findings_persistence():
         assert finding.risk_score == 0.75 # low(1) * default medium(0.75)
         assert finding.risk_level == "low"
         assert "Confidence was not provided" in finding.risk_rationale
-        
+
         # Verify evidence was created
         evidence_list = db.query(Evidence).filter(Evidence.finding_id == finding.id).all()
         assert len(evidence_list) == 1
@@ -52,17 +58,17 @@ def test_findings_persistence():
         assert evidence.evidence_type == "text"
         assert evidence.title == "Mock Evidence"
         assert evidence.source == "mock"
-        
+
         # Verify cascade deletion
         db.delete(completed_job)
         db.commit()
-        
+
         findings_after = db.query(Finding).filter(Finding.scan_job_id == completed_job.id).all()
         assert len(findings_after) == 0
-        
+
         evidence_after = db.query(Evidence).filter(Evidence.finding_id == finding.id).all()
         assert len(evidence_after) == 0
-        
+
         print("Findings persistence tests passed successfully!")
 
     finally:

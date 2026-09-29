@@ -23,7 +23,6 @@ def map_confidence(zap_conf: str) -> str:
 def redact_secrets(text: str) -> str:
     if not text:
         return text
-    # Redact common secrets found in HTTP evidence
     text = re.sub(r'(?i)(cookie\s*[:=]\s*)[^\r\n]+', r'\1[REDACTED]', text)
     text = re.sub(r'(?i)(authorization\s*[:=]\s*Bearer\s+)[^\r\n]+', r'\1[REDACTED]', text)
     text = re.sub(r'(?i)(password\s*[:=]\s*)[^\r\n&]+', r'\1[REDACTED]', text)
@@ -33,71 +32,83 @@ def parse_zap_json(json_content: str) -> List[Finding]:
     findings = []
     if not json_content or not json_content.strip():
         return findings
-    
+
     try:
         data = json.loads(json_content)
     except json.JSONDecodeError:
         return findings
 
     raw_alerts = data.get("alerts", [])
-    
-    # Group flat alerts by title if they don't have instances
+
     grouped_alerts = {}
     for alert in raw_alerts:
-        title = alert.get("alert", "Unknown ZAP Alert")
-        if title not in grouped_alerts:
-            grouped_alerts[title] = {k: v for k, v in alert.items() if k != "instances"}
-            grouped_alerts[title]["instances"] = []
-                
+        title = alert.get("name") or alert.get("alert") or "Unknown ZAP Alert"
+        url = alert.get("url", "")
+        key = f"{title}::{url}"
+
+        if key not in grouped_alerts:
+            grouped_alerts[key] = {k: v for k, v in alert.items() if k != "instances"}
+            grouped_alerts[key]["instances"] = []
+
         if "instances" in alert and alert["instances"]:
-            grouped_alerts[title]["instances"].extend(alert["instances"])
-        # Otherwise, if it's a flat API response, extract the instance data from the alert itself
-        elif "url" in alert or "evidence" in alert:
+            grouped_alerts[key]["instances"].extend(alert["instances"])
+        elif any(k in alert for k in ("url", "evidence", "attack", "param")):
             inst = {
                 "uri": alert.get("url", ""),
                 "param": alert.get("param", ""),
+                "attack": alert.get("attack", ""),
                 "evidence": alert.get("evidence", "")
             }
-            if inst["uri"] or inst["evidence"]:
-                grouped_alerts[title]["instances"].append(inst)
+            grouped_alerts[key]["instances"].append(inst)
 
     for alert in grouped_alerts.values():
-        title = alert.get("alert", "Unknown ZAP Alert")
+        title = alert.get("name") or alert.get("alert") or "Unknown ZAP Alert"
         severity = map_severity(alert.get("risk", "Informational"))
         confidence = map_confidence(alert.get("confidence", "Low"))
         description = alert.get("description", "")
         remediation = alert.get("solution", "")
         impact = alert.get("otherinfo", "")
-        
+
+        cwe = alert.get("cweid")
+        if cwe and cwe != "-1":
+            description += f"\n\nCWE: {cwe}"
+        cve = alert.get("wascid") or alert.get("cveid")
+        if cve and cve != "-1":
+            description += f"\n\nWASC ID: {cve}"
+        reference = alert.get("reference")
+        if reference:
+            description += f"\n\nReferences:\n{reference}"
+
         instances = alert.get("instances", [])
-        
-        # Deliberately capture all unique URIs rather than silently discarding them
+
         unique_uris = list(dict.fromkeys(inst.get("uri", "") for inst in instances if inst.get("uri")))
         location = ", ".join(unique_uris)[:255] if unique_uris else ""
-        
-        if len(unique_uris) > 1:
-            description += f"\n\nNote: This issue was found in {len(unique_uris)} locations. See evidence for details."
-            
+
+        if len(instances) > 1:
+            description += f"\n\nNote: This issue was found with {len(instances)} parameter/attack variations at this location. See evidence for details."
+
         evidence_list = []
         for idx, inst in enumerate(instances):
             uri = inst.get("uri", "")
             param = inst.get("param", "")
+            attack = inst.get("attack", "")
             evidence = inst.get("evidence", "")
-            
-            content = f"URI: {uri}"
-            if param: content += f"\nParameter: {param}"
-            if evidence: content += f"\nEvidence: {evidence}"
-            
-            # Ensure no credentials/secrets are leaked into evidence
-            content = redact_secrets(content)
-            
+
+            content_parts = []
+            if uri: content_parts.append(f"URI: {uri}")
+            if param: content_parts.append(f"Parameter: {param}")
+            if attack: content_parts.append(f"Attack: {attack}")
+            if evidence: content_parts.append(f"Evidence: {evidence}")
+
+            content = redact_secrets("\n".join(content_parts))
+
             evidence_list.append(EvidenceItem(
                 evidence_type="zap_alert_instance",
                 title=f"ZAP Alert Instance {idx+1}",
                 content=content,
                 source="owasp-zap"
             ))
-        
+
         findings.append(Finding(
             title=title,
             severity=severity,
@@ -109,5 +120,5 @@ def parse_zap_json(json_content: str) -> List[Finding]:
             remediation=remediation,
             evidence=evidence_list
         ))
-        
+
     return findings
