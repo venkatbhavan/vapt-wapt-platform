@@ -89,6 +89,7 @@ interface AssessmentDashboardProps {
   assessmentId: number;
   onBack: () => void;
   onViewFindings: (jobId?: number, findingId?: number) => void;
+  onViewAttackSurface: () => void;
 }
 
 const getSeverityColor = (severity: string) => {
@@ -124,7 +125,7 @@ const getRiskBgColor = (riskLevel: string) => {
   }
 };
 
-export function AssessmentDashboard({ assessmentId, onBack, onViewFindings }: AssessmentDashboardProps) {
+export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onViewAttackSurface }: AssessmentDashboardProps) {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [summary, setSummary] = useState<AssessmentSummary | null>(null);
   const [recentFindings, setRecentFindings] = useState<Finding[]>([]);
@@ -210,13 +211,22 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings }: As
         >
           <ArrowLeft size={16} /> Back to Assessments
         </button>
-        <button
-          onClick={() => onViewFindings()}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
-        >
-          <Activity size={16} />
-          View Full Findings
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={() => onViewAttackSurface()}
+            className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors"
+          >
+            <Activity size={16} />
+            View Attack Surface
+          </button>
+          <button
+            onClick={() => onViewFindings()}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
+          >
+            <Activity size={16} />
+            View Full Findings
+          </button>
+        </div>
       </div>
 
       {/* Assessment Info Header */}

@@ -4,12 +4,14 @@ import { ProjectsView } from './components/ProjectsView';
 import { AssessmentsView } from './components/AssessmentsView';
 import { FindingsView } from './components/FindingsView';
 import { AssessmentDashboard } from './components/AssessmentDashboard';
+import { AttackSurfaceView } from './components/AttackSurfaceView';
 
 function App() {
   const [apiStatus, setApiStatus] = useState<string>('Checking...');
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [selectedAssessmentId, setSelectedAssessmentId] = useState<number | null>(null);
   const [viewingFindings, setViewingFindings] = useState<{jobId?: number; findingId?: number} | false>(false);
+  const [viewingAttackSurface, setViewingAttackSurface] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('http://localhost:8000/api/health')
@@ -20,7 +22,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200 p-8 font-sans">
-      
+
       {/* Header */}
       <header className="flex justify-between items-center mb-10 pb-4 border-b border-gray-800">
         <div className="flex items-center gap-3">
@@ -35,7 +37,7 @@ function App() {
 
       {/* Dashboard Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        
+
         {/* Card 1 */}
         <div className="bg-gray-900 border border-gray-800 p-6 rounded-lg shadow-sm">
           <div className="flex justify-between items-start mb-4">
@@ -77,12 +79,21 @@ function App() {
       {/* Main Content Area */}
       <div className="w-full">
         {selectedAssessmentId ? (
-          viewingFindings ? (
-            <FindingsView 
-              assessmentId={selectedAssessmentId} 
+          viewingAttackSurface ? (
+            <AttackSurfaceView
+              assessmentId={selectedAssessmentId}
+              onBack={() => setViewingAttackSurface(false)}
+              onViewFinding={(findingId) => {
+                setViewingAttackSurface(false);
+                setViewingFindings({findingId});
+              }}
+            />
+          ) : viewingFindings ? (
+            <FindingsView
+              assessmentId={selectedAssessmentId}
               initialJobId={viewingFindings.jobId}
               initialFindingId={viewingFindings.findingId}
-              onBack={() => setViewingFindings(false)} 
+              onBack={() => setViewingFindings(false)}
             />
           ) : (
             <AssessmentDashboard
@@ -90,13 +101,15 @@ function App() {
               onBack={() => {
                 setSelectedAssessmentId(null);
                 setViewingFindings(false);
+                setViewingAttackSurface(false);
               }}
               onViewFindings={(jobId, findingId) => setViewingFindings({jobId, findingId})}
+              onViewAttackSurface={() => setViewingAttackSurface(true)}
             />
           )
         ) : selectedProjectId ? (
-          <AssessmentsView 
-            projectId={selectedProjectId} 
+          <AssessmentsView
+            projectId={selectedProjectId}
             onBack={() => setSelectedProjectId(null)}
             onSelectAssessment={setSelectedAssessmentId}
           />

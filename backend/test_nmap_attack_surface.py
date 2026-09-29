@@ -332,8 +332,8 @@ class TestNmapAttackSurfaceIngestionExhaustive(unittest.TestCase):
             mock_scanner = mock_get_scanner.return_value
             mock_scanner.scan.return_value = res
             
-            # Force an exception right in the middle of ingestion by mocking db.flush to fail
-            with patch.object(self.db, 'flush', side_effect=Exception("Database crash")):
+            # Force an exception right in the middle of ingestion by mocking db.add to fail
+            with patch.object(self.db, 'add', side_effect=Exception("Database crash")):
                 completed_job = process_scan_job(self.db, job.id)
                 
         self.assertEqual(completed_job.status, ScanJobStatus.failed)

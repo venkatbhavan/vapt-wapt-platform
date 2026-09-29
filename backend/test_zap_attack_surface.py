@@ -50,7 +50,7 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     def _run_zap_job(self, result: ScannerResult, assessment_id: int = None):
         if assessment_id is None:
             assessment_id = self.assessment.id
-        job = ScanJob(assessment_id=assessment_id, scan_profile="full")
+        job = ScanJob(assessment_id=assessment_id, scan_profile="standard")
         self.db.add(job)
         self.db.commit()
         
@@ -61,7 +61,7 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 1. One URL creates one Asset.
     def test_01_one_url_creates_one_asset(self):
         res = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[WebApplicationObservation(base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80)]
         )
         self._run_zap_job(res)
@@ -71,7 +71,7 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 2. One URL creates one NetworkService.
     def test_02_one_url_creates_one_network_service(self):
         res = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[WebApplicationObservation(base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80)]
         )
         self._run_zap_job(res)
@@ -80,7 +80,7 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 3. One base URL creates one WebApplication.
     def test_03_one_base_url_creates_one_web_application(self):
         res = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[WebApplicationObservation(base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80)]
         )
         self._run_zap_job(res)
@@ -91,7 +91,7 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 5. Multiple paths under the same host/port reuse the same WebApplication.
     def test_04_05_multiple_paths_endpoints_reuse_app(self):
         res = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[WebApplicationObservation(
                 base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80,
                 endpoints=[
@@ -124,7 +124,7 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 8. GET /login and POST /login are distinct endpoints.
     def test_08_methods_are_distinct(self):
         res = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[WebApplicationObservation(
                 base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80,
                 endpoints=[
@@ -142,7 +142,7 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 9. HTTP and HTTPS applications are correctly distinguished.
     def test_09_http_https_distinct(self):
         res = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[
                 WebApplicationObservation(base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80),
                 WebApplicationObservation(base_url="https://127.0.0.1:443", scheme="https", hostname="127.0.0.1", port=443)
@@ -154,7 +154,7 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 10. Explicit/non-default ports are preserved correctly.
     def test_10_explicit_ports(self):
         res = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[WebApplicationObservation(base_url="http://127.0.0.1:3000", scheme="http", hostname="127.0.0.1", port=3000)]
         )
         self._run_zap_job(res)
@@ -165,7 +165,7 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 11. Re-ingesting the same ZAP result is idempotent.
     def test_11_idempotency(self):
         res = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[WebApplicationObservation(
                 base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80,
                 endpoints=[WebEndpointObservation(url="http://127.0.0.1/", path="/", method="GET")]
@@ -182,14 +182,14 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 12. Later scan adds only new endpoints.
     def test_12_later_scan_adds_new_endpoints(self):
         res1 = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[WebApplicationObservation(
                 base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80,
                 endpoints=[WebEndpointObservation(url="http://127.0.0.1/", path="/", method="GET")]
             )]
         )
         res2 = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[WebApplicationObservation(
                 base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80,
                 endpoints=[
@@ -208,13 +208,13 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 14. Useful existing metadata is not overwritten with None/empty values.
     def test_13_14_metadata_enrichment_no_none_overwrite(self):
         res1 = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[WebApplicationObservation(
                 base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80, title="Initial", tech_info="Node"
             )]
         )
         res2 = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[WebApplicationObservation(
                 base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80, title="Better Title", tech_info=None
             )]
@@ -231,13 +231,13 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     def test_15_16_zap_creates_parents_if_missing(self):
         self.assertEqual(self.db.query(Asset).count(), 0)
         res = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
-            web_applications=[WebApplicationObservation(base_url="http://test.local:80", scheme="http", hostname="test.local", port=80)]
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
+            web_applications=[WebApplicationObservation(base_url="http://10.0.0.99:80", scheme="http", hostname="10.0.0.99", port=80)]
         )
         self._run_zap_job(res)
         
         asset = self.db.query(Asset).first()
-        self.assertEqual(asset.ip_address, "test.local")
+        self.assertEqual(asset.ip_address, "10.0.0.99")
         svc = self.db.query(NetworkService).first()
         self.assertEqual(svc.port, 80)
         self.assertEqual(svc.protocol, "tcp")
@@ -245,7 +245,7 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 17. Same IP in different assessments remains isolated.
     def test_17_assessment_isolation(self):
         res = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[WebApplicationObservation(base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80)]
         )
         self._run_zap_job(res, assessment_id=self.assessment.id)
@@ -258,7 +258,7 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 19. Risk calculation still works.
     def test_18_19_findings_and_risk(self):
         res = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             findings=[Finding(title="XSS", severity="high", description="XSS Found", confidence="high")],
             web_applications=[WebApplicationObservation(base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80)]
         )
@@ -273,11 +273,11 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 20. Transaction rollback works if attack-surface ingestion fails.
     def test_20_transaction_rollback(self):
         res = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             findings=[Finding(title="Will Rollback", severity="low", description="Desc")],
             web_applications=[WebApplicationObservation(base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80)]
         )
-        with patch.object(self.db, 'flush', side_effect=Exception("Crash during ZAP flush")):
+        with patch("app.models.attack_surface.WebApplication", side_effect=Exception("Crash during ZAP flush")):
             job = self._run_zap_job(res)
             
         self.assertEqual(job.status, ScanJobStatus.failed)
@@ -289,7 +289,7 @@ class TestZapAttackSurfaceIngestion(unittest.TestCase):
     # 21. Assessment deletion cascades through: Asset -> NetworkService -> WebApplication -> WebEndpoint.
     def test_21_cascade_deletion(self):
         res = ScannerResult(
-            scanner="zap", target="127.0.0.1", scan_profile="full",
+            scanner="zap", target="127.0.0.1", scan_profile="standard",
             web_applications=[WebApplicationObservation(
                 base_url="http://127.0.0.1:80", scheme="http", hostname="127.0.0.1", port=80,
                 endpoints=[WebEndpointObservation(url="http://127.0.0.1/", path="/", method="GET")]
