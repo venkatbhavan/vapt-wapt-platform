@@ -280,6 +280,18 @@ def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
                         if ep_data.discovered_from is not None:
                             ep.source = ep_data.discovered_from
 
+        # 5. Correlate Findings
+        from app.worker.correlation.correlator import correlate_finding
+
+        findings_to_correlate = db.query(FindingModel).filter(FindingModel.scan_job_id == scan_job.id).all()
+        for f in findings_to_correlate:
+            c_res = correlate_finding(db, assessment.id, f)
+            if c_res.match_type != "none":
+                f.asset_id = c_res.asset_id
+                f.network_service_id = c_res.network_service_id
+                f.web_application_id = c_res.web_application_id
+                f.web_endpoint_id = c_res.web_endpoint_id
+
         # 7. Transition to Completed
         scan_job.status = ScanJobStatus.completed
         scan_job.result_json = result.model_dump_json()
