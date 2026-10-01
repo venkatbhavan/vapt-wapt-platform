@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import projects, assessments, scan_jobs, findings
 from app.models.assessment import Base
 import app.models.attack_surface  # Ensure Attack Surface models are loaded before create_all
+import app.models.compliance  # Ensure Compliance models are loaded before create_all
 from app.core.database import engine
 
 # Create tables

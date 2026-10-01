@@ -138,6 +138,7 @@ class Finding(Base):
 
     scan_job = relationship("ScanJob", back_populates="findings")
     evidence_list = relationship("Evidence", back_populates="finding", cascade="all, delete-orphan")
+    compliance_mappings = relationship("FindingComplianceMapping", back_populates="finding", cascade="all, delete-orphan")
 
     asset = relationship("Asset", back_populates="findings")
     network_service = relationship("NetworkService", back_populates="findings")
@@ -160,3 +161,5 @@ class Evidence(Base):
 # Import attack_surface at the end to ensure tables are registered with Base metadata
 import app.models.attack_surface
 
+
+import app.models.compliance
