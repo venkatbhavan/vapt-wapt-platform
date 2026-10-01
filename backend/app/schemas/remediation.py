@@ -38,3 +38,44 @@ class FindingRemediationResponse(FindingRemediationBase):
 
     class Config:
         from_attributes = True
+
+# Phase 9C API Response Schemas
+
+class RemediationMappingFinding(BaseModel):
+    id: int
+    title: str
+    severity: str
+    status: str
+    normalized_type: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class RemediationMappingDetail(BaseModel):
+    id: int
+    finding: RemediationMappingFinding
+    mapping_confidence: str
+    rationale: str
+
+    class Config:
+        from_attributes = True
+
+class RemediationGuidanceWithMappings(BaseModel):
+    id: int
+    title: str
+    summary: str
+    detailed_guidance: str
+    remediation_type: str
+    priority: str
+    verification_guidance: str
+    mappings: List[RemediationMappingDetail]
+
+    class Config:
+        from_attributes = True
+
+class AssessmentRemediationResponse(BaseModel):
+    assessment_id: int
+    remediations: List[RemediationGuidanceWithMappings]
+
+    class Config:
+        from_attributes = True
