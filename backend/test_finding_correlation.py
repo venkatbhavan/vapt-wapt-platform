@@ -32,8 +32,8 @@ class TestFindingCorrelation(unittest.TestCase):
         self.db.add(self.assessment_b)
         self.db.flush()
         
-        self.job = ScanJob(assessment_id=self.assessment.id, scan_profile="full")
-        self.job_b = ScanJob(assessment_id=self.assessment_b.id, scan_profile="full")
+        self.job = ScanJob(assessment_id=self.assessment.id, scan_profile="standard")
+        self.job_b = ScanJob(assessment_id=self.assessment_b.id, scan_profile="standard")
         self.db.add(self.job)
         self.db.add(self.job_b)
         self.db.commit()
@@ -55,7 +55,7 @@ class TestFindingCorrelation(unittest.TestCase):
         self.db.add_all([s1, s2, s3])
         self.db.flush()
         
-        wa1 = WebApplication(asset_id=a1.id, network_service_id=s1.id, base_url="http://192.168.1.10:80", scheme="http", port=80)
+        wa1 = WebApplication(asset_id=a1.id, network_service_id=s1.id, base_url="http://192.168.1.10", scheme="http", port=80)
         self.db.add(wa1)
         self.db.flush()
         
@@ -68,7 +68,7 @@ class TestFindingCorrelation(unittest.TestCase):
         return a1, a2, ab, s1, s2, s3, wa1, we1, we2, we3
 
     def _make_finding(self, loc):
-        f = Finding(scan_job_id=self.job.id, title="Test", location=loc)
+        f = Finding(scan_job_id=self.job.id, title="Test", location=loc, severity="low")
         self.db.add(f)
         self.db.flush()
         return f
@@ -169,7 +169,7 @@ class TestFindingCorrelation(unittest.TestCase):
     # 17. Finding from ScanJob A cannot correlate to ScanJob/Assessment B attack surface.
     def test_15_16_17_isolation(self):
         a1, a2, ab, *rest = self._seed_db()
-        f_b = Finding(scan_job_id=self.job_b.id, title="Test", location="192.168.1.10")
+        f_b = Finding(scan_job_id=self.job_b.id, title="Test", location="192.168.1.10", severity="low")
         self.db.add(f_b)
         self.db.flush()
         
@@ -220,12 +220,12 @@ class TestFindingCorrelation(unittest.TestCase):
         from unittest.mock import patch
         
         res = ScannerResult(
-            scanner="nmap", target="192.168.1.10", scan_profile="full",
+            scanner="nmap", target="192.168.1.10", scan_profile="standard",
             hosts=[{
                 "ip_address": "192.168.1.10",
                 "services": [{"port": 22, "protocol": "tcp", "state": "open"}]
             }],
-            findings=[ResultFinding(title="SSH Weak", location="192.168.1.10:22/tcp")]
+            findings=[ResultFinding(title="SSH Weak", location="192.168.1.10:22/tcp", severity="low", description="desc")]
         )
         with patch("app.worker.service.get_scanner") as mock:
             mock.return_value.scan.return_value = res
@@ -242,12 +242,12 @@ class TestFindingCorrelation(unittest.TestCase):
         from unittest.mock import patch
         
         res = ScannerResult(
-            scanner="zap", target="192.168.1.10", scan_profile="full",
+            scanner="zap", target="192.168.1.10", scan_profile="standard",
             web_applications=[WebApplicationObservation(
-                base_url="http://192.168.1.10:80", scheme="http", hostname="192.168.1.10", port=80,
+                base_url="http://192.168.1.10", scheme="http", hostname="192.168.1.10", port=80,
                 endpoints=[WebEndpointObservation(url="http://192.168.1.10/login", path="/login", method="GET")]
             )],
-            findings=[ResultFinding(title="XSS", location="http://192.168.1.10/login")]
+            findings=[ResultFinding(title="XSS", location="http://192.168.1.10/login", severity="high", description="desc")]
         )
         with patch("app.worker.service.get_scanner") as mock:
             mock.return_value.scan.return_value = res

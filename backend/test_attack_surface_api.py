@@ -41,12 +41,12 @@ class TestAttackSurfaceAPI(unittest.TestCase):
         self.db.add(self.project)
         self.db.flush()
 
-        self.assessment = Assessment(project_id=self.project.id, name="Test Assessment", target="127.0.0.1")
-        self.assessment2 = Assessment(project_id=self.project.id, name="Other Assessment", target="10.0.0.1")
+        self.assessment = Assessment(project_id=self.project.id, name="Test Assessment", target="127.0.0.1", scope="local")
+        self.assessment2 = Assessment(project_id=self.project.id, name="Other Assessment", target="10.0.0.1", scope="local")
         self.db.add_all([self.assessment, self.assessment2])
         self.db.flush()
         
-        self.job = ScanJob(assessment_id=self.assessment.id, scan_profile="full")
+        self.job = ScanJob(assessment_id=self.assessment.id, scan_profile="standard")
         self.db.add(self.job)
         self.db.commit()
 
@@ -132,13 +132,13 @@ class TestAttackSurfaceAPI(unittest.TestCase):
         a1, a2, s1, wa1, we1 = self._seed_attack_surface()
         
         # Asset Finding
-        f_asset = Finding(scan_job_id=self.job.id, title="Asset Finding", asset_id=a1.id)
+        f_asset = Finding(scan_job_id=self.job.id, title="Asset Finding", severity="low", confidence="high", asset_id=a1.id)
         # Service Finding (has asset + service)
-        f_svc = Finding(scan_job_id=self.job.id, title="Service Finding", asset_id=a1.id, network_service_id=s1.id)
+        f_svc = Finding(scan_job_id=self.job.id, title="Service Finding", severity="low", confidence="high", asset_id=a1.id, network_service_id=s1.id)
         # App Finding
-        f_app = Finding(scan_job_id=self.job.id, title="App Finding", asset_id=a1.id, network_service_id=s1.id, web_application_id=wa1.id)
+        f_app = Finding(scan_job_id=self.job.id, title="App Finding", severity="low", confidence="high", asset_id=a1.id, network_service_id=s1.id, web_application_id=wa1.id)
         # Endpoint Finding
-        f_ep = Finding(scan_job_id=self.job.id, title="Endpoint Finding", asset_id=a1.id, network_service_id=s1.id, web_application_id=wa1.id, web_endpoint_id=we1.id)
+        f_ep = Finding(scan_job_id=self.job.id, title="Endpoint Finding", severity="low", confidence="high", asset_id=a1.id, network_service_id=s1.id, web_application_id=wa1.id, web_endpoint_id=we1.id)
         
         self.db.add_all([f_asset, f_svc, f_app, f_ep])
         self.db.commit()
@@ -169,11 +169,11 @@ class TestAttackSurfaceAPI(unittest.TestCase):
     def test_15_to_18_isolation(self):
         a1, a2, s1, wa1, we1 = self._seed_attack_surface()
         
-        job2 = ScanJob(assessment_id=self.assessment2.id, scan_profile="full")
+        job2 = ScanJob(assessment_id=self.assessment2.id, scan_profile="standard")
         self.db.add(job2)
         self.db.flush()
         
-        f2 = Finding(scan_job_id=job2.id, title="Alien Finding", asset_id=a2.id)
+        f2 = Finding(scan_job_id=job2.id, title="Alien Finding", severity="low", confidence="high", asset_id=a2.id)
         self.db.add(f2)
         self.db.commit()
         
@@ -190,7 +190,7 @@ class TestAttackSurfaceAPI(unittest.TestCase):
     # 20. Enum values serialize correctly.
     def test_20_enums(self):
         a1, *rest = self._seed_attack_surface()
-        f = Finding(scan_job_id=self.job.id, title="Enum Test", severity="critical", risk_level="critical", asset_id=a1.id)
+        f = Finding(scan_job_id=self.job.id, title="Enum Test", severity="critical", confidence="high", risk_level="critical", asset_id=a1.id)
         self.db.add(f)
         self.db.commit()
         
@@ -203,7 +203,7 @@ class TestAttackSurfaceAPI(unittest.TestCase):
     # 23. API does not expose raw evidence by default.
     def test_21_23_evidence_protection(self):
         a1, *rest = self._seed_attack_surface()
-        f = Finding(scan_job_id=self.job.id, title="Test", asset_id=a1.id)
+        f = Finding(scan_job_id=self.job.id, title="Test", asset_id=a1.id, severity="low", confidence="high")
         self.db.add(f)
         self.db.commit()
         

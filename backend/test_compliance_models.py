@@ -70,7 +70,7 @@ class TestComplianceModels(unittest.TestCase):
         self.db.add(ctrl)
         self.db.flush()
 
-        mapping = FindingComplianceMapping(
+        mapping = FindingComplianceMapping(mapping_type="direct",
             finding_id=self.finding.id,
             control_id=ctrl.id,
             rationale="Because",
@@ -111,7 +111,7 @@ class TestComplianceModels(unittest.TestCase):
         self.db.add(ctrl)
         self.db.flush()
 
-        mapping = FindingComplianceMapping(
+        mapping = FindingComplianceMapping(mapping_type="direct",
             finding_id=self.finding.id,
             control_id=ctrl.id,
             rationale="Because",
@@ -183,7 +183,7 @@ class TestComplianceModels(unittest.TestCase):
         self.db.add(ctrl)
         self.db.flush()
 
-        m1 = FindingComplianceMapping(
+        m1 = FindingComplianceMapping(mapping_type="direct",
             finding_id=self.finding.id,
             control_id=ctrl.id,
             rationale="Because",
@@ -193,7 +193,7 @@ class TestComplianceModels(unittest.TestCase):
         self.db.add(m1)
         self.db.commit()
 
-        m2 = FindingComplianceMapping(
+        m2 = FindingComplianceMapping(mapping_type="direct",
             finding_id=self.finding.id,
             control_id=ctrl.id,
             rationale="Because",
@@ -215,7 +215,7 @@ class TestComplianceModels(unittest.TestCase):
         self.db.add(ctrl)
         self.db.flush()
 
-        m1 = FindingComplianceMapping(
+        m1 = FindingComplianceMapping(mapping_type="direct",
             finding_id=self.finding.id,
             control_id=ctrl.id,
             rationale="Because",
@@ -241,7 +241,7 @@ class TestComplianceModels(unittest.TestCase):
         self.db.add(ctrl)
         self.db.flush()
 
-        m1 = FindingComplianceMapping(
+        m1 = FindingComplianceMapping(mapping_type="direct",
             finding_id=self.finding.id,
             control_id=ctrl.id,
             rationale="Because",
