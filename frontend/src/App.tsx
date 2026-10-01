@@ -6,6 +6,7 @@ import { FindingsView } from './components/FindingsView';
 import { AssessmentDashboard } from './components/AssessmentDashboard';
 import { AttackSurfaceView } from './components/AttackSurfaceView';
 import { ComplianceView } from './components/ComplianceView';
+import { RemediationView } from './components/RemediationView';
 
 function App() {
   const [apiStatus, setApiStatus] = useState<string>('Checking...');
@@ -14,6 +15,7 @@ function App() {
   const [viewingFindings, setViewingFindings] = useState<{jobId?: number; findingId?: number} | false>(false);
   const [viewingAttackSurface, setViewingAttackSurface] = useState<boolean>(false);
   const [viewingCompliance, setViewingCompliance] = useState<boolean>(false);
+  const [viewingRemediation, setViewingRemediation] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('http://localhost:8000/api/health')
@@ -99,6 +101,15 @@ function App() {
                 setViewingFindings({findingId});
               }}
             />
+          ) : viewingRemediation ? (
+            <RemediationView
+              assessmentId={selectedAssessmentId}
+              onBack={() => setViewingRemediation(false)}
+              onViewFinding={(findingId) => {
+                setViewingRemediation(false);
+                setViewingFindings({findingId});
+              }}
+            />
           ) : viewingFindings ? (
             <FindingsView
               assessmentId={selectedAssessmentId}
@@ -114,10 +125,12 @@ function App() {
                 setViewingFindings(false);
                 setViewingAttackSurface(false);
                 setViewingCompliance(false);
+                setViewingRemediation(false);
               }}
               onViewFindings={(jobId, findingId) => setViewingFindings({jobId, findingId})}
               onViewAttackSurface={() => setViewingAttackSurface(true)}
               onViewCompliance={() => setViewingCompliance(true)}
+              onViewRemediation={() => setViewingRemediation(true)}
             />
           )
         ) : selectedProjectId ? (

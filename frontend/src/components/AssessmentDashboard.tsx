@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, AlertTriangle, Shield, CheckCircle, Activity, BarChart2, ClipboardCheck } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Shield, CheckCircle, Activity, BarChart2, ClipboardCheck, Wrench } from 'lucide-react';
 
 interface Assessment {
   id: number;
@@ -91,6 +91,7 @@ interface AssessmentDashboardProps {
   onViewFindings: (jobId?: number, findingId?: number) => void;
   onViewAttackSurface: () => void;
   onViewCompliance: () => void;
+  onViewRemediation: () => void;
 }
 
 const getSeverityColor = (severity: string) => {
@@ -126,11 +127,11 @@ const getRiskBgColor = (riskLevel: string) => {
   }
 };
 
-export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onViewAttackSurface, onViewCompliance }: AssessmentDashboardProps) {
+export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onViewAttackSurface, onViewCompliance, onViewRemediation }: AssessmentDashboardProps) {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [summary, setSummary] = useState<AssessmentSummary | null>(null);
   const [recentFindings, setRecentFindings] = useState<Finding[]>([]);
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -160,7 +161,7 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
             const jobsData: ScanJob[] = await jobsRes.json();
             const completedJobs = jobsData.filter(j => j.status === 'completed')
                 .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-            
+
             if (completedJobs.length > 0) {
                 const recentJob = completedJobs[0];
                 const findingsRes = await fetch(`http://localhost:8000/api/scan-jobs/${recentJob.id}/findings`);
@@ -206,13 +207,20 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <button 
+        <button
           onClick={onBack}
           className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
         >
           <ArrowLeft size={16} /> Back to Assessments
         </button>
         <div className="flex gap-4">
+            <button
+              onClick={() => onViewRemediation()}
+              className="flex items-center gap-2 bg-emerald-900 hover:bg-emerald-800 text-white px-4 py-2 rounded transition-colors"
+            >
+              <Wrench size={16} />
+              View Remediation
+            </button>
           <button
             onClick={() => onViewCompliance()}
             className="flex items-center gap-2 bg-indigo-900 hover:bg-indigo-800 text-white px-4 py-2 rounded transition-colors"
@@ -293,7 +301,7 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
 
       {/* Main Stats Split */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Risk Distribution */}
         <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-lg p-6">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
@@ -395,8 +403,8 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
                     </thead>
                     <tbody className="text-sm">
                         {recentFindings.map(f => (
-                            <tr 
-                                key={f.id} 
+                            <tr
+                                key={f.id}
                                 onClick={() => onViewFindings(f.scan_job_id, f.id)}
                                 className="border-b border-gray-800/50 hover:bg-gray-800/50 cursor-pointer transition-colors group"
                             >
