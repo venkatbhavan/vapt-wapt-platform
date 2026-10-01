@@ -9,6 +9,10 @@ class MappingConfidence(str, enum.Enum):
     medium = "medium"
     high = "high"
 
+class MappingType(str, enum.Enum):
+    direct = "direct"
+    related = "related"
+
 class ComplianceFramework(Base):
     __tablename__ = "compliance_frameworks"
 
@@ -50,6 +54,7 @@ class FindingComplianceMapping(Base):
     finding_id = Column(Integer, ForeignKey("findings.id"), nullable=False)
     control_id = Column(Integer, ForeignKey("compliance_controls.id"), nullable=False)
     rationale = Column(Text, nullable=False)
+    mapping_type = Column(Enum(MappingType), nullable=False)
     mapping_confidence = Column(Enum(MappingConfidence), nullable=False)
     source = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)

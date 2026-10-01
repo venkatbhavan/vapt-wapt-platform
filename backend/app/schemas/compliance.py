@@ -1,7 +1,7 @@
 from typing import Optional, List
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from app.models.compliance import MappingConfidence
+from app.models.compliance import MappingConfidence, MappingType
 
 class ComplianceControlBase(BaseModel):
     control_id: str
@@ -29,6 +29,7 @@ class ComplianceFrameworkRead(ComplianceFrameworkBase):
 
 class FindingComplianceMappingBase(BaseModel):
     rationale: str
+    mapping_type: MappingType
     mapping_confidence: MappingConfidence
     source: str
 

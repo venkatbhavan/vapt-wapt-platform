@@ -249,6 +249,7 @@ def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
         from app.worker.correlation.correlator import correlate_finding
         from app.worker.intelligence.normalizer import normalize_finding
         from app.worker.intelligence.identity import build_identity_payload, compute_identity_hash
+        from app.worker.compliance.mapper import map_finding_to_compliance
 
         seen_in_transaction = {}
         scanner_source_name = (getattr(result, "scanner", None) or "unknown").lower()
@@ -357,6 +358,9 @@ def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
                     source=e_data.source or scanner_source_name
                 )
                 db.add(db_evidence)
+
+            # E. Compliance Mapping
+            map_finding_to_compliance(db, db_finding)
 
 # 7. Transition to Completed
         scan_job.status = ScanJobStatus.completed
