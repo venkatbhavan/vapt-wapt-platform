@@ -5,6 +5,7 @@ import { AssessmentsView } from './components/AssessmentsView';
 import { FindingsView } from './components/FindingsView';
 import { AssessmentDashboard } from './components/AssessmentDashboard';
 import { AttackSurfaceView } from './components/AttackSurfaceView';
+import { ComplianceView } from './components/ComplianceView';
 
 function App() {
   const [apiStatus, setApiStatus] = useState<string>('Checking...');
@@ -12,6 +13,7 @@ function App() {
   const [selectedAssessmentId, setSelectedAssessmentId] = useState<number | null>(null);
   const [viewingFindings, setViewingFindings] = useState<{jobId?: number; findingId?: number} | false>(false);
   const [viewingAttackSurface, setViewingAttackSurface] = useState<boolean>(false);
+  const [viewingCompliance, setViewingCompliance] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('http://localhost:8000/api/health')
@@ -88,6 +90,15 @@ function App() {
                 setViewingFindings({findingId});
               }}
             />
+          ) : viewingCompliance ? (
+            <ComplianceView
+              assessmentId={selectedAssessmentId}
+              onBack={() => setViewingCompliance(false)}
+              onViewFinding={(findingId) => {
+                setViewingCompliance(false);
+                setViewingFindings({findingId});
+              }}
+            />
           ) : viewingFindings ? (
             <FindingsView
               assessmentId={selectedAssessmentId}
@@ -102,9 +113,11 @@ function App() {
                 setSelectedAssessmentId(null);
                 setViewingFindings(false);
                 setViewingAttackSurface(false);
+                setViewingCompliance(false);
               }}
               onViewFindings={(jobId, findingId) => setViewingFindings({jobId, findingId})}
               onViewAttackSurface={() => setViewingAttackSurface(true)}
+              onViewCompliance={() => setViewingCompliance(true)}
             />
           )
         ) : selectedProjectId ? (
