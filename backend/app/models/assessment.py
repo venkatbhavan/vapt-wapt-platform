@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Boolean, Float
+from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Boolean, Float, JSON
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
 import enum
@@ -123,6 +123,15 @@ class Finding(Base):
     network_service_id = Column(Integer, ForeignKey("network_services.id", ondelete="SET NULL"), nullable=True)
     web_application_id = Column(Integer, ForeignKey("web_applications.id", ondelete="SET NULL"), nullable=True)
     web_endpoint_id = Column(Integer, ForeignKey("web_endpoints.id", ondelete="SET NULL"), nullable=True)
+
+    # Phase 7: Intelligence Fields
+    normalized_category = Column(String, nullable=True)
+    normalized_type = Column(String, nullable=True)
+    root_cause = Column(String, nullable=True)
+    exploitability_context = Column(String, nullable=True)
+    evidence_quality = Column(String, nullable=True)  # 'low', 'medium', 'high'
+    identity_hash = Column(String, index=True, nullable=True)
+    scanner_sources = Column(JSON, default=list)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

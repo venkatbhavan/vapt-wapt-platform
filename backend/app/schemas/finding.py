@@ -34,6 +34,15 @@ class FindingBase(BaseModel):
     risk_level: Optional[RiskLevel] = None
     risk_rationale: Optional[str] = None
 
+    # Phase 7 fields
+    normalized_category: Optional[str] = None
+    normalized_type: Optional[str] = None
+    root_cause: Optional[str] = None
+    exploitability_context: Optional[str] = None
+    evidence_quality: Optional[str] = None
+    identity_hash: Optional[str] = None
+    scanner_sources: List[str] = Field(default_factory=list)
+
 class Finding(FindingBase):
     id: int
     scan_job_id: int

@@ -43,45 +43,6 @@ def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
         scanner = get_scanner(scan_job.scan_profile)
         result = scanner.scan(target=assessment.target, scan_profile=scan_job.scan_profile)
 
-        # Persist Findings and Evidence
-        from app.models.assessment import Finding as FindingModel, FindingSeverity, Evidence as EvidenceModel, EvidenceType
-        from app.risk.engine import calculate_risk
-
-        for f_data in result.findings:
-            severity_mapped = f_data.severity if hasattr(FindingSeverity, f_data.severity) else "info"
-
-            # Extract confidence if available; mock scanner doesn't produce it currently, but handle safely
-            confidence = getattr(f_data, 'confidence', None)
-            risk_result = calculate_risk(severity_mapped, confidence)
-
-            db_finding = FindingModel(
-                scan_job_id=scan_job.id,
-                title=f_data.title,
-                description=f_data.description,
-                severity=severity_mapped,
-                confidence=confidence,
-                category=getattr(f_data, 'category', None),
-                location=getattr(f_data, 'location', None),
-                impact=getattr(f_data, 'impact', None),
-                remediation=getattr(f_data, 'remediation', None),
-                risk_score=risk_result.score,
-                risk_level=risk_result.level,
-                risk_rationale=risk_result.rationale
-            )
-            db.add(db_finding)
-            db.flush() # flush to get the finding id
-
-            for e_data in f_data.evidence:
-                evidence_type_mapped = e_data.evidence_type if hasattr(EvidenceType, e_data.evidence_type) else "text"
-                db_evidence = EvidenceModel(
-                    finding_id=db_finding.id,
-                    evidence_type=evidence_type_mapped,
-                    title=e_data.title,
-                    content=e_data.content,
-                    source=e_data.source
-                )
-                db.add(db_evidence)
-
         # Ingestion of Attack Surface Data (Phase 6B)
         from app.models.attack_surface import Asset, NetworkService
 
@@ -280,24 +241,131 @@ def process_scan_job(db: Session, scan_job_id: int) -> ScanJob:
                         if ep_data.discovered_from is not None:
                             ep.source = ep_data.discovered_from
 
-        # 5. Correlate Findings
+        db.flush() # Ensure all Attack Surface entities are available for correlation queries
+
+        # 5. Process, Normalize, Correlate, and Deduplicate Findings
+        from app.models.assessment import Finding as FindingModel, FindingSeverity, Evidence as EvidenceModel, EvidenceType
+        from app.risk.engine import calculate_risk
         from app.worker.correlation.correlator import correlate_finding
+        from app.worker.intelligence.normalizer import normalize_finding
+        from app.worker.intelligence.identity import build_identity_payload, compute_identity_hash
 
-        findings_to_correlate = db.query(FindingModel).filter(FindingModel.scan_job_id == scan_job.id).all()
-        for f in findings_to_correlate:
-            c_res = correlate_finding(db, assessment.id, f)
+        seen_in_transaction = {}
+        scanner_source_name = (getattr(result, "scanner", None) or "unknown").lower()
+
+        for f_data in result.findings:
+            severity_mapped = f_data.severity if hasattr(FindingSeverity, f_data.severity) else "info"
+            confidence = getattr(f_data, 'confidence', None)
+
+            # Temporary finding object just for correlation
+            temp_finding = FindingModel(
+                title=f_data.title,
+                location=getattr(f_data, 'location', None)
+            )
+
+            # A. Correlate first to get attack surface context
+            c_res = correlate_finding(db, assessment.id, temp_finding)
             if c_res.match_type != "none":
-                f.asset_id = c_res.asset_id
-                f.network_service_id = c_res.network_service_id
-                f.web_application_id = c_res.web_application_id
-                f.web_endpoint_id = c_res.web_endpoint_id
+                temp_finding.asset_id = c_res.asset_id
+                temp_finding.network_service_id = c_res.network_service_id
+                temp_finding.web_application_id = c_res.web_application_id
+                temp_finding.web_endpoint_id = c_res.web_endpoint_id
 
-        # 7. Transition to Completed
+            # Attach objects to temp_finding for identity payload builder to access relations
+            if temp_finding.web_endpoint_id:
+                from app.models.attack_surface import WebEndpoint
+                temp_finding.web_endpoint = db.query(WebEndpoint).get(temp_finding.web_endpoint_id)
+            if temp_finding.web_application_id:
+                from app.models.attack_surface import WebApplication
+                temp_finding.web_application = db.query(WebApplication).get(temp_finding.web_application_id)
+            if temp_finding.network_service_id:
+                from app.models.attack_surface import NetworkService
+                temp_finding.network_service = db.query(NetworkService).get(temp_finding.network_service_id)
+            if temp_finding.asset_id:
+                from app.models.attack_surface import Asset
+                temp_finding.asset = db.query(Asset).get(temp_finding.asset_id)
+
+            # B. Normalize
+            intel = normalize_finding(scanner_source_name, f_data)
+
+            # C. Identity & Deduplication
+            identity_payload = build_identity_payload(assessment.id, intel["normalized_type"], temp_finding)
+            identity_hash = compute_identity_hash(identity_payload)
+
+            # Check if we already merged it in this exact scan job loop
+            db_finding = seen_in_transaction.get(identity_hash)
+
+            if not db_finding:
+                # Query the database
+                db_finding = db.query(FindingModel).join(ScanJob).filter(
+                    ScanJob.assessment_id == assessment.id,
+                    FindingModel.identity_hash == identity_hash
+                ).first()
+
+            if db_finding:
+                # Merge scenario
+                db_finding.updated_at = datetime.utcnow()
+                sources = list(db_finding.scanner_sources or [])
+                if scanner_source_name not in sources:
+                    sources.append(scanner_source_name)
+                    sources.sort()
+                    db_finding.scanner_sources = sources
+
+                # We do NOT arbitrarily escalate severity/confidence per requirements.
+                seen_in_transaction[identity_hash] = db_finding
+            else:
+                # Create scenario
+                risk_result = calculate_risk(severity_mapped, intel["confidence"])
+
+                db_finding = FindingModel(
+                    scan_job_id=scan_job.id,
+                    title=f_data.title,
+                    description=f_data.description,
+                    severity=severity_mapped,
+                    confidence=intel["confidence"],
+                    category=intel["normalized_category"] if intel["normalized_category"] != "unknown" else getattr(f_data, 'category', None),
+                    location=getattr(f_data, 'location', None),
+                    impact=intel["impact"],
+                    remediation=intel["remediation"],
+                    risk_score=risk_result.score,
+                    risk_level=risk_result.level,
+                    risk_rationale=risk_result.rationale,
+                    asset_id=temp_finding.asset_id,
+                    network_service_id=temp_finding.network_service_id,
+                    web_application_id=temp_finding.web_application_id,
+                    web_endpoint_id=temp_finding.web_endpoint_id,
+                    normalized_category=intel["normalized_category"],
+                    normalized_type=intel["normalized_type"],
+                    root_cause=intel["root_cause"],
+                    exploitability_context=intel["exploitability_context"],
+                    evidence_quality=intel["evidence_quality"],
+                    identity_hash=identity_hash,
+                    scanner_sources=[scanner_source_name]
+                )
+                db.add(db_finding)
+                db.flush() # ensure ID is generated
+                seen_in_transaction[identity_hash] = db_finding
+
+            # Preserve Evidence always
+            for e_data in f_data.evidence:
+                evidence_type_mapped = e_data.evidence_type if hasattr(EvidenceType, e_data.evidence_type) else "text"
+                db_evidence = EvidenceModel(
+                    finding_id=db_finding.id,
+                    evidence_type=evidence_type_mapped,
+                    title=e_data.title,
+                    content=e_data.content,
+                    source=e_data.source or scanner_source_name
+                )
+                db.add(db_evidence)
+
+# 7. Transition to Completed
         scan_job.status = ScanJobStatus.completed
         scan_job.result_json = result.model_dump_json()
         scan_job.completed_at = datetime.utcnow()
         db.commit()
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         db.rollback()
         # 8. Transition to Failed on internal error
         scan_job.status = ScanJobStatus.failed
