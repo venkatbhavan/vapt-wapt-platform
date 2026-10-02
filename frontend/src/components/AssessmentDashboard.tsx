@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, AlertTriangle, Shield, CheckCircle, Activity, BarChart2, ClipboardCheck, Wrench } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Shield, CheckCircle, Activity, BarChart2, ClipboardCheck, Wrench, ShieldCheck } from 'lucide-react';
 
 interface Assessment {
   id: number;
@@ -92,6 +92,7 @@ interface AssessmentDashboardProps {
   onViewAttackSurface: () => void;
   onViewCompliance: () => void;
   onViewRemediation: () => void;
+  onViewRetests: () => void;
 }
 
 const getSeverityColor = (severity: string) => {
@@ -127,7 +128,7 @@ const getRiskBgColor = (riskLevel: string) => {
   }
 };
 
-export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onViewAttackSurface, onViewCompliance, onViewRemediation }: AssessmentDashboardProps) {
+export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onViewAttackSurface, onViewCompliance, onViewRemediation, onViewRetests }: AssessmentDashboardProps) {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [summary, setSummary] = useState<AssessmentSummary | null>(null);
   const [recentFindings, setRecentFindings] = useState<Finding[]>([]);
@@ -235,12 +236,13 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
             <Activity size={16} />
             View Attack Surface
           </button>
+
           <button
-            onClick={() => onViewFindings()}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
+            onClick={() => onViewRetests()}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded transition-colors"
           >
-            <Activity size={16} />
-            View Full Findings
+            <ShieldCheck size={16} />
+            View Retests
           </button>
         </div>
       </div>

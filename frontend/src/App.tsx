@@ -7,6 +7,7 @@ import { AssessmentDashboard } from './components/AssessmentDashboard';
 import { AttackSurfaceView } from './components/AttackSurfaceView';
 import { ComplianceView } from './components/ComplianceView';
 import { RemediationView } from './components/RemediationView';
+import { RetestView } from './components/RetestView';
 
 function App() {
   const [apiStatus, setApiStatus] = useState<string>('Checking...');
@@ -16,6 +17,7 @@ function App() {
   const [viewingAttackSurface, setViewingAttackSurface] = useState<boolean>(false);
   const [viewingCompliance, setViewingCompliance] = useState<boolean>(false);
   const [viewingRemediation, setViewingRemediation] = useState<boolean>(false);
+  const [viewingRetests, setViewingRetests] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('http://localhost:8000/api/health')
@@ -107,6 +109,16 @@ function App() {
               onBack={() => setViewingRemediation(false)}
               onViewFinding={(findingId) => {
                 setViewingRemediation(false);
+                setViewingRetests(false);
+                setViewingFindings({findingId});
+              }}
+            />
+                    ) : viewingRetests ? (
+            <RetestView
+              assessmentId={selectedAssessmentId}
+              onBack={() => setViewingRetests(false)}
+              onViewFinding={(findingId) => {
+                setViewingRetests(false);
                 setViewingFindings({findingId});
               }}
             />
@@ -126,11 +138,13 @@ function App() {
                 setViewingAttackSurface(false);
                 setViewingCompliance(false);
                 setViewingRemediation(false);
+                setViewingRetests(false);
               }}
               onViewFindings={(jobId, findingId) => setViewingFindings({jobId, findingId})}
               onViewAttackSurface={() => setViewingAttackSurface(true)}
               onViewCompliance={() => setViewingCompliance(true)}
               onViewRemediation={() => setViewingRemediation(true)}
+              onViewRetests={() => setViewingRetests(true)}
             />
           )
         ) : selectedProjectId ? (
