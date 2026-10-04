@@ -45,6 +45,7 @@ class Assessment(Base):
 
     project = relationship("Project", back_populates="assessments")
     scan_jobs = relationship("ScanJob", back_populates="assessment", cascade="all, delete-orphan")
+    reports = relationship("Report", back_populates="assessment", cascade="all, delete-orphan")
     assets = relationship("Asset", back_populates="assessment", cascade="all, delete-orphan")
 
 class ScanJobStatus(str, enum.Enum):

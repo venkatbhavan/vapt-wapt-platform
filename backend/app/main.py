@@ -6,6 +6,7 @@ import app.models.attack_surface  # Ensure Attack Surface models are loaded befo
 import app.models.compliance  # Ensure Compliance models are loaded before create_all
 import app.models.remediation  # Ensure Remediation models are loaded before create_all
 import app.models.retest  # Ensure Retest models are loaded before create_all
+import app.models.report
 from app.core.database import engine
 
 # Create tables
