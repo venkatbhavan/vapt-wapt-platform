@@ -99,7 +99,7 @@ class TestRetestEngine(unittest.TestCase):
                     title="Open Port 80",
                     severity="medium",
                     description="Port is open",
-                    location="192.168.1.1:80"
+                    location="192.168.1.1:80", evidence=[EvidenceItem(evidence_type="text", title="Proof")]
                 )
             ]
         )
@@ -115,6 +115,7 @@ class TestRetestEngine(unittest.TestCase):
         
         res = updated_request.result
         self.assertEqual(res.result, RetestResultStatus.still_present)
+        self.assertEqual(len(res.evidence), 1)
         self.assertEqual(res.previous_finding_id, self.finding.id)
         self.assertEqual(res.current_finding_id, self.finding.id)
 
@@ -211,6 +212,7 @@ class TestRetestEngine(unittest.TestCase):
         self.assertEqual(updated_request.status, RetestStatus.failed)
         res = updated_request.result
         self.assertEqual(res.result, RetestResultStatus.inconclusive)
+        self.assertEqual(len(res.evidence), 0)
         self.assertIsNone(res.current_finding_id)
         
     @patch('app.services.retest_engine.get_scanner')
@@ -224,6 +226,7 @@ class TestRetestEngine(unittest.TestCase):
         updated_request = run_retest(self.db, self.retest_request.id)
         self.assertEqual(updated_request.status, RetestStatus.failed)
         self.assertEqual(updated_request.result.result, RetestResultStatus.inconclusive)
+        self.assertEqual(len(updated_request.result.evidence), 0)
 
     def test_authorization_check(self):
         # Unauthorize assessment

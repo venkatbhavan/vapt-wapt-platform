@@ -73,6 +73,7 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
   const [retestHistory, setRetestHistory] = useState<RetestRequest[]>([]);
   const [loadingRetests, setLoadingRetests] = useState(false);
   const [triggeringRetest, setTriggeringRetest] = useState(false);
+  const [retestError, setRetestError] = useState<string | null>(null);
   const [loadingJobs, setLoadingJobs] = useState(false);
   const [loadingFindings, setLoadingFindings] = useState(false);
   const [loadingEvidence, setLoadingEvidence] = useState(false);
@@ -184,6 +185,7 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
 const handleTriggerRetest = async () => {
   if (!selectedFinding) return;
   setTriggeringRetest(true);
+    setRetestError(null);
   try {
     const res = await fetch("http://localhost:8000/api/findings/" + selectedFinding.id + "/retests", {
       method: 'POST',
@@ -199,8 +201,12 @@ const handleTriggerRetest = async () => {
           setRetestHistory(data);
       }
     }
-  } catch (err) {
-      console.error(err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setRetestError(err.message);
+      } else {
+        setRetestError('Failed to trigger retest');
+      }
   } finally {
       setTriggeringRetest(false);
   }
@@ -467,6 +473,7 @@ const handleTriggerRetest = async () => {
                         {triggeringRetest ? (<><RefreshCw size={14} className="animate-spin" />Starting...</>) : (<><RefreshCw size={14} />Run Retest</>)}
                       </button>
                     </div>
+                    {retestError && <div className="mb-3 p-2 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded">{retestError}</div>}
                     {loadingRetests ? <p className="text-gray-500 italic">Loading retests...</p> : retestHistory.length === 0 ? <p className="text-gray-500 italic">No retests have been requested for this finding yet.</p> : (
                       <div className="space-y-4">
                         {retestHistory.map(rt => (

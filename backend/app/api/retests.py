@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
+from app.models.retest import RetestResult
 from typing import List
 from app.core.database import get_db
 from app.models.assessment import Finding, ScanJob, Assessment
@@ -41,7 +42,9 @@ def get_finding_retests(finding_id: int, db: Session = Depends(get_db)):
     if not finding:
         raise HTTPException(status_code=404, detail="Finding not found")
         
-    retests = db.query(RetestRequest).filter(
+    retests = db.query(RetestRequest).options(
+        joinedload(RetestRequest.result).joinedload(RetestResult.evidence)
+    ).filter(
         RetestRequest.finding_id == finding_id
     ).order_by(RetestRequest.requested_at.desc()).all()
     
@@ -60,7 +63,9 @@ def get_assessment_retests(assessment_id: int, db: Session = Depends(get_db)):
     if not assessment:
         raise HTTPException(status_code=404, detail="Assessment not found")
         
-    retests = db.query(RetestRequest).join(Finding).join(ScanJob).filter(
+    retests = db.query(RetestRequest).join(Finding).join(ScanJob).options(
+        joinedload(RetestRequest.result).joinedload(RetestResult.evidence)
+    ).filter(
         ScanJob.assessment_id == assessment_id
     ).order_by(RetestRequest.requested_at.desc()).all()
     
