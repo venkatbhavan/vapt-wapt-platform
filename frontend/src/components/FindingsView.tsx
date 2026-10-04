@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, AlertTriangle, Shield, CheckCircle, ChevronRight, Activity, FileText, ShieldAlert } from 'lucide-react';
-
+import { ArrowLeft, AlertTriangle, Shield, CheckCircle, ChevronRight, Activity, FileText, ShieldAlert, RefreshCw } from 'lucide-react';
+import { RetestRequest } from '../types/retest';
 interface ScanJob {
   id: number;
   assessment_id: number;
@@ -11,7 +11,6 @@ interface ScanJob {
   completed_at: string | null;
   error_message: string | null;
 }
-
 interface Finding {
   id: number;
   scan_job_id: number;
@@ -30,7 +29,6 @@ interface Finding {
   created_at: string;
   updated_at: string;
 }
-
 interface Evidence {
   id: number;
   finding_id: number;
@@ -40,14 +38,12 @@ interface Evidence {
   source: string;
   created_at: string;
 }
-
 interface FindingsViewProps {
   assessmentId: number;
   initialJobId?: number | null;
   initialFindingId?: number | null;
   onBack: () => void;
 }
-
 const getSeverityColor = (severity: string) => {
   switch (severity?.toLowerCase()) {
     case 'critical': return 'text-purple-500 bg-purple-500/10 border-purple-500/20';
@@ -58,7 +54,6 @@ const getSeverityColor = (severity: string) => {
     default: return 'text-gray-400 bg-gray-800 border-gray-700';
   }
 };
-
 const getRiskColor = (riskLevel: string | null) => {
   switch (riskLevel?.toLowerCase()) {
     case 'critical': return 'text-purple-400';
@@ -69,21 +64,20 @@ const getRiskColor = (riskLevel: string | null) => {
     default: return 'text-gray-400';
   }
 };
-
 export function FindingsView({ assessmentId, initialJobId, initialFindingId, onBack }: FindingsViewProps) {
   const [scanJobs, setScanJobs] = useState<ScanJob[]>([]);
   const [selectedJob, setSelectedJob] = useState<ScanJob | null>(null);
-  
   const [findings, setFindings] = useState<Finding[]>([]);
   const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
   const [evidenceList, setEvidenceList] = useState<Evidence[]>([]);
-  
+  const [retestHistory, setRetestHistory] = useState<RetestRequest[]>([]);
+  const [loadingRetests, setLoadingRetests] = useState(false);
+  const [triggeringRetest, setTriggeringRetest] = useState(false);
   const [loadingJobs, setLoadingJobs] = useState(false);
   const [loadingFindings, setLoadingFindings] = useState(false);
   const [loadingEvidence, setLoadingEvidence] = useState(false);
   const [startingScan, setStartingScan] = useState(false);
   const [error, setError] = useState('');
-
   const fetchScanJobs = async () => {
     setLoadingJobs(true);
     setError('');
@@ -114,20 +108,16 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
       setLoadingJobs(false);
     }
   };
-
   useEffect(() => {
     fetchScanJobs();
   }, [assessmentId]);
-
   useEffect(() => {
     setSelectedFinding(null);
     setEvidenceList([]);
-    
     if (!selectedJob) {
       setFindings([]);
       return;
     }
-    
     if (selectedJob.status === 'completed' || selectedJob.status === 'failed') {
       fetchFindings(selectedJob.id);
     } else {
@@ -139,7 +129,6 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
       return () => clearTimeout(timer);
     }
   }, [selectedJob]);
-
   const fetchFindings = async (jobId: number) => {
     setLoadingFindings(true);
     try {
@@ -147,7 +136,6 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
       if (!res.ok) throw new Error('Failed to fetch findings');
       const data: Finding[] = await res.json();
       setFindings(data);
-      
       if (initialFindingId && !selectedFinding) {
         const f = data.find(x => x.id === initialFindingId);
         if (f) handleSelectFinding(f);
@@ -162,26 +150,62 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
       setLoadingFindings(false);
     }
   };
-
   const handleSelectFinding = async (finding: Finding) => {
     setSelectedFinding(finding);
     setLoadingEvidence(true);
+    setLoadingRetests(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/findings/${finding.id}/evidence`);
-      if (!res.ok) throw new Error('Failed to fetch evidence');
-      const data: Evidence[] = await res.json();
-      setEvidenceList(data);
-    } catch (err: unknown) {
+      const [evRes, retRes] = await Promise.all([
+          fetch("http://localhost:8000/api/findings/" + finding.id + "/evidence"),
+          fetch("http://localhost:8000/api/findings/" + finding.id + "/retests")
+      ]);
+      if (evRes.ok) {
+          const data: Evidence[] = await evRes.json();
+          setEvidenceList(data);
+      } else {
+          setEvidenceList([]);
+      }
+      if (retRes.ok) {
+          const data: RetestRequest[] = await retRes.json();
+          data.sort((a, b) => new Date(b.requested_at).getTime() - new Date(a.requested_at).getTime());
+          setRetestHistory(data);
+      } else {
+          setRetestHistory([]);
+      }
+    } catch (err) {
       console.error(err);
-      // Soft error for evidence so we don't break the UI
       setEvidenceList([]);
+      setRetestHistory([]);
     } finally {
       setLoadingEvidence(false);
+      setLoadingRetests(false);
     }
   };
-
+const handleTriggerRetest = async () => {
+  if (!selectedFinding) return;
+  setTriggeringRetest(true);
+  try {
+    const res = await fetch("http://localhost:8000/api/findings/" + selectedFinding.id + "/retests", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    if (res.ok) {
+      // Refresh retest history
+      const retRes = await fetch("http://localhost:8000/api/findings/" + selectedFinding.id + "/retests");
+      if (retRes.ok) {
+          const data: RetestRequest[] = await retRes.json();
+          data.sort((a, b) => new Date(b.requested_at).getTime() - new Date(a.requested_at).getTime());
+          setRetestHistory(data);
+      }
+    }
+  } catch (err) {
+      console.error(err);
+  } finally {
+      setTriggeringRetest(false);
+  }
+};
   const [showActiveModal, setShowActiveModal] = useState(false);
-
   const handleRunScan = async (confirmed = false) => {
     setStartingScan(true);
     setError('');
@@ -216,7 +240,6 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
       }
     }
   };
-
   return (
     <div className="space-y-6">
       {/* Active Scan Confirmation Modal */}
@@ -247,9 +270,8 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
           </div>
         </div>
       )}
-
       <div className="flex justify-between items-center">
-        <button 
+        <button
           onClick={onBack}
           className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
         >
@@ -264,14 +286,12 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
           {startingScan ? 'Starting...' : 'Run New Scan'}
         </button>
       </div>
-
       {error && (
         <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-lg flex items-center gap-3">
           <AlertTriangle size={20} />
           <p>{error}</p>
         </div>
       )}
-
       {/* Top Controls: Scan Job Selection */}
       <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
         <h3 className="text-xl font-bold text-white mb-4">Scan Jobs</h3>
@@ -286,8 +306,8 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
                 key={job.id}
                 onClick={() => setSelectedJob(job)}
                 className={`flex flex-col text-left p-3 rounded border min-w-[200px] transition-colors ${
-                  selectedJob?.id === job.id 
-                    ? 'bg-blue-900/20 border-blue-500 text-blue-100' 
+                  selectedJob?.id === job.id
+                    ? 'bg-blue-900/20 border-blue-500 text-blue-100'
                     : 'bg-gray-950 border-gray-800 text-gray-400 hover:border-gray-600'
                 }`}
               >
@@ -307,17 +327,14 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
           </div>
         )}
       </div>
-
       {/* Main split view: Findings List & Detail Panel */}
       {selectedJob && (
         <div className="flex flex-col lg:flex-row gap-6">
-          
           {/* Left: Findings List */}
           <div className="flex-1 bg-gray-900 border border-gray-800 rounded-lg p-6">
             <h3 className="text-xl font-bold text-white mb-4">
               Findings for Job #{selectedJob.id}
             </h3>
-            
             {['queued', 'running'].includes(selectedJob.status) ? (
               <div className="flex items-center gap-3 text-yellow-500 bg-yellow-500/10 p-4 rounded border border-yellow-500/20">
                 <Activity className="animate-spin" size={20} />
@@ -364,7 +381,6 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
               </div>
             )}
           </div>
-
           {/* Right: Detail Panel */}
           {selectedFinding && (
             <div className="flex-1 bg-gray-900 border border-gray-800 rounded-lg p-6 flex flex-col h-full max-h-[800px] overflow-y-auto">
@@ -384,7 +400,6 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
                   </div>
                 </div>
               </div>
-
               <div className="space-y-6 text-sm text-gray-300">
                 {/* Risk Panel */}
                 <div className="bg-gray-950 border border-gray-800 rounded p-4">
@@ -410,14 +425,12 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
                     </div>
                   )}
                 </div>
-
                 <div>
                   <h4 className="font-semibold text-white mb-1">Description</h4>
                   <p className="whitespace-pre-wrap text-gray-400">
                     {selectedFinding.description || 'No description provided.'}
                   </p>
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   {selectedFinding.category && (
                     <div>
@@ -432,22 +445,57 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
                     </div>
                   )}
                 </div>
-
                 {selectedFinding.impact && (
                   <div>
                     <h4 className="font-semibold text-white mb-1">Impact</h4>
                     <p className="whitespace-pre-wrap text-gray-400">{selectedFinding.impact}</p>
                   </div>
                 )}
-                
                 {selectedFinding.remediation && (
                   <div>
                     <h4 className="font-semibold text-white mb-1">Remediation</h4>
                     <p className="whitespace-pre-wrap text-gray-400">{selectedFinding.remediation}</p>
                   </div>
                 )}
-
-                {/* Evidence Section */}
+{/* Retest History Section */}
+                  <div className="pt-4 border-t border-gray-800">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-white flex items-center gap-2">
+                        <RefreshCw size={16} /> Retest History
+                      </h4>
+                      <button onClick={handleTriggerRetest} disabled={triggeringRetest || (retestHistory.length > 0 && retestHistory[0].status !== 'completed' && retestHistory[0].status !== 'failed')} className="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 transition-colors">
+                        {triggeringRetest ? (<><RefreshCw size={14} className="animate-spin" />Starting...</>) : (<><RefreshCw size={14} />Run Retest</>)}
+                      </button>
+                    </div>
+                    {loadingRetests ? <p className="text-gray-500 italic">Loading retests...</p> : retestHistory.length === 0 ? <p className="text-gray-500 italic">No retests have been requested for this finding yet.</p> : (
+                      <div className="space-y-4">
+                        {retestHistory.map(rt => (
+                          <div key={rt.id} className="bg-gray-950 border border-gray-800 rounded p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <span className="font-medium text-white flex items-center gap-2">Retest #{rt.id} <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] uppercase border border-blue-500/20">{rt.status}</span></span>
+                                <div className="text-xs text-gray-500 mt-1">{new Date(rt.requested_at).toLocaleString()}</div>
+                              </div>
+                              {rt.result && <span className="px-2 py-1 rounded text-xs font-medium border uppercase bg-gray-800 text-gray-300 border-gray-700">{rt.result.result.replace('_', ' ')}</span>}
+                            </div>
+                            {rt.result && (
+                              <div className="mt-3 text-sm">
+                                <div className="bg-gray-900 rounded p-3 text-gray-300 text-xs border border-gray-800">{rt.result.rationale}</div>
+                                {rt.result.evidence && rt.result.evidence.length > 0 ? (
+                                  <div className="mt-4 border-t border-gray-800 pt-3"><h5 className="text-xs font-medium text-gray-400 mb-2">Retest Evidence</h5>
+                                  <div className="space-y-2">{rt.result.evidence.map((ev, i) => (<div key={i} className="bg-black border border-gray-800 rounded p-2 text-gray-400 text-xs"><div className="font-semibold text-gray-300 mb-1">{ev.title}</div><pre className="whitespace-pre-wrap break-all">{ev.content}</pre></div>))}</div>
+                                  </div>
+                                ) : (
+                                  <div className="mt-2 text-[11px] text-gray-500 italic">No scanner evidence recorded.</div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {/* Evidence Section */}
                 <div className="pt-4 border-t border-gray-800">
                   <h4 className="font-semibold text-white mb-3 flex items-center gap-2">
                     <FileText size={16} /> Evidence

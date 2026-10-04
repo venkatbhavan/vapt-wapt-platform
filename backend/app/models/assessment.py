@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Boolean, Float, JSON
+from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey, Boolean, Float, JSON, CheckConstraint
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
 import enum
@@ -151,7 +151,8 @@ class Evidence(Base):
     __tablename__ = "evidence"
 
     id = Column(Integer, primary_key=True, index=True)
-    finding_id = Column(Integer, ForeignKey("findings.id"), nullable=False)
+    finding_id = Column(Integer, ForeignKey("findings.id"), nullable=True)
+    retest_result_id = Column(Integer, ForeignKey("retest_results.id", ondelete="CASCADE"), nullable=True, index=True)
     evidence_type = Column(Enum(EvidenceType), nullable=False)
     title = Column(String, nullable=True)
     content = Column(String, nullable=True) # E.g. raw text, JSON string, or a path/identifier for screenshots
@@ -159,6 +160,14 @@ class Evidence(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     finding = relationship("Finding", back_populates="evidence_list")
+
+    __table_args__ = (
+        CheckConstraint(
+            "(finding_id IS NULL AND retest_result_id IS NOT NULL) OR (finding_id IS NOT NULL AND retest_result_id IS NULL)",
+            name="ck_evidence_single_owner"
+        ),
+    )
+    retest_result = relationship("RetestResult", back_populates="evidence")
 
 # Import attack_surface at the end to ensure tables are registered with Base metadata
 import app.models.attack_surface

@@ -161,7 +161,7 @@ class TestRetestEngine(unittest.TestCase):
                     title="Open Port 81",
                     severity="high",
                     description="Port moved",
-                    location="192.168.1.1:81/tcp"
+                    location="192.168.1.1:81/tcp", evidence=[EvidenceItem(evidence_type="text", title="Changed Proof", content="x", source="nmap")]
                 )
             ]
         )
@@ -185,6 +185,8 @@ class TestRetestEngine(unittest.TestCase):
         self.assertEqual(updated_request.status, RetestStatus.completed)
         res = updated_request.result
         self.assertEqual(res.result, RetestResultStatus.changed)
+        self.assertEqual(len(res.evidence), 1)
+        self.assertEqual(res.evidence[0].title, "Changed Proof")
         
         # Current finding should be the newly created finding
         self.assertIsNotNone(res.current_finding_id)

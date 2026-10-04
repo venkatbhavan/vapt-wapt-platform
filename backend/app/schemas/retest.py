@@ -1,6 +1,7 @@
 from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
+from app.schemas.finding import Evidence
 from app.models.retest import RetestStatus, RetestResultStatus, RetestConfidence
 
 class RetestResultBase(BaseModel):
@@ -18,6 +19,7 @@ class RetestResultResponse(RetestResultBase):
     retest_request_id: int
     created_at: datetime
     updated_at: datetime
+    evidence: list[Evidence] = Field(default_factory=list)
 
     class Config:
         orm_mode = True
@@ -37,7 +39,6 @@ class RetestRequestResponse(RetestRequestBase):
     completed_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
-    
     result: Optional[RetestResultResponse] = None
 
     class Config:

@@ -87,13 +87,17 @@ def process_retest_findings(
     
     if exact_match:
         # CASE 1 — STILL PRESENT
-        return RetestResult(
+        res = RetestResult(
             result=RetestResultStatus.still_present,
             confidence=RetestConfidence.high,
             rationale="The exact canonical finding identity was observed during the retest.",
             previous_finding_id=original_finding.id,
             current_finding_id=original_finding.id
         )
+        for ev in exact_match['raw_data'].evidence:
+            from app.models.assessment import Evidence
+            res.evidence.append(Evidence(evidence_type=ev.evidence_type, title=ev.title, content=ev.content, source=ev.source, finding_id=None))
+        return res
         
     # CASE 3 — CHANGED
     # If same normalized_type and same primary asset, but identity_hash differs (e.g., path changed, port changed)
@@ -143,22 +147,27 @@ def process_retest_findings(
         db.add(new_finding)
         db.flush() # Ensure ID is generated
         
-        return RetestResult(
+        res = RetestResult(
             result=RetestResultStatus.changed,
             confidence=RetestConfidence.medium,
             rationale="A related finding with the same vulnerability type but different canonical identity was observed on the same asset.",
             previous_finding_id=original_finding.id,
-            current_finding_id=new_finding.id
-        )
+          current_finding_id=new_finding.id
+          )
+        for ev in changed_match['raw_data'].evidence:
+            from app.models.assessment import Evidence
+            res.evidence.append(Evidence(evidence_type=ev.evidence_type, title=ev.title, content=ev.content, source=ev.source, finding_id=None))
+        return res
         
     # CASE 2 — FIXED
-    return RetestResult(
+    res = RetestResult(
         result=RetestResultStatus.fixed,
         confidence=RetestConfidence.high,
         rationale="The retest completed successfully and the original canonical finding identity was not observed.",
         previous_finding_id=original_finding.id,
         current_finding_id=None
     )
+    return res
 
 
 def run_retest(db: Session, retest_request_id: int) -> RetestRequest:
@@ -241,10 +250,10 @@ def run_retest(db: Session, retest_request_id: int) -> RetestRequest:
         # Create a failed/inconclusive retest result
         failure_result = RetestResult(
             retest_request_id=request.id,
-            previous_finding_id=finding.id,
+          previous_finding_id=finding.id,
             result=RetestResultStatus.inconclusive,
             confidence=RetestConfidence.low,
-            rationale=f"Retest failed or was inconclusive due to an infrastructure or scanner error: {str(e)}"
+          rationale=f"Retest failed or was inconclusive due to an infrastructure or scanner error: {str(e)}"
         )
         db.add(failure_result)
         db.commit()

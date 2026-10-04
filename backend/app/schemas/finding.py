@@ -12,7 +12,7 @@ class EvidenceBase(BaseModel):
 
 class Evidence(EvidenceBase):
     id: int
-    finding_id: int
+    finding_id: Optional[int] = None
     created_at: datetime
 
     class Config:

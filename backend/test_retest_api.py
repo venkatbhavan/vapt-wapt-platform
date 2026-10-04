@@ -104,7 +104,13 @@ class TestRetestAPI(unittest.TestCase):
         
     def test_get_finding_retests(self):
         # Create a few retests manually
-        r1 = RetestRequest(finding_id=self.finding_A.id, status=RetestStatus.requested)
+        r1 = RetestRequest(finding_id=self.finding_A.id, status=RetestStatus.completed)
+        from app.models.retest import RetestResult, RetestResultStatus, RetestConfidence
+        from app.models.assessment import Evidence, EvidenceType
+        res1 = RetestResult(retest_request_id=r1.id, previous_finding_id=self.finding_A.id, result=RetestResultStatus.still_present, confidence=RetestConfidence.high, rationale="x")
+        ev = Evidence(evidence_type=EvidenceType.text, title="Proof API")
+        res1.evidence.append(ev)
+        r1.result = res1
         r2 = RetestRequest(finding_id=self.finding_A.id, status=RetestStatus.completed)
         self.db.add_all([r1, r2])
         self.db.commit()
@@ -123,13 +129,21 @@ class TestRetestAPI(unittest.TestCase):
         self.assertEqual(response2.status_code, 404)
         
     def test_get_retest_by_id(self):
-        r1 = RetestRequest(finding_id=self.finding_A.id, status=RetestStatus.requested)
+        r1 = RetestRequest(finding_id=self.finding_A.id, status=RetestStatus.completed)
+        from app.models.retest import RetestResult, RetestResultStatus, RetestConfidence
+        from app.models.assessment import Evidence, EvidenceType
+        res1 = RetestResult(retest_request_id=r1.id, previous_finding_id=self.finding_A.id, result=RetestResultStatus.still_present, confidence=RetestConfidence.high, rationale="x")
+        ev = Evidence(evidence_type=EvidenceType.text, title="Proof API")
+        res1.evidence.append(ev)
+        r1.result = res1
         self.db.add(r1)
         self.db.commit()
         
         response = self.client.get(f"/api/retests/{r1.id}")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["id"], r1.id)
+        self.assertEqual(len(response.json()["result"]["evidence"]), 1)
+        self.assertEqual(response.json()["result"]["evidence"][0]["title"], "Proof API")
         
         response2 = self.client.get("/api/retests/999")
         self.assertEqual(response2.status_code, 404)
