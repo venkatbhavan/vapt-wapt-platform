@@ -104,3 +104,17 @@ class ReportResponse(BaseModel):
 
     class Config:
         orm_mode = True
+class ReportCreateRequest(BaseModel):
+    title: str = "Assessment Report"
+
+class ReportMetadataResponse(BaseModel):
+    id: int
+    assessment_id: int
+    title: str
+    status: str
+    created_at: datetime
+    updated_at: datetime
+    generated_at: Optional[datetime]
+
+    class Config:
+        orm_mode = True
