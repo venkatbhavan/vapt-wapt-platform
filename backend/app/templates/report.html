@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ report.title }} - Assessment Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+            @frame footer {
+                -pdf-frame-content: footerContent;
+                bottom: 1cm;
+                margin-left: 2cm;
+                margin-right: 2cm;
+                height: 1cm;
+            }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            color: #333;
+            line-height: 1.5;
+        }
+        h1, h2, h3, h4 {
+            color: #1a365d;
+            font-family: "Helvetica Neue", Helvetica, sans-serif;
+        }
+        h1 { font-size: 24pt; border-bottom: 2px solid #2b6cb0; padding-bottom: 10px; }
+        h2 { font-size: 18pt; margin-top: 30px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; page-break-after: avoid; }
+        h3 { font-size: 14pt; margin-top: 20px; page-break-after: avoid; }
+        
+        .cover-page {
+            text-align: center;
+            margin-top: 150px;
+        }
+        .cover-title {
+            font-size: 36pt;
+            color: #2b6cb0;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .cover-subtitle {
+            font-size: 18pt;
+            color: #4a5568;
+            margin-bottom: 50px;
+        }
+        .cover-meta {
+            font-size: 14pt;
+            color: #718096;
+            margin-bottom: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            page-break-inside: auto;
+        }
+        tr { page-break-inside: avoid; page-break-after: auto; }
+        th, td {
+            border: 1px solid #cbd5e0;
+            padding: 8px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #edf2f7;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 9pt;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .badge-critical { background-color: #f56565; color: #fff; }
+        .badge-high { background-color: #ed8936; color: #fff; }
+        .badge-medium { background-color: #ecc94b; color: #744210; }
+        .badge-low { background-color: #4299e1; color: #fff; }
+        .badge-info { background-color: #a0aec0; color: #fff; }
+        
+        .metric-card {
+            border: 1px solid #e2e8f0;
+            background-color: #f7fafc;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .metric-label {
+            font-size: 10pt;
+            color: #718096;
+            text-transform: uppercase;
+        }
+        .metric-value {
+            font-size: 20pt;
+            font-weight: bold;
+            color: #2d3748;
+            margin-top: 5px;
+        }
+        
+        .historical-warning {
+            background-color: #feebc8;
+            border-left: 4px solid #dd6b20;
+            color: #9c4221;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .page-break {
+            page-break-before: always;
+        }
+        
+        .finding-block {
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        .finding-header {
+            background-color: #edf2f7;
+            padding: 10px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: bold;
+        }
+        .finding-body {
+            padding: 15px;
+        }
+        .finding-field {
+            margin-bottom: 10px;
+        }
+        .finding-label {
+            font-weight: bold;
+            color: #4a5568;
+        }
+        .finding-text {
+            color: #2d3748;
+            margin-top: 5px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="footerContent" style="text-align: right; font-size: 9pt; color: #718096;">
+        Page <pdf:pagenumber> of <pdf:pagecount> - {{ report.title }}
+    </div>
+
+    <!-- COVER PAGE -->
+    <div class="cover-page">
+        <div class="cover-title">{{ report.title }}</div>
+        <div class="cover-subtitle">Security Assessment Report</div>
+        
+        <div class="cover-meta"><strong>Target:</strong> {{ dataset.scope.target }}</div>
+        <div class="cover-meta"><strong>Generated On:</strong> {{ report.generated_at.strftime('%Y-%m-%d %H:%M:%S UTC') if report.generated_at else 'Unknown' }}</div>
+    </div>
+    
+    <div class="page-break"></div>
+    
+    <div class="historical-warning">
+        ⚠️ HISTORICAL REPORT SNAPSHOT<br/>
+        This document represents the exact state of the assessment data at the time of report generation. It does not reflect any subsequent modifications to the underlying findings or configurations.
+    </div>
+
+    <!-- SCOPE -->
+    <h2>1. Assessment Scope</h2>
+    <table>
+        <tr><th>Assessment Name</th><td>{{ dataset.scope.name }}</td></tr>
+        <tr><th>Target</th><td>{{ dataset.scope.target }}</td></tr>
+        <tr><th>Scope Details</th><td>{{ dataset.scope.scope }}</td></tr>
+        <tr><th>Status</th><td>{{ dataset.scope.status }}</td></tr>
+    </table>
+
+    <!-- EXECUTIVE SUMMARY -->
+    <h2>2. Executive Summary</h2>
+    <table>
+        <tr>
+            <td style="width: 25%; text-align: center;">
+                <div class="metric-label">Total Findings</div>
+                <div class="metric-value">{{ dataset.executive_summary.total_findings }}</div>
+            </td>
+            <td style="width: 25%; text-align: center;">
+                <div class="metric-label">Critical Findings</div>
+                <div class="metric-value" style="color: #c53030;">{{ dataset.executive_summary.critical_findings }}</div>
+            </td>
+            <td style="width: 25%; text-align: center;">
+                <div class="metric-label">High Findings</div>
+                <div class="metric-value" style="color: #dd6b20;">{{ dataset.executive_summary.high_findings }}</div>
+            </td>
+            <td style="width: 25%; text-align: center;">
+                <div class="metric-label">Assets Discovered</div>
+                <div class="metric-value">{{ dataset.executive_summary.total_assets }}</div>
+            </td>
+        </tr>
+    </table>
+    
+    <h3>Risk Distribution</h3>
+    <table>
+        <tr>
+            <th>Severity</th>
+            <th>Count</th>
+        </tr>
+        {% for severity, count in dataset.risk_summary.severity_distribution.items() %}
+        <tr>
+            <td style="text-transform: capitalize;">{{ severity }}</td>
+            <td>{{ count }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <!-- ATTACK SURFACE SUMMARY -->
+    <h2>3. Attack Surface Summary</h2>
+    <table>
+        <tr>
+            <th>Asset Type</th>
+            <th>Count</th>
+        </tr>
+        {% for atype, count in dataset.attack_surface_summary.asset_types.items() %}
+        <tr>
+            <td>{{ atype }}</td>
+            <td>{{ count }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <!-- RETESTING SUMMARY -->
+    <h2>4. Retesting Summary</h2>
+    <table>
+        <tr><th>Total Retests Requested</th><td>{{ dataset.retesting_summary.total_requests }}</td></tr>
+        <tr><th>Fixed Findings</th><td>{{ dataset.executive_summary.fixed_findings }}</td></tr>
+        <tr><th>Still Present</th><td>{{ dataset.executive_summary.still_present_findings }}</td></tr>
+    </table>
+
+    <!-- COMPLIANCE SUMMARY -->
+    <h2>5. Compliance Summary</h2>
+    <table>
+        <tr><th>Frameworks Represented</th><td>{{ dataset.compliance_summary.frameworks_represented }}</td></tr>
+        <tr><th>Mapped Finding Count</th><td>{{ dataset.compliance_summary.mapped_finding_count }}</td></tr>
+    </table>
+    
+    <div class="page-break"></div>
+
+    <!-- TECHNICAL FINDINGS -->
+    <h2>6. Technical Findings</h2>
+    {% if dataset.technical_findings|length == 0 %}
+        <p>No technical findings identified in this assessment scope.</p>
+    {% else %}
+        {% for tf in dataset.technical_findings %}
+        <div class="finding-block">
+            <div class="finding-header">
+                {{ tf.id }}: {{ tf.title }}
+            </div>
+            <div class="finding-body">
+                <table style="margin: 0; border: none; width: 100%;">
+                    <tr style="border: none;">
+                        <td style="border: none; padding: 5px; width: 25%;"><span class="finding-label">Severity:</span> <span class="badge badge-{{ tf.severity|lower }}">{{ tf.severity }}</span></td>
+                        <td style="border: none; padding: 5px; width: 25%;"><span class="finding-label">Status:</span> {{ tf.status|capitalize }}</td>
+                        <td style="border: none; padding: 5px; width: 50%;"><span class="finding-label">Location:</span> {{ tf.location if tf.location else 'N/A' }}</td>
+                    </tr>
+                </table>
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 10px 0;"/>
+                
+                <div class="finding-field">
+                    <div class="finding-label">Category:</div>
+                    <div class="finding-text">{{ tf.normalized_category }}</div>
+                </div>
+                <div class="finding-field">
+                    <div class="finding-label">Scanner Sources:</div>
+                    <div class="finding-text">{{ tf.scanner_sources | join(', ') }}</div>
+                </div>
+                
+                {% if tf.root_cause %}
+                <div class="finding-field">
+                    <div class="finding-label">Root Cause:</div>
+                    <div class="finding-text">{{ tf.root_cause }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+</body>
+</html>

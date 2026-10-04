@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
+from app.services.report_export import render_html_report, generate_pdf_report
+import re
 from sqlalchemy.orm import Session, defer
 from typing import List
 from app.core.database import get_db
@@ -16,7 +18,7 @@ def create_report(assessment_id: int, req: ReportCreateRequest, db: Session = De
     assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
     if not assessment:
         raise HTTPException(status_code=404, detail="Assessment not found")
-        
+
     if not assessment.authorization_confirmed:
         raise HTTPException(status_code=403, detail="Assessment authorization not confirmed")
 
@@ -34,11 +36,11 @@ def list_assessment_reports(assessment_id: int, db: Session = Depends(get_db)):
     assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
     if not assessment:
         raise HTTPException(status_code=404, detail="Assessment not found")
-        
+
     reports = db.query(Report).filter(Report.assessment_id == assessment_id).options(
         defer(Report.snapshot)
     ).order_by(Report.created_at.desc(), Report.id.asc()).all()
-    
+
     return reports
 
 @router.get("/api/reports/{report_id}", response_model=ReportMetadataResponse)
@@ -53,8 +55,50 @@ def get_report_dataset(report_id: int, db: Session = Depends(get_db)):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
-        
+
     if report.status != ReportStatus.generated or not report.snapshot:
         raise HTTPException(status_code=400, detail="Report snapshot is not available")
-        
+
     return report.snapshot
+
+@router.get("/api/reports/{report_id}/export/html")
+def export_html_report(report_id: int, db: Session = Depends(get_db)):
+    report = db.query(Report).filter(Report.id == report_id).first()
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    if report.status != ReportStatus.generated or not report.snapshot:
+        raise HTTPException(status_code=400, detail="Report snapshot is not available")
+
+    html_content = render_html_report(report)
+
+    # Sanitize title for filename
+    safe_title = re.sub(r'[^a-zA-Z0-9_-]', '_', report.title.lower())
+    filename = f"security-assessment-report-{report.id}-{safe_title}.html"
+
+    return Response(
+        content=html_content,
+        media_type="text/html",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
+@router.get("/api/reports/{report_id}/export/pdf")
+def export_pdf_report(report_id: int, db: Session = Depends(get_db)):
+    report = db.query(Report).filter(Report.id == report_id).first()
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    if report.status != ReportStatus.generated or not report.snapshot:
+        raise HTTPException(status_code=400, detail="Report snapshot is not available")
+
+    pdf_bytes = generate_pdf_report(report)
+
+    # Sanitize title for filename
+    safe_title = re.sub(r'[^a-zA-Z0-9_-]', '_', report.title.lower())
+    filename = f"security-assessment-report-{report.id}-{safe_title}.pdf"
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )

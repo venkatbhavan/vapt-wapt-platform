@@ -56,6 +56,34 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
     }
   };
 
+
+
+
+  const handleExport = async (reportId: number, format: 'html' | 'pdf') => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/reports/${reportId}/export/${format}`);
+      if (!res.ok) throw new Error('Export failed');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const disposition = res.headers.get('content-disposition');
+      let filename = `report.${format}`;
+      if (disposition && disposition.indexOf('filename=') !== -1) {
+          filename = disposition.split('filename=')[1].replace(/"/g, '');
+      }
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      setError(`Unable to export ${format.toUpperCase()} report.`);
+    }
+  };
+
+
+
   const handleOpenReport = async (reportId: number) => {
     setSelectedReportId(reportId);
     setDatasetLoading(true);
@@ -139,7 +167,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
           </div>
         ) : dataset ? (
           <div className="space-y-6">
-            
+
             {/* Scope */}
             <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
               <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
@@ -194,7 +222,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
                    <div className="text-sm text-gray-400 mt-1">Findings with Remediation</div>
                 </div>
             </div>
-            
+
             {/* Additional Breakdowns */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
@@ -356,14 +384,28 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
               </div>
               <div className="flex items-center gap-4">
                 {getStatusBadge(report.status)}
-                {report.status === 'generated' && (
-                  <button
-                    onClick={() => handleOpenReport(report.id)}
-                    className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 font-medium px-3 py-1.5 rounded-lg hover:bg-blue-500/10 transition-colors"
-                  >
-                    View Report
-                    <ExternalLink className="w-4 h-4" />
-                  </button>
+                                {report.status === 'generated' && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleOpenReport(report.id)}
+                      className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 font-medium px-3 py-1.5 rounded-lg hover:bg-blue-500/10 transition-colors"
+                    >
+                      View Report
+                      <ExternalLink className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleExport(report.id, 'html')}
+                      className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-300 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
+                    >
+                      HTML
+                    </button>
+                    <button
+                      onClick={() => handleExport(report.id, 'pdf')}
+                      className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-300 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
+                    >
+                      PDF
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
