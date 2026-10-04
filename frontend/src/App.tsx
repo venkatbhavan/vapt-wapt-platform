@@ -8,6 +8,7 @@ import { AttackSurfaceView } from './components/AttackSurfaceView';
 import { ComplianceView } from './components/ComplianceView';
 import { RemediationView } from './components/RemediationView';
 import { RetestView } from './components/RetestView';
+import { ReportsView } from './components/ReportsView';
 
 function App() {
   const [apiStatus, setApiStatus] = useState<string>('Checking...');
@@ -18,6 +19,7 @@ function App() {
   const [viewingCompliance, setViewingCompliance] = useState<boolean>(false);
   const [viewingRemediation, setViewingRemediation] = useState<boolean>(false);
   const [viewingRetests, setViewingRetests] = useState<boolean>(false);
+  const [viewingReports, setViewingReports] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('http://localhost:8000/api/health')
@@ -110,6 +112,7 @@ function App() {
               onViewFinding={(findingId) => {
                 setViewingRemediation(false);
                 setViewingRetests(false);
+                setViewingReports(false);
                 setViewingFindings({findingId});
               }}
             />
@@ -119,8 +122,14 @@ function App() {
               onBack={() => setViewingRetests(false)}
               onViewFinding={(findingId) => {
                 setViewingRetests(false);
+                setViewingReports(false);
                 setViewingFindings({findingId});
               }}
+            />
+          ) : viewingReports ? (
+            <ReportsView
+              assessmentId={selectedAssessmentId}
+              onBack={() => setViewingReports(false)}
             />
           ) : viewingFindings ? (
             <FindingsView
@@ -139,12 +148,14 @@ function App() {
                 setViewingCompliance(false);
                 setViewingRemediation(false);
                 setViewingRetests(false);
+                setViewingReports(false);
               }}
               onViewFindings={(jobId, findingId) => setViewingFindings({jobId, findingId})}
               onViewAttackSurface={() => setViewingAttackSurface(true)}
               onViewCompliance={() => setViewingCompliance(true)}
               onViewRemediation={() => setViewingRemediation(true)}
               onViewRetests={() => setViewingRetests(true)}
+              onViewReports={() => setViewingReports(true)}
             />
           )
         ) : selectedProjectId ? (

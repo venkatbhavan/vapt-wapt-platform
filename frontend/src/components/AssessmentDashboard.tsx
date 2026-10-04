@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, AlertTriangle, Shield, CheckCircle, Activity, BarChart2, ClipboardCheck, Wrench, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Shield, CheckCircle, Activity, BarChart2, ClipboardCheck, Wrench, ShieldCheck, FileText } from 'lucide-react';
 
 interface Assessment {
   id: number;
@@ -93,6 +93,7 @@ interface AssessmentDashboardProps {
   onViewCompliance: () => void;
   onViewRemediation: () => void;
   onViewRetests: () => void;
+  onViewReports: () => void;
 }
 
 const getSeverityColor = (severity: string) => {
@@ -128,7 +129,7 @@ const getRiskBgColor = (riskLevel: string) => {
   }
 };
 
-export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onViewAttackSurface, onViewCompliance, onViewRemediation, onViewRetests }: AssessmentDashboardProps) {
+export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onViewAttackSurface, onViewCompliance, onViewRemediation, onViewRetests, onViewReports }: AssessmentDashboardProps) {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [summary, setSummary] = useState<AssessmentSummary | null>(null);
   const [recentFindings, setRecentFindings] = useState<Finding[]>([]);
@@ -243,6 +244,13 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
           >
             <ShieldCheck size={16} />
             View Retests
+          </button>
+          <button
+            onClick={() => onViewReports()}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded transition-colors"
+          >
+            <FileText size={16} />
+            Reports
           </button>
         </div>
       </div>
