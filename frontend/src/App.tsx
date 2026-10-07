@@ -9,6 +9,7 @@ import { ComplianceView } from './components/ComplianceView';
 import { RemediationView } from './components/RemediationView';
 import { RetestView } from './components/RetestView';
 import { ReportsView } from './components/ReportsView';
+import { SharedReportView } from './components/SharedReportView';
 
 function App() {
   const [apiStatus, setApiStatus] = useState<string>('Checking...');
@@ -27,6 +28,13 @@ function App() {
       .then(data => setApiStatus(data.status === 'ok' ? 'Connected' : 'Error'))
       .catch(() => setApiStatus('Disconnected'));
   }, []);
+
+
+  const path = window.location.pathname;
+  if (path.startsWith('/shared/reports/')) {
+    const token = path.split('/shared/reports/')[1];
+    return <SharedReportView token={token} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-200 p-8 font-sans">

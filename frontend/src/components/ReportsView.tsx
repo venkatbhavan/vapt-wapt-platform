@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, FileText, CheckCircle, XCircle, Clock, AlertTriangle, ExternalLink, RefreshCw, Shield } from 'lucide-react';
+import { ArrowLeft, FileText, CheckCircle, XCircle, Clock, AlertTriangle, RefreshCw, Shield } from 'lucide-react';
 import { ReportMetadata, ReportDataset, TechnicalFinding } from '../types/report';
 
 interface ReportsViewProps {
@@ -57,6 +57,26 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
   };
 
 
+
+
+  
+  
+  const handleShareReport = async (reportId: number) => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/reports/${reportId}/share`, {
+        method: 'POST'
+      });
+      if (!res.ok) throw new Error('Share failed');
+      const data = await res.json();
+      const shareUrl = `${window.location.origin}/shared/reports/${data.share_token}`;
+      
+      await navigator.clipboard.writeText(shareUrl);
+      alert(`Report shared! Link copied to clipboard:
+${shareUrl}`);
+    } catch (err) {
+      setError('Unable to share report.');
+    }
+  };
 
 
   const handleExport = async (reportId: number, format: 'html' | 'pdf') => {
@@ -384,29 +404,34 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
               </div>
               <div className="flex items-center gap-4">
                 {getStatusBadge(report.status)}
-                                {report.status === 'generated' && (
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleOpenReport(report.id)}
-                      className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 font-medium px-3 py-1.5 rounded-lg hover:bg-blue-500/10 transition-colors"
-                    >
-                      View Report
-                      <ExternalLink className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleExport(report.id, 'html')}
-                      className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-300 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
-                    >
-                      HTML
-                    </button>
-                    <button
-                      onClick={() => handleExport(report.id, 'pdf')}
-                      className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-300 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
-                    >
-                      PDF
-                    </button>
-                  </div>
-                )}
+                                                  {report.status === 'generated' && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleOpenReport(report.id)}
+                        className="flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300 font-medium px-3 py-1.5 rounded-lg hover:bg-blue-500/10 transition-colors"
+                      >
+                        View Report
+                      </button>
+                      <button
+                        onClick={() => handleExport(report.id, 'html')}
+                        className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-300 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
+                      >
+                        HTML
+                      </button>
+                      <button
+                        onClick={() => handleExport(report.id, 'pdf')}
+                        className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-300 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
+                      >
+                        PDF
+                      </button>
+                      <button
+                        onClick={() => handleShareReport(report.id)}
+                        className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-300 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
+                      >
+                        Share
+                      </button>
+                    </div>
+                  )}
               </div>
             </div>
           ))}

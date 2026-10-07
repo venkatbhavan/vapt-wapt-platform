@@ -1,3 +1,4 @@
+import secrets
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from app.services.report_export import render_html_report, generate_pdf_report
 import re
@@ -102,3 +103,42 @@ def export_pdf_report(report_id: int, db: Session = Depends(get_db)):
         media_type="application/pdf",
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
+
+@router.post("/api/reports/{report_id}/share", response_model=ReportMetadataResponse)
+def share_report(report_id: int, db: Session = Depends(get_db)):
+    report = db.query(Report).filter(Report.id == report_id).first()
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+        
+    if report.status != ReportStatus.generated or not report.snapshot:
+        raise HTTPException(status_code=400, detail="Report must be generated before sharing")
+        
+    if not report.share_token:
+        report.share_token = secrets.token_urlsafe(32)
+        db.commit()
+        db.refresh(report)
+        
+    return report
+
+@router.post("/api/reports/{report_id}/unshare", response_model=ReportMetadataResponse)
+def unshare_report(report_id: int, db: Session = Depends(get_db)):
+    report = db.query(Report).filter(Report.id == report_id).first()
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+        
+    report.share_token = None
+    db.commit()
+    db.refresh(report)
+    
+    return report
+
+@router.get("/api/shared/reports/{token}", response_model=ReportResponse)
+def get_shared_report(token: str, db: Session = Depends(get_db)):
+    report = db.query(Report).filter(Report.share_token == token).first()
+    if not report:
+        raise HTTPException(status_code=404, detail="Shared report not found")
+        
+    if report.status != ReportStatus.generated or not report.snapshot:
+        raise HTTPException(status_code=400, detail="Shared report snapshot is not available")
+        
+    return report

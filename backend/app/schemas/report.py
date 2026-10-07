@@ -101,6 +101,7 @@ class ReportResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     generated_at: Optional[datetime]
+    share_token: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -115,6 +116,7 @@ class ReportMetadataResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     generated_at: Optional[datetime]
+    share_token: Optional[str] = None
 
     class Config:
         orm_mode = True
