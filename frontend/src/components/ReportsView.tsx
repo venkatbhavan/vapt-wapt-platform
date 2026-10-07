@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, FileText, CheckCircle, XCircle, Clock, AlertTriangle, RefreshCw, Shield, Link, X, Copy, Trash2 } from 'lucide-react';
+import { Linkedin, ArrowLeft, FileText, CheckCircle, XCircle, Clock, AlertTriangle, RefreshCw, Shield, Link, X, Copy } from 'lucide-react';
 import { ReportMetadata, ReportDataset, TechnicalFinding } from '../types/report';
 
 interface ReportsViewProps {
@@ -496,9 +496,50 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Create New Link</label>
+                <h4 className="text-sm font-medium text-gray-400 mb-3">Existing Share Links</h4>
+                {sharesLoading ? (
+                  <p className="text-sm text-gray-500 text-center py-4">Loading...</p>
+                ) : shares.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-4 bg-gray-950 border border-gray-800 rounded-lg">No active share links.</p>
+                ) : (
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                    {shares.map(share => (
+                      <div key={share.id} className="bg-gray-950 border border-gray-800 rounded p-3 flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                              share.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                              share.status === 'expired' ? 'bg-yellow-500/20 text-yellow-400' :
+                              'bg-red-500/20 text-red-400'
+                            }`}>
+                              {share.status.toUpperCase()}
+                            </span>
+                            <span className="text-xs text-gray-500">Views: {share.access_count}</span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Expires: {share.expires_at ? new Date(share.expires_at).toLocaleString() : 'Never'}
+                          </p>
+                        </div>
+                        {share.status === 'active' && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => revokeShare(share.id)}
+                              className="text-gray-400 hover:text-red-400 px-2 py-1 text-xs font-medium rounded hover:bg-red-500/10 transition-colors border border-gray-700"
+                            >
+                              Revoke
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-4 border-t border-gray-800">
+                <label className="block text-sm font-medium text-gray-400 mb-3">Create New Share Link</label>
                 <div className="flex items-center gap-2">
                   <select
                     value={expirationOption}
@@ -513,7 +554,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
                   </select>
                   <button
                     onClick={createShare}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
                   >
                     Create Link
                   </button>
@@ -521,69 +562,44 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
               </div>
 
               {newShareUrl && (
-                <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-lg space-y-2">
-                  <div className="flex flex-col gap-2">
-                    <p className="text-sm text-green-400 font-medium flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Share link created
-                    </p>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        readOnly
-                        value={newShareUrl}
-                        className="flex-1 bg-black/20 border border-green-500/20 rounded px-2 py-1 text-xs text-gray-300 font-mono"
-                      />
-                      <button
-                        onClick={() => navigator.clipboard.writeText(newShareUrl)}
-                        className="p-1.5 bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded flex items-center gap-1 text-xs"
-                      >
-                        <Copy className="w-3 h-3" /> Copy
-                      </button>
-                    </div>
-                  </div>
+                <div className="bg-green-500/10 border border-green-500/20 px-4 py-3 rounded-lg flex items-center justify-between">
+                  <p className="text-sm text-green-400 font-medium flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" /> Share link created
+                  </p>
+                  <span className="text-xs text-gray-400">Ready to share</span>
                 </div>
               )}
 
               <div className="pt-4 border-t border-gray-800">
-                <h4 className="text-sm font-medium text-gray-400 mb-3">Existing Share Links</h4>
-                {sharesLoading ? (
-                  <p className="text-sm text-gray-500 text-center py-4">Loading...</p>
-                ) : shares.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-4">No active share links.</p>
-                ) : (
-                  <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
-                    {shares.map(share => (
-                      <div key={share.id} className="bg-gray-950 border border-gray-800 rounded p-3 flex items-center justify-between">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                              share.status === 'active' ? 'bg-green-500/20 text-green-400' :
-                              share.status === 'expired' ? 'bg-yellow-500/20 text-yellow-400' :
-                              'bg-red-500/20 text-red-400'
-                            }`}>
-                              {share.status.toUpperCase()}
-                            </span>
-                            <span className="text-xs text-gray-500">Accesses: {share.access_count}</span>
-                          </div>
-                          {share.expires_at && (
-                            <p className="text-xs text-gray-500 mt-1">
-                              Expires: {new Date(share.expires_at).toLocaleString()}
-                            </p>
-                          )}
-                        </div>
-                        {share.status === 'active' && (
-                          <button
-                            onClick={() => revokeShare(share.id)}
-                            className="text-gray-500 hover:text-red-400 p-1.5 rounded hover:bg-red-500/10 transition-colors"
-                            title="Revoke Link"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <h4 className="text-sm font-medium text-gray-400 mb-3">Share Externally</h4>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => {
+                        if (!newShareUrl) {
+                            alert("Create a secure share link before sharing externally.");
+                            return;
+                        }
+                        const encoded = encodeURIComponent(newShareUrl);
+                        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encoded}`, "_blank");
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 bg-[#0077b5] hover:bg-[#005582] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <Linkedin className="w-4 h-4" /> LinkedIn
+                  </button>
+                  <button
+                    onClick={() => {
+                        if (!newShareUrl) {
+                            alert("Create a secure share link before sharing externally.");
+                            return;
+                        }
+                        navigator.clipboard.writeText(newShareUrl);
+                        alert("Link copied");
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <Copy className="w-4 h-4" /> Copy Link
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -592,4 +608,3 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
     </div>
   );
 };
-

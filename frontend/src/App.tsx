@@ -32,8 +32,7 @@ function App() {
 
   const path = window.location.pathname;
   if (path.startsWith('/shared/reports/')) {
-    const token = path.split('/shared/reports/')[1];
-    return <SharedReportView token={token} />;
+    return <SharedReportView />;
   }
 
   return (
