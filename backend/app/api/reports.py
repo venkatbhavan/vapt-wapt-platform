@@ -1,3 +1,9 @@
+
+import hashlib
+import secrets
+from datetime import datetime, timezone
+from app.models.report_share import ReportShareLink
+from app.schemas.report import ReportShareLinkCreate, ReportShareLinkResponse
 import secrets
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from app.services.report_export import render_html_report, generate_pdf_report
@@ -104,41 +110,100 @@ def export_pdf_report(report_id: int, db: Session = Depends(get_db)):
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
 
-@router.post("/api/reports/{report_id}/share", response_model=ReportMetadataResponse)
-def share_report(report_id: int, db: Session = Depends(get_db)):
+
+def _get_share_status(share: ReportShareLink) -> str:
+    now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
+    if share.revoked_at is not None:
+        return "revoked"
+    if share.expires_at is not None and now_utc >= share.expires_at:
+        return "expired"
+    return "active"
+
+@router.post("/api/reports/{report_id}/shares", response_model=ReportShareLinkResponse)
+def create_report_share(report_id: int, req: ReportShareLinkCreate, db: Session = Depends(get_db)):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
-        
+
     if report.status != ReportStatus.generated or not report.snapshot:
         raise HTTPException(status_code=400, detail="Report must be generated before sharing")
-        
-    if not report.share_token:
-        report.share_token = secrets.token_urlsafe(32)
-        db.commit()
-        db.refresh(report)
-        
-    return report
 
-@router.post("/api/reports/{report_id}/unshare", response_model=ReportMetadataResponse)
-def unshare_report(report_id: int, db: Session = Depends(get_db)):
+    raw_token = secrets.token_urlsafe(32)
+    token_hash = hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
+
+    # expires_at comes as a timezone-aware UTC datetime from Pydantic, convert to naive UTC for SQLite
+    expires_at = req.expires_at.replace(tzinfo=None) if req.expires_at else None
+
+    share_link = ReportShareLink(
+        report_id=report_id,
+        token_hash=token_hash,
+        expires_at=expires_at,
+        created_at=datetime.now(timezone.utc).replace(tzinfo=None)
+    )
+    db.add(share_link)
+    db.commit()
+    db.refresh(share_link)
+
+    # Construct response with raw token just this once
+    resp = ReportShareLinkResponse(id=share_link.id, report_id=share_link.report_id, created_at=share_link.created_at, expires_at=share_link.expires_at, revoked_at=share_link.revoked_at, last_accessed_at=share_link.last_accessed_at, access_count=share_link.access_count, status="", share_url="")
+    resp.status = _get_share_status(share_link)
+    resp.share_url = f"/shared/reports/{raw_token}"
+    return resp
+
+@router.get("/api/reports/{report_id}/shares", response_model=List[ReportShareLinkResponse])
+def list_report_shares(report_id: int, db: Session = Depends(get_db)):
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
-        
-    report.share_token = None
-    db.commit()
-    db.refresh(report)
-    
-    return report
+
+    shares = db.query(ReportShareLink).filter(ReportShareLink.report_id == report_id).order_by(ReportShareLink.created_at.desc()).all()
+
+    results = []
+    for share in shares:
+        resp = ReportShareLinkResponse(id=share.id, report_id=share.report_id, created_at=share.created_at, expires_at=share.expires_at, revoked_at=share.revoked_at, last_accessed_at=share.last_accessed_at, access_count=share.access_count, status="", share_url=None)
+        resp.status = _get_share_status(share)
+        results.append(resp)
+
+    return results
+
+@router.post("/api/shares/{share_id}/revoke", response_model=ReportShareLinkResponse)
+def revoke_report_share(share_id: int, db: Session = Depends(get_db)):
+    share = db.query(ReportShareLink).filter(ReportShareLink.id == share_id).first()
+    if not share:
+        raise HTTPException(status_code=404, detail="Share link not found")
+
+    if share.revoked_at is None:
+        share.revoked_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        db.commit()
+        db.refresh(share)
+
+    resp = ReportShareLinkResponse(id=share.id, report_id=share.report_id, created_at=share.created_at, expires_at=share.expires_at, revoked_at=share.revoked_at, last_accessed_at=share.last_accessed_at, access_count=share.access_count, status="", share_url=None)
+    resp.status = _get_share_status(share)
+    return resp
 
 @router.get("/api/shared/reports/{token}", response_model=ReportResponse)
 def get_shared_report(token: str, db: Session = Depends(get_db)):
-    report = db.query(Report).filter(Report.share_token == token).first()
-    if not report:
-        raise HTTPException(status_code=404, detail="Shared report not found")
-        
-    if report.status != ReportStatus.generated or not report.snapshot:
-        raise HTTPException(status_code=400, detail="Shared report snapshot is not available")
-        
+    token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+    share = db.query(ReportShareLink).filter(ReportShareLink.token_hash == token_hash).first()
+
+    if not share:
+        raise HTTPException(status_code=404, detail="Shared report not found or no longer available.")
+
+    now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
+
+    if share.revoked_at is not None:
+        raise HTTPException(status_code=404, detail="Shared report not found or no longer available.")
+
+    if share.expires_at is not None and now_utc >= share.expires_at:
+        raise HTTPException(status_code=404, detail="Shared report not found or no longer available.")
+
+    report = db.query(Report).filter(Report.id == share.report_id).first()
+    if not report or report.status != ReportStatus.generated or not report.snapshot:
+        raise HTTPException(status_code=404, detail="Shared report not found or no longer available.")
+
+    # Increment access tracking
+    share.access_count += 1
+    share.last_accessed_at = now_utc
+    db.commit()
+
     return report

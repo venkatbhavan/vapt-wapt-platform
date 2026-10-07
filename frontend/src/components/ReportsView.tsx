@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, FileText, CheckCircle, XCircle, Clock, AlertTriangle, RefreshCw, Shield } from 'lucide-react';
+import { ArrowLeft, FileText, CheckCircle, XCircle, Clock, AlertTriangle, RefreshCw, Shield, Link, X, Copy, Trash2 } from 'lucide-react';
 import { ReportMetadata, ReportDataset, TechnicalFinding } from '../types/report';
 
 interface ReportsViewProps {
@@ -15,6 +15,67 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
   const [dataset, setDataset] = useState<ReportDataset | null>(null);
   const [datasetLoading, setDatasetLoading] = useState(false);
   const [datasetError, setDatasetError] = useState<string | null>(null);
+
+  const [shareModalReportId, setShareModalReportId] = useState<number | null>(null);
+  const [shares, setShares] = useState<any[]>([]);
+  const [sharesLoading, setSharesLoading] = useState(false);
+  const [expirationOption, setExpirationOption] = useState<string>('never');
+  const [newShareUrl, setNewShareUrl] = useState<string | null>(null);
+
+  const openShareModal = async (reportId: number) => {
+    setShareModalReportId(reportId);
+    setNewShareUrl(null);
+    setSharesLoading(true);
+    setExpirationOption('never');
+    try {
+      const res = await fetch(`http://localhost:8000/api/reports/${reportId}/shares`);
+      if (res.ok) {
+        setShares(await res.json());
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSharesLoading(false);
+    }
+  };
+
+  const createShare = async () => {
+    try {
+      let expiresAt: string | null = null;
+      if (expirationOption !== 'never') {
+        const d = new Date();
+        if (expirationOption === '1h') d.setHours(d.getHours() + 1);
+        else if (expirationOption === '24h') d.setHours(d.getHours() + 24);
+        else if (expirationOption === '7d') d.setDate(d.getDate() + 7);
+        else if (expirationOption === '30d') d.setDate(d.getDate() + 30);
+        expiresAt = d.toISOString();
+      }
+      const res = await fetch(`http://localhost:8000/api/reports/${shareModalReportId}/shares`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expires_at: expiresAt })
+      });
+      if (!res.ok) throw new Error('Share creation failed');
+      const data = await res.json();
+      setNewShareUrl(`${window.location.origin}${data.share_url}`);
+      setShares([data, ...shares]);
+    } catch (err) {
+      alert("Failed to create share link");
+    }
+  };
+
+  const revokeShare = async (shareId: number) => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/shares/${shareId}/revoke`, { method: 'POST' });
+      if (res.ok) {
+        const updated = await res.json();
+        setShares(shares.map(s => s.id === shareId ? updated : s));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const [generating, setGenerating] = useState(false);
 
   const fetchReports = async () => {
@@ -59,24 +120,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
 
 
 
-  
-  
-  const handleShareReport = async (reportId: number) => {
-    try {
-      const res = await fetch(`http://localhost:8000/api/reports/${reportId}/share`, {
-        method: 'POST'
-      });
-      if (!res.ok) throw new Error('Share failed');
-      const data = await res.json();
-      const shareUrl = `${window.location.origin}/shared/reports/${data.share_token}`;
-      
-      await navigator.clipboard.writeText(shareUrl);
-      alert(`Report shared! Link copied to clipboard:
-${shareUrl}`);
-    } catch (err) {
-      setError('Unable to share report.');
-    }
-  };
+
+
 
 
   const handleExport = async (reportId: number, format: 'html' | 'pdf') => {
@@ -425,7 +470,7 @@ ${shareUrl}`);
                         PDF
                       </button>
                       <button
-                        onClick={() => handleShareReport(report.id)}
+                        onClick={() => openShareModal(report.id)}
                         className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-300 font-medium px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
                       >
                         Share
@@ -437,6 +482,114 @@ ${shareUrl}`);
           ))}
         </div>
       )}
+
+      {shareModalReportId && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-gray-800 rounded-lg max-w-md w-full p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <Link className="w-5 h-5 text-blue-400" />
+                Share Report
+              </h3>
+              <button onClick={() => setShareModalReportId(null)} className="text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Create New Link</label>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={expirationOption}
+                    onChange={(e) => setExpirationOption(e.target.value)}
+                    className="flex-1 bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="never">No expiration</option>
+                    <option value="1h">Expires in 1 hour</option>
+                    <option value="24h">Expires in 24 hours</option>
+                    <option value="7d">Expires in 7 days</option>
+                    <option value="30d">Expires in 30 days</option>
+                  </select>
+                  <button
+                    onClick={createShare}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Create Link
+                  </button>
+                </div>
+              </div>
+
+              {newShareUrl && (
+                <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-lg space-y-2">
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm text-green-400 font-medium flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" /> Share link created
+                    </p>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        value={newShareUrl}
+                        className="flex-1 bg-black/20 border border-green-500/20 rounded px-2 py-1 text-xs text-gray-300 font-mono"
+                      />
+                      <button
+                        onClick={() => navigator.clipboard.writeText(newShareUrl)}
+                        className="p-1.5 bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded flex items-center gap-1 text-xs"
+                      >
+                        <Copy className="w-3 h-3" /> Copy
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-4 border-t border-gray-800">
+                <h4 className="text-sm font-medium text-gray-400 mb-3">Existing Share Links</h4>
+                {sharesLoading ? (
+                  <p className="text-sm text-gray-500 text-center py-4">Loading...</p>
+                ) : shares.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-4">No active share links.</p>
+                ) : (
+                  <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                    {shares.map(share => (
+                      <div key={share.id} className="bg-gray-950 border border-gray-800 rounded p-3 flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                              share.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                              share.status === 'expired' ? 'bg-yellow-500/20 text-yellow-400' :
+                              'bg-red-500/20 text-red-400'
+                            }`}>
+                              {share.status.toUpperCase()}
+                            </span>
+                            <span className="text-xs text-gray-500">Accesses: {share.access_count}</span>
+                          </div>
+                          {share.expires_at && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              Expires: {new Date(share.expires_at).toLocaleString()}
+                            </p>
+                          )}
+                        </div>
+                        {share.status === 'active' && (
+                          <button
+                            onClick={() => revokeShare(share.id)}
+                            className="text-gray-500 hover:text-red-400 p-1.5 rounded hover:bg-red-500/10 transition-colors"
+                            title="Revoke Link"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+

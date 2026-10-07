@@ -101,7 +101,6 @@ class ReportResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     generated_at: Optional[datetime]
-    share_token: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -116,7 +115,23 @@ class ReportMetadataResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     generated_at: Optional[datetime]
-    share_token: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class ReportShareLinkCreate(BaseModel):
+    expires_at: Optional[datetime] = None
+
+class ReportShareLinkResponse(BaseModel):
+    id: int
+    report_id: int
+    created_at: datetime
+    expires_at: Optional[datetime]
+    revoked_at: Optional[datetime]
+    last_accessed_at: Optional[datetime]
+    access_count: int
+    status: str
+    share_url: Optional[str] = None  # Only returned once on creation
 
     class Config:
         orm_mode = True

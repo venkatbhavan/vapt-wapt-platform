@@ -16,13 +16,14 @@ class Report(Base):
     assessment_id = Column(Integer, ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False)
     title = Column(String, nullable=False)
     status = Column(Enum(ReportStatus), default=ReportStatus.draft, nullable=False)
-    share_token = Column(String, unique=True, index=True, nullable=True)
-    
+
+
     # The generated dataset representing the point-in-time snapshot
     snapshot = Column(JSON, nullable=True)
-    
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     generated_at = Column(DateTime, nullable=True)
 
     assessment = relationship("Assessment", back_populates="reports")
+    share_links = relationship("ReportShareLink", back_populates="report", cascade="all, delete-orphan")
