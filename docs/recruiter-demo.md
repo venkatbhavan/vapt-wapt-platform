@@ -8,7 +8,7 @@ The demo leverages the existing React frontend and FastAPI backend by placing th
 
 ## 3. Demo Security Boundary
 - **State Mutation Blocked:** A global HTTP middleware intercepts and denies all mutating actions.
-- **Scanner Execution Disabled:** By blocking the `POST /scan-jobs` endpoint, the `subprocess` integration to Nmap and the API calls to OWASP ZAP are physically disconnected from web exposure.
+- **Scanner Execution Disabled:** By blocking the `POST /scan-jobs` endpoint, the `subprocess` integration to Nmap and the API calls to OWASP ZAP are blocked from the public request path.
 - **AI Analyst (Deterministic):** The AI analysis endpoint remains active but the backend Provider intercepts the call to utilize `MockAIProvider`, delivering deterministic responses and neutralizing API token leaks.
 
 ## 4. Data Model

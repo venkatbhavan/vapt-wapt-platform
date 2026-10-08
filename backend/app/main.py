@@ -21,12 +21,16 @@ app = FastAPI(
 )
 
 # Demo Mode Middleware
+import re
+
 @app.middleware("http")
 async def demo_mode_middleware(request: Request, call_next):
     if os.environ.get("DEMO_MODE") == "true":
-        if request.method in ["POST", "PUT", "DELETE"]:
-            # AI Analyst is a read-only query that uses POST for payload, allow it
-            if not request.url.path.endswith("/ai-analysis"):
+        if request.method in ["POST", "PUT", "PATCH", "DELETE"]:
+            # Exact route matching for AI analysis
+            if request.method == "POST" and bool(re.match(r"^/api/assessments/\d+/ai-analysis$", request.url.path)):
+                pass
+            else:
                 return JSONResponse(
                     status_code=403,
                     content={"detail": "Action disabled in read-only Demo Mode."}

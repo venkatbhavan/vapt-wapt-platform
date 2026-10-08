@@ -184,7 +184,7 @@ vapt-wapt-platform/
 
 Recruiter Demo — deployment planned.
 
-*Note: Demo mode operates in a strict read-only boundary. Scanner execution and mutations are mathematically disabled in demo state.*
+*Note: Demo mode operates in a strict read-only boundary. Scanner execution and mutations are prevented by a server-side request boundary in demo state.*
 
 ## Local Demo
 
@@ -255,3 +255,11 @@ This project was built to demonstrate complex security automation, deterministic
 
 - [AI Security Analyst Architecture](docs/ai-security-analyst.md)
 - [Security Posture Methodology](docs/security-posture.md)
+
+## Deployment Status
+
+Controlled recruiter demo is ready. Production deployment remains intentionally deferred.
+
+### Recruiter Demo vs Production VAPT Platform
+- **Recruiter Demo**: A safe, isolated, read-only viewer demonstrating the UI, workflows, and AI Analyst over a controlled local Juice Shop scan dataset. Scanner dispatch is disabled.
+- **Production VAPT Platform**: Intentionally deferred. Requires isolated Celery/Redis workers, egress-firewalled VPCs, PostgreSQL, and OAuth/RBAC.
