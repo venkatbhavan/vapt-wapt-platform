@@ -44,7 +44,7 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`http://localhost:8000/api/assessments/${assessmentId}/retests`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}`}/api/assessments/${assessmentId}/retests`);
       if (!res.ok) throw new Error('Failed to fetch retests');
       const data: RetestRequest[] = await res.json();
       setRetests(data);
@@ -63,7 +63,7 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
   const handleRetest = async (findingId: number) => {
     setTriggeringId(findingId);
     try {
-      const res = await fetch(`http://localhost:8000/api/findings/${findingId}/retests`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}`}/api/findings/${findingId}/retests`, {
         method: 'POST'
       });
       if (!res.ok) throw new Error('Failed to trigger retest');

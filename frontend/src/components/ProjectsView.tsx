@@ -23,7 +23,7 @@ export function ProjectsView({ onSelectProject }: ProjectsViewProps) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('http://localhost:8000/api/projects');
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/projects`);
       if (!res.ok) throw new Error('Failed to fetch projects');
       const data = await res.json();
       setProjects(data);
@@ -44,7 +44,7 @@ export function ProjectsView({ onSelectProject }: ProjectsViewProps) {
     setCreating(true);
     setError('');
     try {
-      const res = await fetch('http://localhost:8000/api/projects', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/projects`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, description }),

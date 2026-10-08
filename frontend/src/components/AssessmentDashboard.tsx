@@ -45,10 +45,10 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
       setLoading(true); setError('');
       try {
         const [assessRes, sumRes, findRes, postRes] = await Promise.all([
-          fetch('http://localhost:8000/api/assessments/' + assessmentId),
-          fetch('http://localhost:8000/api/assessments/' + assessmentId + '/summary'),
-          fetch('http://localhost:8000/api/assessments/' + assessmentId + '/findings?limit=5'),
-          fetch('http://localhost:8000/api/assessments/' + assessmentId + '/posture').catch(() => null)
+          fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/assessments/` + assessmentId),
+          fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/assessments/` + assessmentId + '/summary'),
+          fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/assessments/` + assessmentId + '/findings?limit=5'),
+          fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/assessments/` + assessmentId + '/posture').catch(() => null)
         ]);
         
         if (!assessRes.ok) throw new Error('Assessment not found');

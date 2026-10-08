@@ -19,7 +19,7 @@ export function SharedReportView() {
       return;
     }
 
-    fetch(`http://localhost:8000/api/shared/reports/${token}`)
+    fetch(`${import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}`}/api/shared/reports/${token}`)
       .then(res => {
         if (!res.ok) throw new Error("This shared report is unavailable or has expired.");
         return res.json();

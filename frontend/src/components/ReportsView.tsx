@@ -28,7 +28,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
     setSharesLoading(true);
     setExpirationOption('never');
     try {
-      const res = await fetch(`http://localhost:8000/api/reports/${reportId}/shares?assessment_id=${assessmentId}`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}`}/api/reports/${reportId}/shares?assessment_id=${assessmentId}`);
       if (res.ok) {
         setShares(await res.json());
       }
@@ -50,7 +50,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
         else if (expirationOption === '30d') d.setDate(d.getDate() + 30);
         expiresAt = d.toISOString();
       }
-      const res = await fetch(`http://localhost:8000/api/reports/${shareModalReportId}/shares?assessment_id=${assessmentId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}`}/api/reports/${shareModalReportId}/shares?assessment_id=${assessmentId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ expires_at: expiresAt })
@@ -66,7 +66,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
 
   const revokeShare = async (shareId: number) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/shares/${shareId}/revoke?assessment_id=${assessmentId}`, { method: 'POST' });
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}`}/api/shares/${shareId}/revoke?assessment_id=${assessmentId}`, { method: 'POST' });
       if (res.ok) {
         const updated = await res.json();
         setShares(shares.map(s => s.id === shareId ? updated : s));
@@ -126,7 +126,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
 
   const handleExport = async (reportId: number, format: 'html' | 'pdf') => {
     try {
-      const res = await fetch(`http://localhost:8000/api/reports/${reportId}/export/${format}?assessment_id=${assessmentId}`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}`}/api/reports/${reportId}/export/${format}?assessment_id=${assessmentId}`);
       if (!res.ok) throw new Error('Export failed');
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);

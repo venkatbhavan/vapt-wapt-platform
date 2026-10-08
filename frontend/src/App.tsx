@@ -27,7 +27,7 @@ function App() {
   const [viewingAIAnalyst, setViewingAIAnalyst] = useState<boolean>(false);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/health')
+    fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/health`)
       .then(res => res.json())
       .then(data => setApiStatus(data.status === 'ok' ? 'Connected' : 'Error'))
       .catch(() => setApiStatus('Disconnected'));
@@ -53,6 +53,17 @@ function App() {
           <span className="text-sm font-mono text-cyber-text">API: {apiStatus}</span>
         </div>
       </header>
+      {import.meta.env.VITE_DEMO_MODE === 'true' && (
+        <div className="mb-8 border border-cyber-accent bg-cyber-darker p-4 rounded flex flex-col gap-1 max-w-xl shadow-[0_0_15px_rgba(0,255,255,0.15)] relative overflow-hidden">
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyber-accent"></div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-cyber-accent animate-pulse"></div>
+            <h2 className="text-cyber-accent font-bold tracking-wider text-sm uppercase">DEMO MODE — READ ONLY</h2>
+          </div>
+          <p className="text-cyber-text text-sm ml-4">Simulated security assessment. Scanner execution is disabled.</p>
+        </div>
+      )}
+
 
       {/* Dashboard Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">

@@ -179,6 +179,13 @@ vapt-wapt-platform/
 └── README.md
 ```
 
+
+## Live Demo
+
+Recruiter Demo — deployment planned.
+
+*Note: Demo mode operates in a strict read-only boundary. Scanner execution and mutations are mathematically disabled in demo state.*
+
 ## Local Demo
 
 To test the platform safely, you can spin up a local instance of OWASP Juice Shop as an authorized target. **Do NOT scan targets you do not own or are not explicitly authorized to assess.**

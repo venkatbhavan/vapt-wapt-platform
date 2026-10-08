@@ -20,7 +20,7 @@ class MockAIProvider(AIProvider):
         return AIAnalystResponse(
             assessment_id=context["assessment_id"],
             analyst_version="mock-1.0",
-            summary=f"Mock analysis of assessment {context['assessment_id']} with posture level {posture_level}.",
+            summary=f"[DEMO MODE] This is a deterministic mock AI analysis. A real LLM was not invoked to save costs/API keys in the public demo. Assessment {context['assessment_id']} has {finding_count} findings and posture level {posture_level}.",
             key_observations=[f"Observed {finding_count} active findings."],
             risk_priorities=["Fix critical vulnerabilities first."] if finding_count > 0 else ["No immediate risk priorities."],
             correlations=["Findings correlate with exposed attack surface." if context.get("attack_surface", {}).get("services") else "No direct attack surface correlations observed."],

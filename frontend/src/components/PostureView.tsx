@@ -14,7 +14,7 @@ export function PostureView({ assessmentId, onBack }: PostureViewProps) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/assessments/${assessmentId}/posture`)
+    fetch(`${import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}`}/api/assessments/${assessmentId}/posture`)
       .then(res => {
         if (!res.ok) throw new Error('Failed to load posture data');
         return res.json();

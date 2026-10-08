@@ -43,7 +43,7 @@ export function AIAnalystView({ assessmentId, onBack }: AIAnalystViewProps) {
         analysis_type: analysisType,
       };
 
-      const res = await fetch(`http://localhost:8000/api/assessments/${assessmentId}/ai-analysis`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}`}/api/assessments/${assessmentId}/ai-analysis`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

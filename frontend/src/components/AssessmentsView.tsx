@@ -36,7 +36,7 @@ export function AssessmentsView({ projectId, onBack, onSelectAssessment }: Asses
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`http://localhost:8000/api/projects/${projectId}/assessments`);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}`}/api/projects/${projectId}/assessments`);
       if (res.status === 404) {
         throw new Error('Project not found');
       }
@@ -63,7 +63,7 @@ export function AssessmentsView({ projectId, onBack, onSelectAssessment }: Asses
     setCreating(true);
     setError('');
     try {
-      const res = await fetch(`http://localhost:8000/api/projects/${projectId}/assessments`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}`}/api/projects/${projectId}/assessments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
