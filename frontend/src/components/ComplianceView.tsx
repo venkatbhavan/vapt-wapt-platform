@@ -19,7 +19,7 @@ const getSeverityColor = (severity: string) => {
 };
 
 const getSeverityBadge = (severity: string) => (
-  <span className={`px-2 py-0.5 rounded text-xs border font-medium uppercase ${getSeverityColor(severity)}`}>
+  <span className={`px-2 py-0.5 rounded text-xs border font-mono uppercase ${getSeverityColor(severity)}`}>
     {severity}
   </span>
 );
@@ -147,21 +147,21 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
   }, [data]);
 
   if (loading) {
-    return <div className="text-cyber-text p-8 flex gap-3 items-center"><Activity className="animate-spin" size={20} /> Loading compliance...</div>;
+    return <div className="text-cyber-text p-8 flex gap-3 items-center font-mono uppercase tracking-widest"><Activity className="animate-spin text-cyber-accent" size={20} /> Loading compliance...</div>;
   }
 
   if (error) {
     return (
       <div className="space-y-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-white transition-colors">
+        <button onClick={onBack} className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2">
           <ArrowLeft size={16} /> Back to Dashboard
         </button>
-        <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-lg flex flex-col items-start gap-4">
-          <div className="flex items-center gap-3">
+        <div className="bg-red-500/10 border border-red-500 p-4 rounded flex flex-col items-start gap-4">
+          <div className="flex items-center gap-3 text-red-500">
             <AlertTriangle size={20} />
-            <p>{error}</p>
+            <p className="font-mono uppercase text-sm tracking-widest">{error}</p>
           </div>
-          <button onClick={fetchData} className="bg-red-500/20 hover:bg-red-500/30 px-4 py-2 rounded text-red-400 transition-colors">
+          <button onClick={fetchData} className="border border-red-500 text-red-500 hover:bg-red-500 hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm">
             Retry
           </button>
         </div>
@@ -172,12 +172,12 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
   if (data && data.frameworks.length === 0) {
     return (
       <div className="space-y-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-white transition-colors">
+        <button onClick={onBack} className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2">
           <ArrowLeft size={16} /> Back to Dashboard
         </button>
-        <div className="bg-cyber-darker border border-cyber-border p-8 rounded-lg text-center">
-          <ShieldAlert size={48} className="mx-auto text-cyber-border mb-4" />
-          <h3 className="text-xl font-bold text-cyber-textBright mb-2">No compliance mappings found for this assessment.</h3>
+        <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-8 text-center flex flex-col items-center justify-center">
+          <ShieldAlert size={48} className="text-cyber-border mb-4" />
+          <h3 className="text-white font-mono uppercase tracking-widest mb-2">No compliance mappings found</h3>
           <p className="text-cyber-text">Compliance mappings will appear here when findings are mapped to supported compliance controls.</p>
         </div>
       </div>
@@ -188,45 +188,65 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-white transition-colors mb-4">
+          <button onClick={onBack} className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2 mb-4">
             <ArrowLeft size={16} /> Back to Dashboard
           </button>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Book size={24} className="text-cyber-accent" />
-            Compliance
-          </h2>
-          <p className="text-cyber-text mt-1">Framework and control coverage for this assessment</p>
+          <div className="bg-cyber-darkest border border-cyber-border p-4 flex items-center gap-3 rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] mb-2">
+            <Book size={18} className="text-cyber-accent" />
+            <h3 className="font-mono text-white tracking-widest uppercase text-sm">Compliance</h3>
+          </div>
+          <p className="text-cyber-text mt-1 text-sm font-mono uppercase tracking-wider">Framework and control coverage for this assessment</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg shadow-sm">
-          <p className="text-sm text-cyber-text">Frameworks</p>
-          <p className="text-2xl font-bold text-white mt-1">{summary.frameworks}</p>
+        <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
+            <Activity size={18} className="text-cyber-accent" />
+            <h3 className="font-mono text-white tracking-widest uppercase text-sm">Frameworks</h3>
+          </div>
+          <div className="p-4">
+            <p className="text-2xl font-bold text-white">{summary.frameworks}</p>
+          </div>
         </div>
-        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg shadow-sm">
-          <p className="text-sm text-cyber-text">Controls</p>
-          <p className="text-2xl font-bold text-white mt-1">{summary.controls}</p>
+        <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
+            <ShieldAlert size={18} className="text-cyber-accent" />
+            <h3 className="font-mono text-white tracking-widest uppercase text-sm">Controls</h3>
+          </div>
+          <div className="p-4">
+            <p className="text-2xl font-bold text-white">{summary.controls}</p>
+          </div>
         </div>
-        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg shadow-sm">
-          <p className="text-sm text-cyber-text">Mapped Findings</p>
-          <p className="text-2xl font-bold text-white mt-1">{summary.uniqueFindings}</p>
+        <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
+            <Search size={18} className="text-cyber-accent" />
+            <h3 className="font-mono text-white tracking-widest uppercase text-sm">Mapped Findings</h3>
+          </div>
+          <div className="p-4">
+            <p className="text-2xl font-bold text-white">{summary.uniqueFindings}</p>
+          </div>
         </div>
-        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg shadow-sm">
-          <p className="text-sm text-cyber-text">Mappings</p>
-          <p className="text-2xl font-bold text-white mt-1">{summary.mappings}</p>
+        <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
+            <Book size={18} className="text-cyber-accent" />
+            <h3 className="font-mono text-white tracking-widest uppercase text-sm">Mappings</h3>
+          </div>
+          <div className="p-4">
+            <p className="text-2xl font-bold text-white">{summary.mappings}</p>
+          </div>
         </div>
       </div>
 
-      <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg flex flex-col md:flex-row gap-4">
+      <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-4 flex flex-col md:flex-row gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-2.5 text-cyber-text" size={18} />
           <input
             type="text"
-            placeholder="Search frameworks, controls, findings..."
+            placeholder="SEARCH..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-cyber-darkest border border-cyber-border rounded pl-10 pr-4 py-2 text-white focus:outline-none focus:border-cyber-accent transition-colors"
+            className="w-full bg-cyber-darkest border border-cyber-border rounded pl-10 pr-4 py-2 text-white focus:outline-none focus:border-cyber-accent transition-colors font-mono text-sm uppercase tracking-wider"
           />
         </div>
 
@@ -234,7 +254,7 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="bg-cyber-darkest border border-cyber-border rounded px-3 py-2 text-white focus:outline-none focus:border-cyber-accent"
+            className="bg-cyber-darkest border border-cyber-border rounded px-3 py-2 text-white focus:outline-none focus:border-cyber-accent font-mono text-sm uppercase tracking-wider"
           >
             <option value="all">All Types</option>
             <option value="direct">Direct</option>
@@ -243,7 +263,7 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
           <select
             value={filterConfidence}
             onChange={(e) => setFilterConfidence(e.target.value)}
-            className="bg-cyber-darkest border border-cyber-border rounded px-3 py-2 text-white focus:outline-none focus:border-cyber-accent"
+            className="bg-cyber-darkest border border-cyber-border rounded px-3 py-2 text-white focus:outline-none focus:border-cyber-accent font-mono text-sm uppercase tracking-wider"
           >
             <option value="all">All Confidence</option>
             <option value="high">High</option>
@@ -253,7 +273,7 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
           <select
             value={filterSeverity}
             onChange={(e) => setFilterSeverity(e.target.value)}
-            className="bg-cyber-darkest border border-cyber-border rounded px-3 py-2 text-white focus:outline-none focus:border-cyber-accent"
+            className="bg-cyber-darkest border border-cyber-border rounded px-3 py-2 text-white focus:outline-none focus:border-cyber-accent font-mono text-sm uppercase tracking-wider"
           >
             <option value="all">All Severity</option>
             <option value="critical">Critical</option>
@@ -267,12 +287,12 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
 
       <div className="space-y-4">
         {filteredFrameworks.length === 0 ? (
-          <div className="text-center p-8 text-cyber-text border border-cyber-border border-dashed rounded-lg">
+          <div className="text-center p-8 text-cyber-text border border-cyber-border border-dashed rounded">
             No compliance mappings match your search criteria.
           </div>
         ) : (
           filteredFrameworks.map(fw => (
-            <div key={fw.id} className="border border-cyber-border rounded-lg overflow-hidden bg-cyber-darker">
+            <div key={fw.id} className="border border-cyber-border rounded overflow-hidden bg-cyber-darker">
               <button
                 onClick={() => toggleFramework(fw.id)}
                 className="w-full flex items-center justify-between p-4 bg-cyber-dark/50 hover:bg-cyber-dark transition-colors"

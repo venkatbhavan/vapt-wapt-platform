@@ -251,7 +251,7 @@ const handleTriggerRetest = async () => {
       {/* Active Scan Confirmation Modal */}
       {showActiveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-cyber-darker border border-red-900/50 rounded-lg p-6 max-w-md w-full shadow-2xl">
+          <div className="bg-cyber-darker border border-red-900/50 rounded p-6 max-w-md w-full shadow-2xl">
             <h3 className="text-xl font-semibold text-red-500 mb-2 flex items-center gap-2">
               <ShieldAlert size={24} />
               Active Scan Warning
@@ -286,25 +286,25 @@ const handleTriggerRetest = async () => {
         <button
           onClick={() => handleRunScan(false)}
           disabled={startingScan}
-          className="flex items-center gap-2 bg-cyber-dark hover:bg-cyber-border text-cyber-accent border border-cyber-accent/50 shadow-[0_0_10px_rgba(0,240,255,0.1)] text-white px-4 py-2 rounded transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 bg-cyber-accent/10 border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-mono tracking-widest uppercase text-xs px-4 py-2 rounded transition-colors disabled:opacity-50"
         >
           <Activity size={16} />
           {startingScan ? 'Starting...' : 'Run New Scan'}
         </button>
       </div>
       {error && (
-        <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-lg flex items-center gap-3">
+        <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded flex items-center gap-3">
           <AlertTriangle size={20} />
           <p>{error}</p>
         </div>
       )}
       {/* Top Controls: Scan Job Selection */}
-      <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
-        <h3 className="text-xl font-bold text-white mb-4">Scan Jobs</h3>
+      <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] p-6 overflow-hidden">
+        <h3 className="font-mono text-white tracking-widest uppercase text-sm mb-4 border-b border-cyber-border pb-3">Scan Jobs</h3>
         {loadingJobs && scanJobs.length === 0 ? (
-          <p className="text-cyber-text">Loading scan jobs...</p>
+          <div className="p-8 text-center text-cyber-accent font-mono animate-pulse border border-cyber-border rounded bg-cyber-darker text-sm uppercase tracking-widest">RETRIEVING scan jobs... TELEMETRY...</div>
         ) : scanJobs.length === 0 ? (
-          <p className="text-cyber-text">No scan jobs run for this assessment yet.</p>
+          <div className="border border-cyber-border bg-cyber-darker p-8 rounded text-center flex flex-col items-center justify-center"><Activity size={32} className="text-cyber-border mb-4" /><h4 className="text-white font-mono uppercase tracking-widest mb-2 text-sm">NO scan jobs run for this assessment yet. DETECTED</h4></div>
         ) : (
           <div className="flex gap-4 overflow-x-auto pb-2">
             {scanJobs.map(job => (
@@ -313,7 +313,7 @@ const handleTriggerRetest = async () => {
                 onClick={() => setSelectedJob(job)}
                 className={`flex flex-col text-left p-3 rounded border min-w-[200px] transition-colors ${
                   selectedJob?.id === job.id
-                    ? 'bg-blue-900/20 border-cyber-accent text-blue-100'
+                    ? 'bg-cyber-accent/10 border-cyber-accent text-cyber-accent'
                     : 'bg-cyber-darkest border-cyber-border text-cyber-text hover:border-cyber-border'
                 }`}
               >
@@ -337,10 +337,8 @@ const handleTriggerRetest = async () => {
       {selectedJob && (
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left: Findings List */}
-          <div className="flex-1 bg-cyber-darker border border-cyber-border rounded-lg p-6">
-            <h3 className="text-xl font-bold text-white mb-4">
-              Findings for Job #{selectedJob.id}
-            </h3>
+          <div className="flex-1 bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] p-6 overflow-hidden">
+            <h3 className="font-mono text-white tracking-widest uppercase text-sm mb-4 border-b border-cyber-border pb-3">Findings for Job #{selectedJob.id}</h3>
             {['queued', 'running'].includes(selectedJob.status) ? (
               <div className="flex items-center gap-3 text-yellow-500 bg-yellow-500/10 p-4 rounded border border-yellow-500/20">
                 <Activity className="animate-spin" size={20} />
@@ -352,7 +350,7 @@ const handleTriggerRetest = async () => {
                 <p className="text-sm mt-1 opacity-80">{selectedJob.error_message}</p>
               </div>
             ) : loadingFindings ? (
-              <p className="text-cyber-text">Loading findings...</p>
+              <div className="p-8 text-center text-cyber-accent font-mono animate-pulse border border-cyber-border rounded bg-cyber-darker text-sm uppercase tracking-widest">RETRIEVING findings... TELEMETRY...</div>
             ) : findings.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-8 text-cyber-text border border-dashed border-cyber-border rounded bg-cyber-darkest/50">
                 <CheckCircle size={32} className="mb-2 text-green-500/50" />
@@ -389,7 +387,7 @@ const handleTriggerRetest = async () => {
           </div>
           {/* Right: Detail Panel */}
           {selectedFinding && (
-            <div className="flex-1 bg-cyber-darker border border-cyber-border rounded-lg p-6 flex flex-col h-full max-h-[800px] overflow-y-auto">
+            <div className="flex-1 bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] p-6 overflow-hidden flex flex-col h-full max-h-[800px] overflow-y-auto">
               <div className="flex items-start justify-between mb-4 border-b border-cyber-border pb-4">
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-2">{selectedFinding.title}</h2>
@@ -469,12 +467,12 @@ const handleTriggerRetest = async () => {
                       <h4 className="font-semibold text-white flex items-center gap-2">
                         <RefreshCw size={16} /> Retest History
                       </h4>
-                      <button onClick={handleTriggerRetest} disabled={triggeringRetest || (retestHistory.length > 0 && retestHistory[0].status !== 'completed' && retestHistory[0].status !== 'failed')} className="px-3 py-1.5 text-xs bg-cyber-dark hover:bg-cyber-border text-cyber-accent border border-cyber-accent/50 shadow-[0_0_10px_rgba(0,240,255,0.1)] text-white rounded font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 transition-colors">
+                      <button onClick={handleTriggerRetest} disabled={triggeringRetest || (retestHistory.length > 0 && retestHistory[0].status !== 'completed' && retestHistory[0].status !== 'failed')} className="px-3 py-1.5 text-xs bg-cyber-accent/10 border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-mono tracking-widest uppercase text-xs rounded font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 transition-colors">
                         {triggeringRetest ? (<><RefreshCw size={14} className="animate-spin" />Starting...</>) : (<><RefreshCw size={14} />Run Retest</>)}
                       </button>
                     </div>
                     {retestError && <div className="mb-3 p-2 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded">{retestError}</div>}
-                    {loadingRetests ? <p className="text-cyber-text italic">Loading retests...</p> : retestHistory.length === 0 ? <p className="text-cyber-text italic">No retests have been requested for this finding yet.</p> : (
+                    {loadingRetests ? <div className="p-6 text-center text-cyber-accent font-mono animate-pulse border border-cyber-border rounded bg-cyber-darker text-xs uppercase tracking-widest">RETRIEVING retests......</div> : retestHistory.length === 0 ? <div className="border border-cyber-border bg-cyber-darker p-6 rounded text-center flex flex-col items-center justify-center"><Activity size={24} className="text-cyber-border mb-3" /><h4 className="text-white font-mono uppercase tracking-widest text-xs">NO retests have been requested for this finding yet.</h4></div> : (
                       <div className="space-y-4">
                         {retestHistory.map(rt => (
                           <div key={rt.id} className="bg-cyber-darkest border border-cyber-border rounded p-4">
@@ -508,9 +506,9 @@ const handleTriggerRetest = async () => {
                     <FileText size={16} /> Evidence
                   </h4>
                   {loadingEvidence ? (
-                    <p className="text-cyber-text italic">Loading evidence...</p>
+                    <div className="p-6 text-center text-cyber-accent font-mono animate-pulse border border-cyber-border rounded bg-cyber-darker text-xs uppercase tracking-widest">RETRIEVING evidence......</div>
                   ) : evidenceList.length === 0 ? (
-                    <p className="text-cyber-text italic">No evidence items attached.</p>
+                    <div className="border border-cyber-border bg-cyber-darker p-6 rounded text-center flex flex-col items-center justify-center"><Activity size={24} className="text-cyber-border mb-3" /><h4 className="text-white font-mono uppercase tracking-widest text-xs">NO evidence items attached.</h4></div>
                   ) : (
                     <div className="space-y-3">
                       {evidenceList.map(ev => (

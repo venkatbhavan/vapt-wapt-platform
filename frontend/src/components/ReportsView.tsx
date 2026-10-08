@@ -182,12 +182,12 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
 
   const getSeverityColor = (severity: string) => {
     switch (severity?.toLowerCase()) {
-      case 'critical': return 'text-purple-500 bg-purple-500/10 border-purple-500/20';
-      case 'high': return 'text-red-500 bg-red-500/10 border-red-500/20';
-      case 'medium': return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
-      case 'low': return 'text-cyber-accent bg-cyber-accent/10 border-cyber-accent/20';
-      case 'info': return 'text-cyber-text bg-cyber-text/70/10 border-cyber-text/70/20';
-      default: return 'text-cyber-text bg-cyber-text/70/10 border-cyber-text/70/20';
+      case 'critical': return 'border border-purple-500 px-2 py-0.5 rounded text-xs font-mono uppercase text-purple-500 bg-purple-500/10';
+      case 'high': return 'border border-red-500 px-2 py-0.5 rounded text-xs font-mono uppercase text-red-500 bg-red-500/10';
+      case 'medium': return 'border border-yellow-500 px-2 py-0.5 rounded text-xs font-mono uppercase text-yellow-500 bg-yellow-500/10';
+      case 'low': return 'border border-cyber-accent px-2 py-0.5 rounded text-xs font-mono uppercase text-cyber-accent bg-cyber-accent/10';
+      case 'info': return 'border border-cyber-text px-2 py-0.5 rounded text-xs font-mono uppercase text-cyber-text bg-cyber-text/70/10';
+      default: return 'border border-cyber-text px-2 py-0.5 rounded text-xs font-mono uppercase text-cyber-text bg-cyber-text/70/10';
     }
   };
 
@@ -199,7 +199,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSelectedReportId(null)}
-              className="p-2 hover:bg-cyber-dark rounded-lg transition-colors text-cyber-text hover:text-white"
+              className="p-2 hover:bg-cyber-dark rounded transition-colors text-cyber-text hover:text-white"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -208,7 +208,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
                 <FileText className="w-6 h-6 text-cyber-accent" />
                 {reportMeta?.title || 'Report Preview'}
               </h2>
-              <div className="text-sm text-cyber-text flex items-center gap-2 mt-1">
+              <div className="font-mono uppercase text-xs tracking-wider text-cyber-text flex items-center gap-2 mt-1">
                  <span className="flex items-center gap-1 text-yellow-400 bg-yellow-400/10 px-2 py-0.5 rounded text-xs font-medium border border-yellow-400/20">
                     <Clock className="w-3 h-3" /> Historical report snapshot
                  </span>
@@ -225,7 +225,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyber-accent"></div>
           </div>
         ) : datasetError ? (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-6 flex flex-col items-center justify-center text-center">
+          <div className="bg-red-500/10 border border-red-500/20 rounded p-6 flex flex-col items-center justify-center text-center">
             <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
             <h3 className="text-lg font-medium text-white mb-2">Failed to load report dataset</h3>
             <p className="text-cyber-text">{datasetError}</p>
@@ -234,26 +234,23 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
           <div className="space-y-6">
 
             {/* Scope */}
-            <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
-              <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-cyber-text" />
-                Assessment Scope
-              </h3>
+            <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-6">
+              <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3"><Shield size={18} className="text-cyber-accent" /><h3 className="font-mono text-white tracking-widest uppercase text-sm">Assessment Scope</h3></div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-cyber-dark/50 p-4 rounded-lg">
-                  <div className="text-sm text-cyber-text mb-1">Name</div>
+                <div className="bg-cyber-dark/50 p-4 rounded">
+                  <div className="font-mono uppercase text-xs tracking-wider text-cyber-text mb-1">Name</div>
                   <div className="text-white font-medium">{dataset.scope.name}</div>
                 </div>
-                <div className="bg-cyber-dark/50 p-4 rounded-lg">
-                  <div className="text-sm text-cyber-text mb-1">Target</div>
+                <div className="bg-cyber-dark/50 p-4 rounded">
+                  <div className="font-mono uppercase text-xs tracking-wider text-cyber-text mb-1">Target</div>
                   <div className="text-white font-medium">{dataset.scope.target}</div>
                 </div>
-                <div className="bg-cyber-dark/50 p-4 rounded-lg">
-                  <div className="text-sm text-cyber-text mb-1">Scope Details</div>
+                <div className="bg-cyber-dark/50 p-4 rounded">
+                  <div className="font-mono uppercase text-xs tracking-wider text-cyber-text mb-1">Scope Details</div>
                   <div className="text-white font-medium">{dataset.scope.scope}</div>
                 </div>
-                <div className="bg-cyber-dark/50 p-4 rounded-lg">
-                  <div className="text-sm text-cyber-text mb-1">Status</div>
+                <div className="bg-cyber-dark/50 p-4 rounded">
+                  <div className="font-mono uppercase text-xs tracking-wider text-cyber-text mb-1">Status</div>
                   <div className="text-white font-medium">{dataset.scope.status}</div>
                 </div>
               </div>
@@ -261,8 +258,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
 
             {/* Executive Metrics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
-                   <div className="text-sm text-cyber-text mb-2">Total Findings</div>
+                <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-6">
+                   <div className="font-mono uppercase text-xs tracking-wider text-cyber-text mb-2">Total Findings</div>
                    <div className="text-3xl font-bold text-white">{dataset.executive_summary.total_findings}</div>
                    <div className="mt-4 flex flex-wrap gap-2">
                        <span className={`px-2 py-1 text-xs rounded border ${getSeverityColor("critical")}`}>Critical: {dataset.executive_summary.critical_findings}</span>
@@ -270,28 +267,28 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
                        <span className={`px-2 py-1 text-xs rounded border ${getSeverityColor("medium")}`}>Medium: {dataset.executive_summary.medium_findings}</span>
                    </div>
                 </div>
-                <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
-                   <div className="text-sm text-cyber-text mb-2">Attack Surface</div>
+                <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-6">
+                   <div className="font-mono uppercase text-xs tracking-wider text-cyber-text mb-2">Attack Surface</div>
                    <div className="text-3xl font-bold text-white">{dataset.executive_summary.total_assets}</div>
-                   <div className="text-sm text-cyber-text mt-1">Assets Discovered</div>
+                   <div className="font-mono uppercase text-xs tracking-wider text-cyber-text mt-1">Assets Discovered</div>
                 </div>
-                <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
-                   <div className="text-sm text-cyber-text mb-2">Retesting</div>
+                <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-6">
+                   <div className="font-mono uppercase text-xs tracking-wider text-cyber-text mb-2">Retesting</div>
                    <div className="text-3xl font-bold text-white">{dataset.executive_summary.total_retests}</div>
-                   <div className="text-sm text-cyber-text mt-1">Total Retests</div>
+                   <div className="font-mono uppercase text-xs tracking-wider text-cyber-text mt-1">Total Retests</div>
                    <div className="text-sm text-green-400 mt-1">{dataset.executive_summary.fixed_findings} Fixed</div>
                 </div>
-                <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
-                   <div className="text-sm text-cyber-text mb-2">Remediation</div>
+                <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-6">
+                   <div className="font-mono uppercase text-xs tracking-wider text-cyber-text mb-2">Remediation</div>
                    <div className="text-3xl font-bold text-white">{dataset.remediation_summary.findings_with_remediation}</div>
-                   <div className="text-sm text-cyber-text mt-1">Findings with Remediation</div>
+                   <div className="font-mono uppercase text-xs tracking-wider text-cyber-text mt-1">Findings with Remediation</div>
                 </div>
             </div>
 
             {/* Additional Breakdowns */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
-                <h3 className="text-lg font-medium text-white mb-4">Risk & Confidence</h3>
+              <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-6">
+                <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3"><AlertTriangle size={18} className="text-cyber-accent" /><h3 className="font-mono text-white tracking-widest uppercase text-sm">Risk & Confidence</h3></div>
                 <div className="space-y-4">
                     <div>
                         <h4 className="text-sm font-medium text-cyber-text mb-2">Risk Level Distribution</h4>
@@ -305,8 +302,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
                     </div>
                 </div>
               </div>
-              <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
-                <h3 className="text-lg font-medium text-white mb-4">Compliance Summary</h3>
+              <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-6">
+                <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3"><CheckCircle size={18} className="text-cyber-accent" /><h3 className="font-mono text-white tracking-widest uppercase text-sm">Compliance Summary</h3></div>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                     <div className="bg-cyber-dark p-3 rounded">
                         <div className="text-xs text-cyber-text">Frameworks</div>
@@ -321,15 +318,12 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
             </div>
 
             {/* Technical Findings Table */}
-            <div className="bg-cyber-darker border border-cyber-border rounded-lg overflow-hidden">
-              <div className="p-6 border-b border-cyber-border">
-                <h3 className="text-lg font-medium text-white">Technical Findings</h3>
-                <p className="text-sm text-cyber-text mt-1">Detailed breakdown of all findings identified in the assessment scope.</p>
-              </div>
+            <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden overflow-hidden">
+              <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3"><FileText size={18} className="text-cyber-accent" /><h3 className="font-mono text-white tracking-widest uppercase text-sm">Technical Findings</h3></div><div className="p-4 bg-cyber-darker"><p className="text-sm text-cyber-text font-mono uppercase text-xs tracking-wider">Detailed breakdown of all findings identified in the assessment scope.</p></div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-cyber-border text-cyber-text text-xs uppercase tracking-wider bg-cyber-dark/20">
+                    <tr className="bg-cyber-darkest/50 border-b border-cyber-border text-cyber-text text-xs font-mono uppercase tracking-wider">
                       <th className="p-4 font-medium">Severity</th>
                       <th className="p-4 font-medium">Title</th>
                       <th className="p-4 font-medium">Status</th>
@@ -381,7 +375,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-2 hover:bg-cyber-dark rounded-lg transition-colors text-cyber-text hover:text-white"
+            className="p-2 hover:bg-cyber-dark rounded transition-colors text-cyber-text hover:text-white"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -396,7 +390,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
         <button
           onClick={handleGenerateReport}
           disabled={generating}
-          className="bg-cyber-dark hover:bg-cyber-border text-cyber-accent border border-cyber-accent/50 shadow-[0_0_10px_rgba(0,240,255,0.1)] disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+          className="bg-cyber-accent hover:bg-cyber-accent/80 text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2 disabled:opacity-50"
         >
           {generating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
           {generating ? 'Generating...' : 'Generate New Report'}
@@ -408,23 +402,23 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyber-accent"></div>
         </div>
       ) : error ? (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 flex items-center gap-3 text-red-400">
+        <div className="bg-red-500/10 border border-red-500/20 rounded p-4 flex items-center gap-3 text-red-400">
           <AlertTriangle className="w-5 h-5" />
           <p>{error}</p>
         </div>
       ) : reports.length === 0 ? (
-        <div className="bg-cyber-darker border border-cyber-border rounded-lg p-12 flex flex-col items-center justify-center text-center">
+        <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-12 flex flex-col items-center justify-center text-center">
           <div className="w-16 h-16 bg-cyber-dark rounded-full flex items-center justify-center mb-4">
-            <FileText className="w-8 h-8 text-cyber-text" />
+            <FileText className="w-8 h-8 text-cyber-border" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">No reports generated</h3>
+          <h3 className="text-white font-mono uppercase tracking-widest mb-2">No reports generated</h3>
           <p className="text-cyber-text max-w-sm mb-6">
             No reports have been generated for this assessment yet. Generate a report to capture a historical snapshot of the assessment data.
           </p>
           <button
             onClick={handleGenerateReport}
             disabled={generating}
-            className="bg-cyber-dark hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="bg-cyber-accent hover:bg-cyber-accent/80 text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2"
           >
             Generate First Report
           </button>
@@ -434,15 +428,15 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
           {reports.map((report) => (
             <div
               key={report.id}
-              className="bg-cyber-darker border border-cyber-border rounded-lg p-4 flex items-center justify-between hover:border-cyber-border transition-colors"
+              className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-4 flex items-center justify-between hover:border-cyber-border transition-colors"
             >
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-cyber-accent/10 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-cyber-accent/10 rounded flex items-center justify-center">
                   <FileText className="w-5 h-5 text-cyber-accent" />
                 </div>
                 <div>
                   <h4 className="text-white font-medium">{report.title}</h4>
-                  <div className="text-sm text-cyber-text flex items-center gap-4 mt-1">
+                  <div className="font-mono uppercase text-xs tracking-wider text-cyber-text flex items-center gap-4 mt-1">
                     <span>Created: {new Date(report.created_at).toLocaleString()}</span>
                   </div>
                 </div>
@@ -453,25 +447,25 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleOpenReport(report.id)}
-                        className="flex items-center gap-1 text-sm text-cyber-accent hover:text-cyber-accent font-medium px-3 py-1.5 rounded-lg hover:bg-cyber-accent/10 transition-colors"
+                        className="flex items-center gap-1 text-sm text-cyber-accent hover:text-cyber-accent font-medium px-3 py-1.5 rounded hover:bg-cyber-accent/10 transition-colors"
                       >
                         View Report
                       </button>
                       <button
                         onClick={() => handleExport(report.id, 'html')}
-                        className="flex items-center gap-1 text-sm text-cyber-text hover:text-cyber-textBright font-medium px-3 py-1.5 rounded-lg hover:bg-cyber-dark transition-colors"
+                        className="flex items-center gap-1 text-sm text-cyber-text hover:text-cyber-textBright font-medium px-3 py-1.5 rounded hover:bg-cyber-dark transition-colors"
                       >
                         HTML
                       </button>
                       <button
                         onClick={() => handleExport(report.id, 'pdf')}
-                        className="flex items-center gap-1 text-sm text-cyber-text hover:text-cyber-textBright font-medium px-3 py-1.5 rounded-lg hover:bg-cyber-dark transition-colors"
+                        className="flex items-center gap-1 text-sm text-cyber-text hover:text-cyber-textBright font-medium px-3 py-1.5 rounded hover:bg-cyber-dark transition-colors"
                       >
                         PDF
                       </button>
                       <button
                         onClick={() => openShareModal(report.id)}
-                        className="flex items-center gap-1 text-sm text-cyber-text hover:text-cyber-textBright font-medium px-3 py-1.5 rounded-lg hover:bg-cyber-dark transition-colors"
+                        className="flex items-center gap-1 text-sm text-cyber-text hover:text-cyber-textBright font-medium px-3 py-1.5 rounded hover:bg-cyber-dark transition-colors"
                       >
                         Share
                       </button>
@@ -485,7 +479,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
 
       {shareModalReportId && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-cyber-darker border border-cyber-border rounded-lg max-w-md w-full p-6 space-y-6">
+          <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden max-w-md w-full p-6 space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <Link className="w-5 h-5 text-cyber-accent" />
@@ -502,7 +496,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
                 {sharesLoading ? (
                   <p className="text-sm text-cyber-text text-center py-4">Loading...</p>
                 ) : shares.length === 0 ? (
-                  <p className="text-sm text-cyber-text text-center py-4 bg-cyber-darkest border border-cyber-border rounded-lg">No active share links.</p>
+                  <p className="text-sm text-cyber-text text-center py-4 bg-cyber-darkest border border-cyber-border rounded">No active share links.</p>
                 ) : (
                   <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
                     {shares.map(share => (
@@ -526,7 +520,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
                           <div className="flex gap-2">
                             <button
                               onClick={() => revokeShare(share.id)}
-                              className="text-cyber-text hover:text-red-400 px-2 py-1 text-xs font-medium rounded hover:bg-red-500/10 transition-colors border border-cyber-border"
+                              className="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-bold uppercase tracking-widest py-1 px-2 rounded transition-colors font-mono text-xs"
                             >
                               Revoke
                             </button>
@@ -539,12 +533,12 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
               </div>
 
               <div className="pt-4 border-t border-cyber-border">
-                <label className="block text-sm font-medium text-cyber-text mb-3">Create New Share Link</label>
+                <label className="block text-xs font-mono text-cyber-accent uppercase tracking-wider mb-1">Create New Share Link</label>
                 <div className="flex items-center gap-2">
                   <select
                     value={expirationOption}
                     onChange={(e) => setExpirationOption(e.target.value)}
-                    className="flex-1 bg-cyber-darkest border border-cyber-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyber-accent"
+                    className="flex-1 bg-cyber-darkest border border-cyber-border rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-cyber-accent"
                   >
                     <option value="never">No expiration</option>
                     <option value="1h">Expires in 1 hour</option>
@@ -554,7 +548,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
                   </select>
                   <button
                     onClick={createShare}
-                    className="bg-cyber-dark hover:bg-cyber-border text-cyber-accent border border-cyber-accent/50 shadow-[0_0_10px_rgba(0,240,255,0.1)] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+                    className="bg-cyber-accent hover:bg-cyber-accent/80 text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm whitespace-nowrap"
                   >
                     Create Link
                   </button>
@@ -562,7 +556,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
               </div>
 
               {newShareUrl && (
-                <div className="bg-green-500/10 border border-green-500/20 px-4 py-3 rounded-lg flex items-center justify-between">
+                <div className="bg-green-500/10 border border-green-500/20 px-4 py-3 rounded flex items-center justify-between">
                   <p className="text-sm text-green-400 font-medium flex items-center gap-2">
                     <CheckCircle className="w-4 h-4" /> Share link created
                   </p>
@@ -582,7 +576,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
                         const encoded = encodeURIComponent(newShareUrl);
                         window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encoded}`, "_blank");
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 bg-[#0077b5] hover:bg-[#005582] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm"
                   >
                     <Linkedin className="w-4 h-4" /> LinkedIn
                   </button>
@@ -595,7 +589,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
                         navigator.clipboard.writeText(newShareUrl);
                         alert("Link copied");
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 bg-cyber-dark hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm"
                   >
                     <Copy className="w-4 h-4" /> Copy Link
                   </button>

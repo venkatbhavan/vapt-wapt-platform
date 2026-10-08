@@ -29,7 +29,7 @@ const getSeverityColor = (severity: string) => {
 };
 
 const Badge = ({ text, colorClass }: { text: string; colorClass: string }) => (
-  <span className={`px-2 py-0.5 rounded text-xs border font-medium uppercase ${colorClass}`}>
+  <span className={`px-2 py-0.5 rounded text-xs border font-mono uppercase tracking-wider ${colorClass}`}>
     {text}
   </span>
 );
@@ -178,12 +178,13 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
 
   if (error) {
     return (
-      <div className="bg-red-500/10 border border-red-500/20 p-6 rounded-lg text-center">
-        <AlertTriangle className="mx-auto text-red-500 mb-2" size={32} />
-        <h3 className="text-lg font-medium text-red-500 mb-4">Unable to load remediation data.</h3>
+      <div className="bg-red-500/10 border border-red-500/20 p-6 rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] text-center">
+        <AlertTriangle className="mx-auto text-red-500 mb-2" size={48} />
+        <h3 className="text-white font-mono uppercase tracking-widest mb-2">Error Loading Data</h3>
+        <p className="text-red-500 mb-4">{error}</p>
         <button
           onClick={fetchData}
-          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors"
+          className="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm"
         >
           Retry
         </button>
@@ -203,9 +204,9 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
             <p className="text-sm text-cyber-text">Actionable remediation guidance derived from the assessment findings.</p>
           </div>
         </div>
-        <div className="bg-cyber-darker border border-cyber-border p-8 rounded-lg text-center">
+        <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] p-8 text-center">
           <ShieldCheck className="mx-auto text-cyber-border mb-4" size={48} />
-          <h3 className="text-xl font-medium text-white mb-2">No remediation guidance available</h3>
+          <h3 className="text-white font-mono uppercase tracking-widest mb-2">No remediation guidance available</h3>
           <p className="text-cyber-text">Remediation guidance will appear when findings have applicable remediation mappings.</p>
         </div>
       </div>
@@ -227,91 +228,107 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
 
       {/* Summary Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg">
-          <p className="text-xs text-cyber-text mb-1">Remediation Guidance</p>
-          <p className="text-2xl font-semibold text-white">{metrics.guidance}</p>
+        <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="p-4">
+            <p className="font-mono uppercase text-xs tracking-wider text-cyber-text mb-1">Remediation Guidance</p>
+            <p className="text-2xl font-semibold text-white">{metrics.guidance}</p>
+          </div>
         </div>
-        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg">
-          <p className="text-xs text-cyber-text mb-1">Affected Findings</p>
-          <p className="text-2xl font-semibold text-white">{metrics.findings}</p>
+        <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="p-4">
+            <p className="font-mono uppercase text-xs tracking-wider text-cyber-text mb-1">Affected Findings</p>
+            <p className="text-2xl font-semibold text-white">{metrics.findings}</p>
+          </div>
         </div>
-        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg">
-          <p className="text-xs text-cyber-text mb-1">Critical Findings</p>
-          <p className="text-2xl font-semibold text-red-500">{metrics.criticalFindings}</p>
+        <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="p-4">
+            <p className="font-mono uppercase text-xs tracking-wider text-cyber-text mb-1">Critical Findings</p>
+            <p className="text-2xl font-semibold text-red-500">{metrics.criticalFindings}</p>
+          </div>
         </div>
-        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg">
-          <p className="text-xs text-cyber-text mb-1">High Priority</p>
-          <p className="text-2xl font-semibold text-white">{metrics.highPriority}</p>
+        <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="p-4">
+            <p className="font-mono uppercase text-xs tracking-wider text-cyber-text mb-1">High Priority</p>
+            <p className="text-2xl font-semibold text-white">{metrics.highPriority}</p>
+          </div>
         </div>
       </div>
 
       {/* Search & Filters */}
-      <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg space-y-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-2.5 text-cyber-text" size={18} />
-          <input
-            type="text"
-            placeholder="Search remediation guidance or findings..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-cyber-darkest border border-cyber-border rounded pl-10 pr-4 py-2 text-white focus:outline-none focus:border-cyber-accent"
-          />
+      <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden space-y-0">
+        <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
+          <Search size={18} className="text-cyber-accent" />
+          <h3 className="font-mono text-white tracking-widest uppercase text-sm">SEARCH & FILTERS</h3>
         </div>
-        <div className="flex flex-wrap gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-cyber-text">Priority:</span>
-            <select
-              value={filterPriority}
-              onChange={(e) => setFilterPriority(e.target.value)}
-              className="bg-cyber-darkest border border-cyber-border rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-cyber-accent"
-            >
-              <option value="all">All Priorities</option>
-              {availablePriorities.map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
+        <div className="p-4 space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 text-cyber-text" size={18} />
+            <input
+              type="text"
+              placeholder="Search remediation guidance or findings..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-cyber-darkest border border-cyber-border rounded pl-10 pr-4 py-2 text-white focus:outline-none focus:border-cyber-accent font-mono text-sm"
+            />
           </div>
-          
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-cyber-text">Severity:</span>
-            <select
-              value={filterSeverity}
-              onChange={(e) => setFilterSeverity(e.target.value)}
-              className="bg-cyber-darkest border border-cyber-border rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-cyber-accent"
-            >
-              <option value="all">All Severities</option>
-              {availableSeverities.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </div>
+          <div className="flex flex-wrap gap-4 items-end">
+            <div className="flex flex-col gap-1">
+              <label className="block text-xs font-mono text-cyber-accent uppercase tracking-wider mb-1">Priority</label>
+              <select
+                value={filterPriority}
+                onChange={(e) => setFilterPriority(e.target.value)}
+                className="bg-cyber-darkest border border-cyber-border rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-cyber-accent font-mono"
+              >
+                <option value="all">All Priorities</option>
+                {availablePriorities.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </div>
+            
+            <div className="flex flex-col gap-1">
+              <label className="block text-xs font-mono text-cyber-accent uppercase tracking-wider mb-1">Severity</label>
+              <select
+                value={filterSeverity}
+                onChange={(e) => setFilterSeverity(e.target.value)}
+                className="bg-cyber-darkest border border-cyber-border rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-cyber-accent font-mono"
+              >
+                <option value="all">All Severities</option>
+                {availableSeverities.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-cyber-text">Type:</span>
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="bg-cyber-darkest border border-cyber-border rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-cyber-accent"
-            >
-              <option value="all">All Types</option>
-              {availableTypes.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
+            <div className="flex flex-col gap-1">
+              <label className="block text-xs font-mono text-cyber-accent uppercase tracking-wider mb-1">Type</label>
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="bg-cyber-darkest border border-cyber-border rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-cyber-accent font-mono"
+              >
+                <option value="all">All Types</option>
+                {availableTypes.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            
+            {(searchQuery || filterPriority !== 'all' || filterSeverity !== 'all' || filterType !== 'all') && (
+              <button
+                onClick={resetFilters}
+                className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-1 px-3 rounded transition-colors font-mono text-xs ml-auto"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
-          
-          {(searchQuery || filterPriority !== 'all' || filterSeverity !== 'all' || filterType !== 'all') && (
-            <button
-              onClick={resetFilters}
-              className="text-sm text-cyber-accent hover:text-cyber-accent ml-auto"
-            >
-              Clear filters
-            </button>
-          )}
         </div>
       </div>
 
       {/* Filtered Empty State */}
       {filteredRemediations.length === 0 && (
-        <div className="bg-cyber-darker border border-cyber-border p-8 rounded-lg text-center">
+        <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] p-8 text-center">
+          <Search className="mx-auto text-cyber-border mb-4" size={48} />
+          <h3 className="text-white font-mono uppercase tracking-widest mb-2">No Matches Found</h3>
           <p className="text-cyber-text mb-4">No remediation items match your current filters.</p>
           <button
             onClick={resetFilters}
-            className="text-cyber-accent hover:text-cyber-accent"
+            className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm"
           >
             Reset search and filters
           </button>
@@ -324,7 +341,7 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
           const isExpanded = expandedCards.has(rem.id);
 
           return (
-            <div key={rem.id} className="bg-cyber-darker border border-cyber-border rounded-lg overflow-hidden">
+            <div key={rem.id} className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden">
               <button
                 onClick={() => toggleCard(rem.id)}
                 className="w-full text-left p-4 hover:bg-cyber-dark/50 transition-colors flex items-start gap-4"
@@ -336,16 +353,16 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
                     <h3 className="text-lg font-semibold text-white">{rem.title}</h3>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-cyber-text">Priority:</span>
+                      <span className="font-mono uppercase text-xs tracking-wider text-cyber-text">Priority:</span>
                       <Badge text={rem.priority} colorClass={getPriorityColor(rem.priority)} />
-                      <span className="text-xs text-cyber-text ml-2">Type:</span>
-                      <span className="px-2 py-0.5 rounded text-xs border font-medium uppercase text-cyber-accent bg-cyber-accent/10 border-cyber-accent/20">
+                      <span className="font-mono uppercase text-xs tracking-wider text-cyber-text ml-2">Type:</span>
+                      <span className="px-2 py-0.5 rounded text-xs border font-mono uppercase tracking-wider text-cyber-accent bg-cyber-accent/10 border-cyber-accent/20">
                         {rem.remediation_type}
                       </span>
                     </div>
                   </div>
                   <p className="text-sm text-cyber-textBright mb-2">{rem.summary}</p>
-                  <div className="text-xs text-cyber-text flex items-center gap-1">
+                  <div className="text-xs text-cyber-text flex items-center gap-1 font-mono uppercase tracking-wider">
                     <Wrench size={14} /> Affected findings: {rem.mappings.length}
                   </div>
                 </div>

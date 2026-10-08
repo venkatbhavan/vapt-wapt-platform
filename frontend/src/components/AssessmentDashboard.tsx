@@ -80,10 +80,10 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
           <ArrowLeft className="w-4 h-4" /> System Overview
         </button>
         <div className="flex gap-3">
-          <button onClick={onViewPosture} className="flex items-center gap-2 bg-cyber-dark hover:bg-cyber-border text-cyber-textBright px-4 py-2 rounded border border-cyber-border transition-colors font-mono text-sm uppercase">
-            <ShieldCheck size={16} className="text-cyber-accent" /> Security Posture
+          <button onClick={onViewPosture} className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2">
+            <ShieldCheck size={16} /> Security Posture
           </button>
-          <button onClick={onViewAIAnalyst} className="flex items-center gap-2 bg-cyber-darkest hover:bg-cyber-dark text-cyber-accent px-4 py-2 rounded border border-cyber-accent/50 shadow-[0_0_10px_rgba(0,240,255,0.1)] transition-colors font-mono text-sm uppercase">
+          <button onClick={onViewAIAnalyst} className="bg-cyber-accent hover:bg-cyber-accent/80 text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2">
             <BrainCircuit size={16} /> AI Analyst
           </button>
         </div>
@@ -92,103 +92,125 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Core Radar View */}
-        <div className="lg:col-span-1 bg-cyber-darker border border-cyber-border rounded-lg p-6 relative overflow-hidden group hover:border-cyber-accent/30 transition-colors">
-          <h3 className="text-sm font-mono text-cyber-textBright uppercase tracking-widest mb-6 flex items-center gap-2">
-            <Target className="w-4 h-4 text-cyber-accent" /> Target Radar
-          </h3>
-          <RadarVisualization score={postureScore} label="Security Score" />
-          <div className="mt-8 text-center">
-            <h2 className="text-2xl font-bold text-cyber-textBright tracking-wider">{assessment.name}</h2>
-            <p className="text-cyber-accent font-mono text-sm mt-1">{assessment.target}</p>
+        <div className="lg:col-span-1 bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden relative">
+          <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
+            <Target size={18} className="text-cyber-accent" />
+            <h3 className="font-mono text-white tracking-widest uppercase text-sm">Target Radar</h3>
           </div>
-          {isScanning && (
-            <div className="absolute top-4 right-4 flex items-center gap-2 bg-cyber-dark px-3 py-1 rounded border border-cyber-accent/50 text-cyber-accent font-mono text-xs animate-pulse">
-              <Activity className="w-3 h-3" /> SCAN IN PROGRESS
+          <div className="p-6 relative group hover:border-cyber-accent/30 transition-colors">
+            <RadarVisualization score={postureScore} label="Security Score" />
+            <div className="mt-8 text-center">
+              <h2 className="text-2xl font-bold text-white tracking-wider">{assessment.name}</h2>
+              <p className="text-cyber-accent font-mono text-sm mt-1">{assessment.target}</p>
             </div>
-          )}
+            {isScanning && (
+              <div className="absolute top-4 right-4 flex items-center gap-2 bg-cyber-dark px-3 py-1 rounded border border-cyber-accent/50 text-cyber-accent font-mono text-xs animate-pulse">
+                <Activity className="w-3 h-3" /> SCAN IN PROGRESS
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Action Center */}
         <div className="lg:col-span-2 grid grid-cols-2 gap-4">
-          <div className="bg-cyber-dark border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
-             <div className="flex items-center justify-between mb-2">
-               <span className="text-cyber-text font-mono text-xs uppercase tracking-widest">Critical Threats</span>
-               <AlertTriangle className="text-risk-critical w-5 h-5" />
+          <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-between">
+             <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
+               <AlertTriangle size={18} className="text-cyber-accent" />
+               <h3 className="font-mono text-white tracking-widest uppercase text-sm">Critical Threats</h3>
              </div>
-             <div className="text-4xl font-mono font-bold text-cyber-textBright">{summary?.risk_counts.critical || 0}</div>
-             <button onClick={() => onViewFindings()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left">View Findings ?</button>
+             <div className="p-4">
+               <div className="text-4xl font-mono font-bold text-white">{summary?.risk_counts.critical || 0}</div>
+               <button onClick={() => onViewFindings()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left tracking-wider">View Findings ?</button>
+             </div>
           </div>
 
-          <div className="bg-cyber-dark border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
-             <div className="flex items-center justify-between mb-2">
-               <span className="text-cyber-text font-mono text-xs uppercase tracking-widest">High Risk</span>
-               <AlertTriangle className="text-risk-high w-5 h-5" />
+          <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-between">
+             <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
+               <AlertTriangle size={18} className="text-cyber-accent" />
+               <h3 className="font-mono text-white tracking-widest uppercase text-sm">High Risk</h3>
              </div>
-             <div className="text-4xl font-mono font-bold text-cyber-textBright">{summary?.risk_counts.high || 0}</div>
-             <button onClick={() => onViewFindings()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left">View Findings ?</button>
+             <div className="p-4">
+               <div className="text-4xl font-mono font-bold text-white">{summary?.risk_counts.high || 0}</div>
+               <button onClick={() => onViewFindings()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left tracking-wider">View Findings ?</button>
+             </div>
           </div>
 
-          <div className="bg-cyber-dark border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
-             <div className="flex items-center justify-between mb-2">
-               <span className="text-cyber-text font-mono text-xs uppercase tracking-widest">Attack Surface</span>
-               <Network className="text-cyber-accent w-5 h-5" />
+          <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-between">
+             <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
+               <Network size={18} className="text-cyber-accent" />
+               <h3 className="font-mono text-white tracking-widest uppercase text-sm">Attack Surface</h3>
              </div>
-             <div className="text-4xl font-mono font-bold text-cyber-textBright">Map</div>
-             <button onClick={() => onViewAttackSurface()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left">View Topology ?</button>
+             <div className="p-4">
+               <div className="text-4xl font-mono font-bold text-white">Map</div>
+               <button onClick={() => onViewAttackSurface()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left tracking-wider">View Topology ?</button>
+             </div>
           </div>
 
-          <div className="bg-cyber-dark border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
-             <div className="flex items-center justify-between mb-2">
-               <span className="text-cyber-text font-mono text-xs uppercase tracking-widest">Compliance</span>
-               <ClipboardCheck className="text-green-400 w-5 h-5" />
+          <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-between">
+             <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
+               <ClipboardCheck size={18} className="text-cyber-accent" />
+               <h3 className="font-mono text-white tracking-widest uppercase text-sm">Compliance</h3>
              </div>
-             <div className="text-4xl font-mono font-bold text-cyber-textBright">Matrix</div>
-             <button onClick={() => onViewCompliance()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left">View Controls ?</button>
+             <div className="p-4">
+               <div className="text-4xl font-mono font-bold text-white">Matrix</div>
+               <button onClick={() => onViewCompliance()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left tracking-wider">View Controls ?</button>
+             </div>
           </div>
           
-          <div className="bg-cyber-dark border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
-             <div className="flex items-center justify-between mb-2">
-               <span className="text-cyber-text font-mono text-xs uppercase tracking-widest">Remediation</span>
-               <Wrench className="text-purple-400 w-5 h-5" />
+          <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-between">
+             <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
+               <Wrench size={18} className="text-cyber-accent" />
+               <h3 className="font-mono text-white tracking-widest uppercase text-sm">Remediation</h3>
              </div>
-             <div className="text-4xl font-mono font-bold text-cyber-textBright">Plans</div>
-             <button onClick={() => onViewRemediation()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left">View Actions ?</button>
+             <div className="p-4">
+               <div className="text-4xl font-mono font-bold text-white">Plans</div>
+               <button onClick={() => onViewRemediation()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left tracking-wider">View Actions ?</button>
+             </div>
           </div>
           
-          <div className="bg-cyber-dark border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
-             <div className="flex items-center justify-between mb-2">
-               <span className="text-cyber-text font-mono text-xs uppercase tracking-widest">Reports</span>
-               <FileText className="text-cyber-textBright w-5 h-5" />
+          <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-between">
+             <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
+               <FileText size={18} className="text-cyber-accent" />
+               <h3 className="font-mono text-white tracking-widest uppercase text-sm">Reports</h3>
              </div>
-             <div className="text-4xl font-mono font-bold text-cyber-textBright">Exports</div>
-             <button onClick={() => onViewReports()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left">View Documents ?</button>
+             <div className="p-4">
+               <div className="text-4xl font-mono font-bold text-white">Exports</div>
+               <button onClick={() => onViewReports()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left tracking-wider">View Documents ?</button>
+             </div>
           </div>
 
         </div>
       </div>
       
       {/* Recent Findings Threat Log */}
-      <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
-        <h3 className="text-sm font-mono text-cyber-textBright uppercase tracking-widest mb-4 flex items-center gap-2">
-          <Server className="w-4 h-4 text-cyber-accent" /> Threat Detection Log
-        </h3>
-        <div className="space-y-2">
+      <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden">
+        <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
+          <Server size={18} className="text-cyber-accent" />
+          <h3 className="font-mono text-white tracking-widest uppercase text-sm">Threat Detection Log</h3>
+        </div>
+        <div className="p-4 space-y-2">
           {recentFindings.length === 0 ? (
-            <div className="p-4 bg-cyber-dark text-cyber-text font-mono text-sm border border-cyber-border rounded">NO THREATS DETECTED</div>
+            <div className="p-8 flex flex-col items-center justify-center text-center">
+              <Server size={48} className="text-cyber-border mb-4" />
+              <h4 className="text-white font-mono uppercase tracking-widest mb-2">No Threats Detected</h4>
+              <p className="text-cyber-text font-mono text-sm">No recent threat activity found in this assessment.</p>
+            </div>
           ) : (
             recentFindings.map(f => (
               <div key={f.id} className="flex items-center justify-between p-3 bg-cyber-dark border border-cyber-border rounded hover:border-cyber-accent/50 cursor-pointer transition-colors" onClick={() => onViewFindings(undefined, f.id)}>
                 <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    f.risk_level?.toLowerCase() === 'critical' ? 'bg-risk-critical' :
-                    f.risk_level?.toLowerCase() === 'high' ? 'bg-risk-high' :
-                    f.risk_level?.toLowerCase() === 'medium' ? 'bg-risk-medium' :
-                    f.risk_level?.toLowerCase() === 'low' ? 'bg-risk-low' : 'bg-risk-info'
-                  }`}></div>
-                  <span className="font-mono text-sm text-cyber-textBright">{f.title}</span>
+                  <span className={`border px-2 py-0.5 rounded text-xs font-mono uppercase ${
+                    f.risk_level?.toLowerCase() === 'critical' ? 'border-risk-critical text-risk-critical' :
+                    f.risk_level?.toLowerCase() === 'high' ? 'border-risk-high text-risk-high' :
+                    f.risk_level?.toLowerCase() === 'medium' ? 'border-risk-medium text-risk-medium' :
+                    f.risk_level?.toLowerCase() === 'low' ? 'border-risk-low text-risk-low' : 'border-risk-info text-risk-info'
+                  }`}>
+                    {f.risk_level || 'INFO'}
+                  </span>
+                  <span className="font-mono text-sm text-white">{f.title}</span>
                 </div>
                 <div className="flex gap-4">
-                  <span className="font-mono text-xs text-cyber-text uppercase">{f.location}</span>
+                  <span className="font-mono uppercase text-xs tracking-wider text-cyber-text">{f.location}</span>
                   <span className="font-mono text-xs text-cyber-accent">{f.risk_score ? f.risk_score.toFixed(1) : 'N/A'}</span>
                 </div>
               </div>

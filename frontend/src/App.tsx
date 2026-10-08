@@ -1,30 +1,31 @@
 import { useState, useEffect } from 'react';
-import { Shield, Activity, Database, Server } from 'lucide-react';
+import { Shield, Activity, Database, ShieldAlert } from 'lucide-react';
 import { ProjectsView } from './components/ProjectsView';
 import { AssessmentsView } from './components/AssessmentsView';
-import { FindingsView } from './components/FindingsView';
 import { AssessmentDashboard } from './components/AssessmentDashboard';
+import { FindingsView } from './components/FindingsView';
 import { AttackSurfaceView } from './components/AttackSurfaceView';
 import { ComplianceView } from './components/ComplianceView';
 import { RemediationView } from './components/RemediationView';
 import { RetestView } from './components/RetestView';
 import { ReportsView } from './components/ReportsView';
-import { SharedReportView } from './components/SharedReportView';
-import { PostureView } from './components/PostureView';
 import { AIAnalystView } from './components/AIAnalystView';
+import { PostureView } from './components/PostureView';
+import { SharedReportView } from './components/SharedReportView';
 
 function App() {
-  const [apiStatus, setApiStatus] = useState<string>('Checking...');
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [selectedAssessmentId, setSelectedAssessmentId] = useState<number | null>(null);
-  const [viewingFindings, setViewingFindings] = useState<{jobId?: number; findingId?: number} | false>(false);
-  const [viewingAttackSurface, setViewingAttackSurface] = useState<boolean>(false);
-  const [viewingCompliance, setViewingCompliance] = useState<boolean>(false);
-  const [viewingRemediation, setViewingRemediation] = useState<boolean>(false);
-  const [viewingRetests, setViewingRetests] = useState<boolean>(false);
-  const [viewingReports, setViewingReports] = useState<boolean>(false);
-  const [viewingPosture, setViewingPosture] = useState<boolean>(false);
-  const [viewingAIAnalyst, setViewingAIAnalyst] = useState<boolean>(false);
+  const [viewingFindings, setViewingFindings] = useState<{jobId?: number | null, findingId?: number | null} | false>(false);
+  const [viewingAttackSurface, setViewingAttackSurface] = useState(false);
+  const [viewingCompliance, setViewingCompliance] = useState(false);
+  const [viewingRemediation, setViewingRemediation] = useState(false);
+  const [viewingRetests, setViewingRetests] = useState(false);
+  const [viewingReports, setViewingReports] = useState(false);
+  const [viewingAIAnalyst, setViewingAIAnalyst] = useState(false);
+  const [viewingPosture, setViewingPosture] = useState(false);
+  
+  const [apiStatus, setApiStatus] = useState<'Checking' | 'Connected' | 'Disconnected' | 'Error'>('Checking');
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/health`)
@@ -33,7 +34,6 @@ function App() {
       .catch(() => setApiStatus('Disconnected'));
   }, []);
 
-
   const path = window.location.pathname;
   if (path.startsWith('/shared/reports/')) {
     return <SharedReportView />;
@@ -41,72 +41,75 @@ function App() {
 
   return (
     <div className="min-h-screen bg-cyber-darkest bg-grid-pattern relative text-cyber-textBright p-8 font-sans">
-
-      {/* Header */}
-      <header className="flex justify-between items-center mb-10 pb-4 border-b border-cyber-border">
-        <div className="flex items-center gap-3">
-          <Shield className="text-cyber-accent" size={32} />
-          <h1 className="text-2xl font-bold tracking-tight text-white">Security Intelligence Platform</h1>
+      <header className="flex justify-between items-center mb-8 pb-4 border-b border-cyber-border">
+        <div className="flex items-center gap-4">
+          <div className="p-2 bg-cyber-accent/10 border border-cyber-accent/30 rounded">
+            <Shield className="text-cyber-accent" size={28} />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-widest text-white font-mono uppercase">VAPT Command Center</h1>
+            <p className="text-cyber-accent text-xs font-mono uppercase tracking-widest mt-1">Security Operations & Intelligence</p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className={`w-3 h-3 rounded-full ${apiStatus === 'Connected' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-          <span className="text-sm font-mono text-cyber-text">API: {apiStatus}</span>
+        <div className="flex items-center gap-6">
+          <div className="flex flex-col items-end">
+            <span className="text-xs font-mono text-cyber-text uppercase tracking-widest mb-1">System Status</span>
+            <div className="flex items-center gap-2 bg-cyber-darker border border-cyber-border px-3 py-1.5 rounded">
+              <div className={`w-2 h-2 rounded-full ${apiStatus === 'Connected' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+              <span className={`text-xs font-mono tracking-widest uppercase ${apiStatus === 'Connected' ? 'text-green-500' : 'text-red-500'}`}>
+                {apiStatus === 'Connected' ? 'TELEMETRY ONLINE' : 'CONNECTION LOST'}
+              </span>
+            </div>
+          </div>
         </div>
       </header>
+
       {import.meta.env.VITE_DEMO_MODE === 'true' && (
         <div className="mb-8 border border-cyber-accent bg-cyber-darker p-4 rounded flex flex-col gap-1 max-w-xl shadow-[0_0_15px_rgba(0,255,255,0.15)] relative overflow-hidden">
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyber-accent"></div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-cyber-accent animate-pulse"></div>
-            <h2 className="text-cyber-accent font-bold tracking-wider text-sm uppercase">DEMO MODE — READ ONLY</h2>
+            <h2 className="text-cyber-accent font-bold tracking-wider text-sm uppercase font-mono">DEMO MODE — READ ONLY</h2>
           </div>
-          <p className="text-cyber-text text-sm ml-4">Simulated security assessment. Scanner execution is disabled.</p>
+          <p className="text-cyber-text text-sm ml-4 font-mono uppercase">Simulated security assessment. Scanner execution is disabled.</p>
         </div>
       )}
 
-
-      {/* Dashboard Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-
-        {/* Card 1 */}
-        <div className="bg-cyber-darker relative overflow-hidden group hover:border-cyber-accent/50 transition-colors duration-300 border border-cyber-border p-6 rounded-lg shadow-sm">
-          <div className="flex justify-between items-start mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="bg-cyber-darker relative overflow-hidden group hover:border-cyber-accent transition-colors duration-300 border border-cyber-border p-5 rounded shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+          <div className="absolute top-0 left-0 w-1 h-full bg-cyber-accent/50 group-hover:bg-cyber-accent transition-colors"></div>
+          <div className="flex justify-between items-start mb-2 ml-2">
             <div>
-              <p className="text-sm text-cyber-text">Active Assessments</p>
-              <h2 className="text-3xl font-bold text-white mt-1">0</h2>
+              <p className="text-xs font-mono text-cyber-accent uppercase tracking-widest">Active Operations</p>
+              <h2 className="text-2xl font-bold text-white mt-1 font-mono">--</h2>
             </div>
-            <Activity className="text-cyber-text/70" size={24} />
+            <Activity className="text-cyber-accent/70" size={20} />
           </div>
-          <p className="text-xs text-cyber-accent">No authorized scans running</p>
         </div>
 
-        {/* Card 2 */}
-        <div className="bg-cyber-darker relative overflow-hidden group hover:border-cyber-accent/50 transition-colors duration-300 border border-cyber-border p-6 rounded-lg shadow-sm">
-          <div className="flex justify-between items-start mb-4">
+        <div className="bg-cyber-darker relative overflow-hidden group hover:border-cyber-accent transition-colors duration-300 border border-cyber-border p-5 rounded shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+          <div className="absolute top-0 left-0 w-1 h-full bg-cyber-border group-hover:bg-cyber-accent transition-colors"></div>
+          <div className="flex justify-between items-start mb-2 ml-2">
             <div>
-              <p className="text-sm text-cyber-text">Total Projects</p>
-              <h2 className="text-3xl font-bold text-white mt-1">--</h2>
+              <p className="text-xs font-mono text-cyber-accent uppercase tracking-widest">Active Workspaces</p>
+              <h2 className="text-2xl font-bold text-white mt-1 font-mono">--</h2>
             </div>
-            <Database className="text-cyber-text/70" size={24} />
+            <Database className="text-cyber-text/70" size={20} />
           </div>
-          <p className="text-xs text-cyber-text/70">Manage your projects below</p>
         </div>
 
-        {/* Card 3 */}
-        <div className="bg-cyber-darker relative overflow-hidden group hover:border-cyber-accent/50 transition-colors duration-300 border border-cyber-border p-6 rounded-lg shadow-sm">
-          <div className="flex justify-between items-start mb-4">
+        <div className="bg-cyber-darker relative overflow-hidden group hover:border-red-500/50 transition-colors duration-300 border border-cyber-border p-5 rounded shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+          <div className="absolute top-0 left-0 w-1 h-full bg-red-900/50 group-hover:bg-red-500 transition-colors"></div>
+          <div className="flex justify-between items-start mb-2 ml-2">
             <div>
-              <p className="text-sm text-cyber-text">Critical Findings</p>
-              <h2 className="text-3xl font-bold text-red-500 mt-1">0</h2>
+              <p className="text-xs font-mono text-red-500 uppercase tracking-widest">Critical Threats</p>
+              <h2 className="text-2xl font-bold text-red-500 mt-1 font-mono">--</h2>
             </div>
-            <Server className="text-cyber-text/70" size={24} />
+            <ShieldAlert className="text-red-500/70" size={20} />
           </div>
-          <p className="text-xs text-cyber-text/70">Awaiting scan data</p>
         </div>
-
       </div>
 
-      {/* Main Content Area */}
       <div className="w-full">
         {selectedAssessmentId ? (
           viewingAttackSurface ? (
@@ -136,11 +139,11 @@ function App() {
                 setViewingRetests(false);
                 setViewingReports(false);
                 setViewingPosture(false);
-    setViewingAIAnalyst(false);
+                setViewingAIAnalyst(false);
                 setViewingFindings({findingId});
               }}
             />
-                    ) : viewingRetests ? (
+          ) : viewingRetests ? (
             <RetestView
               assessmentId={selectedAssessmentId}
               onBack={() => setViewingRetests(false)}
@@ -148,7 +151,7 @@ function App() {
                 setViewingRetests(false);
                 setViewingReports(false);
                 setViewingPosture(false);
-    setViewingAIAnalyst(false);
+                setViewingAIAnalyst(false);
                 setViewingFindings({findingId});
               }}
             />
@@ -186,7 +189,7 @@ function App() {
                 setViewingRetests(false);
                 setViewingReports(false);
                 setViewingPosture(false);
-    setViewingAIAnalyst(false);
+                setViewingAIAnalyst(false);
               }}
               onViewFindings={(jobId, findingId) => setViewingFindings({jobId, findingId})}
               onViewAttackSurface={() => setViewingAttackSurface(true)}
