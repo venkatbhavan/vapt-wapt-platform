@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, AlertTriangle, Shield, CheckCircle, Activity, BarChart2, ClipboardCheck, Wrench, ShieldCheck, FileText } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Shield, CheckCircle, Activity, BarChart2, ClipboardCheck, Wrench, ShieldCheck, FileText, BrainCircuit } from 'lucide-react';
 
 interface Assessment {
   id: number;
@@ -95,6 +95,7 @@ interface AssessmentDashboardProps {
   onViewRetests: () => void;
   onViewReports: () => void;
   onViewPosture: () => void;
+  onViewAIAnalyst: () => void;
 }
 
 const getSeverityColor = (severity: string) => {
@@ -130,7 +131,7 @@ const getRiskBgColor = (riskLevel: string) => {
   }
 };
 
-export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onViewAttackSurface, onViewCompliance, onViewRemediation, onViewRetests, onViewReports, onViewPosture }: AssessmentDashboardProps) {
+export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onViewAttackSurface, onViewCompliance, onViewRemediation, onViewRetests, onViewReports, onViewPosture, onViewAIAnalyst }: AssessmentDashboardProps) {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [summary, setSummary] = useState<AssessmentSummary | null>(null);
   const [recentFindings, setRecentFindings] = useState<Finding[]>([]);
@@ -253,6 +254,13 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
               <BarChart2 size={16} />
               Security Posture
             </button>
+              <button
+                onClick={() => onViewAIAnalyst()}
+                className="flex items-center gap-2 bg-indigo-900 hover:bg-indigo-800 text-white px-4 py-2 rounded transition-colors"
+              >
+                <BrainCircuit size={16} />
+                AI Analyst
+              </button>
             <button
               onClick={() => onViewReports()}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded transition-colors"

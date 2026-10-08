@@ -54,3 +54,10 @@ ecommendations, uncertainties, and traceable evidence_references.
 **Current Limitations:**
 - Rate limiting is not natively implemented at the API layer.
 - Long-running inference is handled synchronously (blocking). Production rollout may require async workers or streaming if LLM response times climb.
+
+## 16. Frontend Integration
+The frontend exposes this API via the AIAnalystView component in the React application.
+- **Access:** Accessible via the "AI Analyst" button on the Assessment Dashboard.
+- **Request Flow:** Users select an analysis type and enter a plain text question (up to 1000 characters). The component automatically injects the active ssessment_id from the dashboard state.
+- **Evidence-First Presentation:** Results strictly separate deterministic key observations from correlations, risks, and recommendations. An explicit "Uncertainties & Limitations" box highlights when evidence is insufficient.
+- **Limitations:** There is currently no persistent chat history; the analysis state is ephemeral and clears upon navigating to another assessment.

@@ -11,6 +11,7 @@ import { RetestView } from './components/RetestView';
 import { ReportsView } from './components/ReportsView';
 import { SharedReportView } from './components/SharedReportView';
 import { PostureView } from './components/PostureView';
+import { AIAnalystView } from './components/AIAnalystView';
 
 function App() {
   const [apiStatus, setApiStatus] = useState<string>('Checking...');
@@ -23,6 +24,7 @@ function App() {
   const [viewingRetests, setViewingRetests] = useState<boolean>(false);
   const [viewingReports, setViewingReports] = useState<boolean>(false);
   const [viewingPosture, setViewingPosture] = useState<boolean>(false);
+  const [viewingAIAnalyst, setViewingAIAnalyst] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('http://localhost:8000/api/health')
@@ -123,6 +125,7 @@ function App() {
                 setViewingRetests(false);
                 setViewingReports(false);
                 setViewingPosture(false);
+    setViewingAIAnalyst(false);
                 setViewingFindings({findingId});
               }}
             />
@@ -134,6 +137,7 @@ function App() {
                 setViewingRetests(false);
                 setViewingReports(false);
                 setViewingPosture(false);
+    setViewingAIAnalyst(false);
                 setViewingFindings({findingId});
               }}
             />
@@ -141,6 +145,11 @@ function App() {
             <PostureView
               assessmentId={selectedAssessmentId}
               onBack={() => setViewingPosture(false)}
+            />
+          ) : viewingAIAnalyst ? (
+            <AIAnalystView
+              assessmentId={selectedAssessmentId}
+              onBack={() => setViewingAIAnalyst(false)}
             />
           ) : viewingReports ? (
             <ReportsView
@@ -166,6 +175,7 @@ function App() {
                 setViewingRetests(false);
                 setViewingReports(false);
                 setViewingPosture(false);
+    setViewingAIAnalyst(false);
               }}
               onViewFindings={(jobId, findingId) => setViewingFindings({jobId, findingId})}
               onViewAttackSurface={() => setViewingAttackSurface(true)}
@@ -174,6 +184,7 @@ function App() {
               onViewRetests={() => setViewingRetests(true)}
               onViewReports={() => setViewingReports(true)}
               onViewPosture={() => setViewingPosture(true)}
+              onViewAIAnalyst={() => setViewingAIAnalyst(true)}
             />
           )
         ) : selectedProjectId ? (
