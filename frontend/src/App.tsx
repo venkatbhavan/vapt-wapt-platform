@@ -10,6 +10,7 @@ import { RemediationView } from './components/RemediationView';
 import { RetestView } from './components/RetestView';
 import { ReportsView } from './components/ReportsView';
 import { SharedReportView } from './components/SharedReportView';
+import { PostureView } from './components/PostureView';
 
 function App() {
   const [apiStatus, setApiStatus] = useState<string>('Checking...');
@@ -21,6 +22,7 @@ function App() {
   const [viewingRemediation, setViewingRemediation] = useState<boolean>(false);
   const [viewingRetests, setViewingRetests] = useState<boolean>(false);
   const [viewingReports, setViewingReports] = useState<boolean>(false);
+  const [viewingPosture, setViewingPosture] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('http://localhost:8000/api/health')
@@ -120,6 +122,7 @@ function App() {
                 setViewingRemediation(false);
                 setViewingRetests(false);
                 setViewingReports(false);
+                setViewingPosture(false);
                 setViewingFindings({findingId});
               }}
             />
@@ -130,8 +133,14 @@ function App() {
               onViewFinding={(findingId) => {
                 setViewingRetests(false);
                 setViewingReports(false);
+                setViewingPosture(false);
                 setViewingFindings({findingId});
               }}
+            />
+          ) : viewingPosture ? (
+            <PostureView
+              assessmentId={selectedAssessmentId}
+              onBack={() => setViewingPosture(false)}
             />
           ) : viewingReports ? (
             <ReportsView
@@ -156,6 +165,7 @@ function App() {
                 setViewingRemediation(false);
                 setViewingRetests(false);
                 setViewingReports(false);
+                setViewingPosture(false);
               }}
               onViewFindings={(jobId, findingId) => setViewingFindings({jobId, findingId})}
               onViewAttackSurface={() => setViewingAttackSurface(true)}
@@ -163,6 +173,7 @@ function App() {
               onViewRemediation={() => setViewingRemediation(true)}
               onViewRetests={() => setViewingRetests(true)}
               onViewReports={() => setViewingReports(true)}
+              onViewPosture={() => setViewingPosture(true)}
             />
           )
         ) : selectedProjectId ? (

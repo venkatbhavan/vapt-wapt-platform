@@ -94,6 +94,7 @@ interface AssessmentDashboardProps {
   onViewRemediation: () => void;
   onViewRetests: () => void;
   onViewReports: () => void;
+  onViewPosture: () => void;
 }
 
 const getSeverityColor = (severity: string) => {
@@ -129,7 +130,7 @@ const getRiskBgColor = (riskLevel: string) => {
   }
 };
 
-export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onViewAttackSurface, onViewCompliance, onViewRemediation, onViewRetests, onViewReports }: AssessmentDashboardProps) {
+export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onViewAttackSurface, onViewCompliance, onViewRemediation, onViewRetests, onViewReports, onViewPosture }: AssessmentDashboardProps) {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [summary, setSummary] = useState<AssessmentSummary | null>(null);
   const [recentFindings, setRecentFindings] = useState<Finding[]>([]);
@@ -245,8 +246,15 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
             <ShieldCheck size={16} />
             View Retests
           </button>
-          <button
-            onClick={() => onViewReports()}
+            <button
+              onClick={() => onViewPosture()}
+              className="flex items-center gap-2 bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded transition-colors"
+            >
+              <BarChart2 size={16} />
+              Security Posture
+            </button>
+            <button
+              onClick={() => onViewReports()}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded transition-colors"
           >
             <FileText size={16} />
