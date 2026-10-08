@@ -1,6 +1,38 @@
-# VAPT/WAPT Security Assessment Platform
+<div align="center">
 
-An explainable, evidence-driven Vulnerability Assessment and Penetration Testing (VAPT/WAPT) platform that orchestrates security scans and connects technical findings to risk, attack surface, compliance, remediation, retesting, and AI-assisted analysis.
+# VAPT / WAPT Security Platform
+
+**Evidence-driven vulnerability assessment, security intelligence, retesting, and reporting platform.**
+
+```text
+                 ◉
+             ╱       ╲
+          ╱     ◉     ╲
+        │    ╱─────╲    │
+        │   │  VAPT │   │
+        │    ╲─────╱    │
+          ╲      •     ╱
+             ╲       ╱
+                 ◉
+
+        SECURITY ASSESSMENT ACTIVE
+```
+
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)
+![Nmap](https://img.shields.io/badge/Nmap-000000?style=for-the-badge&logo=linux&logoColor=white)
+![OWASP ZAP](https://img.shields.io/badge/OWASP_ZAP-00559F?style=for-the-badge&logo=owasp&logoColor=white)
+<br><br>
+
+[Architecture](#security-architecture) • [Security Engineering](#security-engineering-highlights) • [AI Analyst](#ai-security-analyst) • [Demo](#local-demo) • [Installation](#running-the-platform)
+
+</div>
+
+---
 
 ## Overview
 
