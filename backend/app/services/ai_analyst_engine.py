@@ -31,6 +31,26 @@ def execute_analysis(db: Session, request: AIAnalystRequest, provider: AIProvide
     # 3. Analyze using abstract provider
     response = provider.analyze(context, instructions)
     
-    # 4. Return validated structured response
+    # 4. Validate evidence references against context
+    valid_finding_ids = {f["id"] for f in context.get("findings", [])}
+    valid_asset_ids = {a["id"] for a in context.get("attack_surface", {}).get("assets", [])}
+    valid_service_ids = {s["id"] for s in context.get("attack_surface", {}).get("services", [])}
+    
+    validated_references = []
+    for ref in response.evidence_references:
+        is_valid = False
+        if ref.entity_type == "finding" and ref.entity_id in valid_finding_ids:
+            is_valid = True
+        elif ref.entity_type == "asset" and ref.entity_id in valid_asset_ids:
+            is_valid = True
+        elif ref.entity_type == "network_service" and ref.entity_id in valid_service_ids:
+            is_valid = True
+            
+        if is_valid:
+            validated_references.append(ref)
+            
+    response.evidence_references = validated_references
+    
+    # 5. Return validated structured response
     # The provider is strictly expected to return the AIAnalystResponse Pydantic model
     return response

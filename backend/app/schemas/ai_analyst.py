@@ -26,3 +26,7 @@ class AIAnalystRequest(BaseModel):
 class APIAnalystRequest(BaseModel):
     question: constr(strip_whitespace=True, min_length=1, max_length=1000) = Field(..., description="The analyst-level question or instruction")
     analysis_type: str = Field(default="general", description="The type of analysis requested")
+    
+    class Config:
+        extra = 'forbid'
+

@@ -61,3 +61,10 @@ The frontend exposes this API via the AIAnalystView component in the React appli
 - **Request Flow:** Users select an analysis type and enter a plain text question (up to 1000 characters). The component automatically injects the active ssessment_id from the dashboard state.
 - **Evidence-First Presentation:** Results strictly separate deterministic key observations from correlations, risks, and recommendations. An explicit "Uncertainties & Limitations" box highlights when evidence is insufficient.
 - **Limitations:** There is currently no persistent chat history; the analysis state is ephemeral and clears upon navigating to another assessment.
+
+## 17. Hardening and Reliability Guarantee
+**Phase 13D Hardening Highlights:**
+- **Evidence Reference Validation:** The analyst engine strips fabricated entity_id references from the provider's response if the provider hallucinates entities that are not physically present in the assessment's context window.
+- **Strict Read-Only:** Database operations exclusively employ .query().
+- **Resource Limits:** Findings and objects are deterministically truncated (e.g., maximum 50 prioritized findings, descriptions string truncated at 500 characters) to physically prevent context window blowouts.
+- **Provider Abstraction Integrity:** AIProvider functions cleanly as an isolation layer.

@@ -65,7 +65,7 @@ def build_analyst_context(db: Session, assessment_id: int, max_findings: int = 5
     # Prioritize active/open findings with the highest risk score
     # Ordering: open first, then by risk_score desc
     findings = db.query(Finding).join(ScanJob).filter(ScanJob.assessment_id == assessment_id)\
-        .order_by(Finding.status, Finding.risk_score.desc()).limit(max_findings).all()
+        .order_by(Finding.status, Finding.risk_score.desc(), Finding.id.desc()).limit(max_findings).all()
 
     context["findings"] = []
     finding_ids = set()
@@ -77,16 +77,16 @@ def build_analyst_context(db: Session, assessment_id: int, max_findings: int = 5
             "severity": f.severity.value if hasattr(f.severity, 'value') else f.severity,
             "risk_score": f.risk_score,
             "status": f.status.value if hasattr(f.status, 'value') else f.status,
-            "description": f.description
+            "description": f.description[:500] + "..." if f.description and len(f.description) > 500 else f.description
         }))
 
     # Attack surface: limit to 50 assets
-    assets = db.query(Asset).filter(Asset.assessment_id == assessment_id).limit(50).all()
+    assets = db.query(Asset).filter(Asset.assessment_id == assessment_id).order_by(Asset.id).limit(50).all()
     asset_ids = [a.id for a in assets]
     
     services = []
     if asset_ids:
-        services = db.query(NetworkService).filter(NetworkService.asset_id.in_(asset_ids)).limit(100).all()
+        services = db.query(NetworkService).filter(NetworkService.asset_id.in_(asset_ids)).order_by(NetworkService.id).limit(100).all()
 
     context["attack_surface"] = {
         "assets": [{"id": a.id, "ip": a.ip_address, "hostname": a.hostname, "status": a.status.value if hasattr(a.status, 'value') else a.status} for a in assets],
@@ -94,15 +94,15 @@ def build_analyst_context(db: Session, assessment_id: int, max_findings: int = 5
     }
 
     # Compliance
-    compliance_mappings = db.query(FindingComplianceMapping).filter(FindingComplianceMapping.finding_id.in_(finding_ids)).all()
+    compliance_mappings = db.query(FindingComplianceMapping).filter(FindingComplianceMapping.finding_id.in_(finding_ids)).order_by(FindingComplianceMapping.id).all()
     context["compliance"] = [{"finding_id": c.finding_id, "control_id": c.control_id, "mapping_type": c.mapping_type.value if hasattr(c.mapping_type, 'value') else c.mapping_type} for c in compliance_mappings]
 
     # Remediation
-    remediations = db.query(FindingRemediation).filter(FindingRemediation.finding_id.in_(finding_ids)).all()
-    context["remediation"] = [{"finding_id": r.finding_id, "recommendation": sanitize_text(r.recommendation)} for r in remediations]
+    remediations = db.query(FindingRemediation).filter(FindingRemediation.finding_id.in_(finding_ids)).order_by(FindingRemediation.id).all()
+    context["remediation"] = [{"finding_id": r.finding_id, "recommendation": sanitize_text(r.recommendation[:500] + "..." if r.recommendation and len(r.recommendation) > 500 else r.recommendation)} for r in remediations]
 
     # Retesting
-    retests = db.query(RetestRequest).filter(RetestRequest.finding_id.in_(finding_ids)).all()
+    retests = db.query(RetestRequest).filter(RetestRequest.finding_id.in_(finding_ids)).order_by(RetestRequest.id).all()
     context["retesting"] = []
     for r in retests:
         status = r.status.value if hasattr(r.status, 'value') else r.status
