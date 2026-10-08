@@ -71,3 +71,9 @@ Current version: `1.0`. All persisted posture results (if implemented) will tag 
   - Finding Risk: -5.66
   - Finding Health: -5.0
   - Score: 89 (GOOD)
+
+## 15. API Endpoint
+The security posture can be retrieved dynamically via the authorized API:
+GET /api/assessments/{assessment_id}/posture
+
+This endpoint returns a standardized PostureResult JSON schema containing the final score, calculated posture level, dimension aggregations, and individual contributors tracing penalties to specific findings/assets.
