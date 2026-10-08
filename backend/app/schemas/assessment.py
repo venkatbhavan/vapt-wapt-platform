@@ -8,6 +8,19 @@ class AssessmentBase(BaseModel):
     target: str = Field(..., min_length=1, description="Target must not be empty")
     scope: str = Field(..., min_length=1, description="Scope must not be empty")
 
+    @validator("target")
+    def check_target(cls, v):
+        # Reject values that scanners could misread as command-line options
+        # (e.g. "-iL /etc/hosts" or "--script=...") or that contain whitespace/control characters.
+        v = v.strip()
+        if not v:
+            raise ValueError("Target must not be empty")
+        if v.startswith("-"):
+            raise ValueError("Target must not start with '-'")
+        if any(ch.isspace() or ord(ch) < 32 for ch in v):
+            raise ValueError("Target must not contain whitespace or control characters")
+        return v
+
 class AssessmentCreate(AssessmentBase):
     authorization_confirmed: bool = Field(..., description="Must explicitly confirm authorization")
     

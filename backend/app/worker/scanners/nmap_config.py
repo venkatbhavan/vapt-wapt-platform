@@ -87,6 +87,10 @@ def get_nmap_config_for_profile(scan_profile: str) -> NmapScanConfiguration:
     return NmapScanConfiguration()
 
 def build_nmap_command(target: str, config: NmapScanConfiguration) -> List[str]:
+    # Defence in depth: arrays avoid shell injection, but a target such as "--script=..."
+    # would still be parsed by nmap as an option, so reject option-like or malformed targets.
+    if not target or target.startswith("-") or any(ch.isspace() or ord(ch) < 32 for ch in target):
+        raise ValueError("Invalid scan target")
     cmd = ["nmap", "-oX", "-"]
 
     if config.host_discovery:
