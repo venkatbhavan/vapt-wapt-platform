@@ -91,7 +91,7 @@ flowchart TD
 ## Security Engineering Highlights
 
 ### Scanner Command Safety
-Scanner integrations (e.g., `nmap.py`) are strictly executed using Python's `subprocess.run` with argument arrays. The platform physically bypasses `shell=True` concatenation, effectively neutralizing command injection risks even if malicious target IPs are provided.
+Scanner integrations (e.g., `nmap.py`) are executed with Python's `subprocess.run` using argument arrays and `shell=False`, so shell metacharacters in a target are never interpreted by a shell. Because a target could still be misread by the scanner as a command-line option (for example `--script=...`), assessment targets are validated on creation, and the Nmap command builder rejects option-like targets (a leading `-`) and targets containing whitespace or control characters.
 
 ### Assessment Isolation
 As of Phase 15A hardening, strict Object-Level Authorization boundaries are enforced. Cross-tenant access is structurally mitigated by ensuring that all direct-object retrievals (findings, retests, reports) validate `assessment_id` ownership constraints prior to resolving the requested entity.
@@ -164,18 +164,22 @@ flowchart LR
 ```text
 vapt-wapt-platform/
 ├── backend/
-│   ├── app/              # FastAPI application (API, schemas, models, services)
-│   ├── tests/            # Python unittest suite
-│   ├── requirements.txt
-│   └── seed_test_data.py # Local development seed script
+│   ├── app/              # FastAPI application
+│   │   ├── api/          # REST routers
+│   │   ├── models/       # SQLAlchemy models
+│   │   ├── schemas/      # Pydantic schemas
+│   │   ├── services/     # Reporting, posture, retest and AI analyst engines
+│   │   ├── risk/         # Risk scoring engine
+│   │   └── worker/       # Scanner adapters, normalization, correlation, compliance and remediation mapping
+│   ├── test_*.py         # Python unittest suite
+│   └── requirements.txt
 ├── frontend/
 │   ├── src/              # React/TypeScript source (components, views)
 │   ├── tailwind.config.js
 │   └── package.json
 ├── docs/                 # Architecture and security documentation
-├── worker/               # Dedicated worker implementations
-├── demo-lab/             # Local target configuration
-├── docker-compose.yml
+├── docker-compose.yml    # Placeholder only; not used yet
+├── LICENSE
 └── README.md
 ```
 
@@ -218,6 +222,12 @@ The application will be accessible at `http://localhost:5173`.
 
 ## Testing
 
+Run the tests from the `backend/` folder after installing `requirements.txt`:
+```bash
+cd backend
+python -m unittest test_target_validation test_retest_api
+```
+
 **Targeted Security/Product Tests: PASS**
 Targeted test execution successfully validates business logic (e.g., `python -m unittest backend.test_retest_api`).
 
@@ -230,7 +240,9 @@ The React frontend compiles successfully (`npm run build`) with strict TypeScrip
 ## Current Limitations
 
 - **No User Authentication/RBAC:** Authentication and user-level ownership are intentionally deferred for the current MVP portfolio scope. The platform securely isolates data vertically by `assessment_id`, but does not yet differentiate between distinct human users.
-- **SQLite Development Environment:** Production scaling would require swapping the SQLAlchemy engine to PostgreSQL.
+- **SQLite Development Environment:** The platform currently runs on SQLite. Production scaling would require swapping the SQLAlchemy engine to PostgreSQL.
+- **Docker Compose is a placeholder:** `docker-compose.yml` only contains commented-out sketches; run the backend and frontend as described above.
+- **Local ZAP test key:** The ZAP adapter defaults to a local test API key for a locally run ZAP instance. Use your own key and never expose ZAP publicly.
 - **Known Test-Fixture Lifecycle Issue:** As noted above, global unittest runs exhibit teardown bleed.
 - **AI Sanitization Limitations:** While the AI context engine truncates strings and strips basic secrets (e.g., `Bearer` tokens), it cannot definitively scrub every entropy-based secret from raw scanner evidence.
 
