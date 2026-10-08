@@ -91,7 +91,7 @@ class TestReportAPI(unittest.TestCase):
         resp = self.client.post(f"/api/assessments/{self.assessment.id}/reports", json={"title": "R1"})
         report_id = resp.json()["id"]
         
-        get_resp = self.client.get(f"/api/reports/{report_id}")
+        get_resp = self.client.get(f"/api/reports/{report_id}?assessment_id={self.assessment.id}")
         self.assertEqual(get_resp.status_code, 200)
         data = get_resp.json()
         self.assertEqual(data["title"], "R1")
@@ -102,7 +102,7 @@ class TestReportAPI(unittest.TestCase):
         report_id = resp.json()["id"]
         
         # Verify initial dataset
-        ds_resp = self.client.get(f"/api/reports/{report_id}/dataset")
+        ds_resp = self.client.get(f"/api/reports/{report_id}/dataset?assessment_id={self.assessment.id}")
         self.assertEqual(ds_resp.status_code, 200)
         dataset = ds_resp.json()
         self.assertEqual(dataset["executive_summary"]["high_findings"], 1)
@@ -113,7 +113,7 @@ class TestReportAPI(unittest.TestCase):
         self.db.commit()
         
         # Get dataset again, it should NOT change
-        ds_resp2 = self.client.get(f"/api/reports/{report_id}/dataset")
+        ds_resp2 = self.client.get(f"/api/reports/{report_id}/dataset?assessment_id={self.assessment.id}")
         dataset2 = ds_resp2.json()
         self.assertEqual(dataset2["executive_summary"]["high_findings"], 1)
         self.assertEqual(dataset2["technical_findings"][0]["severity"], "high")

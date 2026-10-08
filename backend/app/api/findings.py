@@ -18,15 +18,15 @@ def get_scan_job_findings(scan_job_id: int, skip: int = 0, limit: int = 100, db:
     return findings
 
 @router.get("/api/findings/{finding_id}", response_model=Finding)
-def get_finding(finding_id: int, db: Session = Depends(get_db)):
-    finding = db.query(FindingModel).filter(FindingModel.id == finding_id).first()
+def get_finding(finding_id: int, assessment_id: int, db: Session = Depends(get_db)):
+    finding = db.query(FindingModel).join(ScanJobModel).filter(FindingModel.id == finding_id, ScanJobModel.assessment_id == assessment_id).first()
     if not finding:
         raise HTTPException(status_code=404, detail="Finding not found")
     return finding
 
 @router.get("/api/findings/{finding_id}/evidence", response_model=List[Evidence])
-def get_finding_evidence(finding_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    finding = db.query(FindingModel).filter(FindingModel.id == finding_id).first()
+def get_finding_evidence(finding_id: int, assessment_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    finding = db.query(FindingModel).join(ScanJobModel).filter(FindingModel.id == finding_id, ScanJobModel.assessment_id == assessment_id).first()
     if not finding:
         raise HTTPException(status_code=404, detail="Finding not found")
         

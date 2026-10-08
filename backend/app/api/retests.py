@@ -11,8 +11,8 @@ from app.services.retest_engine import run_retest
 router = APIRouter(tags=["Retests"])
 
 @router.post("/api/findings/{finding_id}/retests", response_model=RetestRequestResponse)
-def create_retest(finding_id: int, db: Session = Depends(get_db)):
-    finding = db.query(Finding).filter(Finding.id == finding_id).first()
+def create_retest(finding_id: int, assessment_id: int, db: Session = Depends(get_db)):
+    finding = db.query(Finding).join(ScanJob).filter(Finding.id == finding_id, ScanJob.assessment_id == assessment_id).first()
     if not finding:
         raise HTTPException(status_code=404, detail="Finding not found")
         
@@ -37,8 +37,8 @@ def create_retest(finding_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Internal Retest Engine failure")
 
 @router.get("/api/findings/{finding_id}/retests", response_model=List[RetestRequestResponse])
-def get_finding_retests(finding_id: int, db: Session = Depends(get_db)):
-    finding = db.query(Finding).filter(Finding.id == finding_id).first()
+def get_finding_retests(finding_id: int, assessment_id: int, db: Session = Depends(get_db)):
+    finding = db.query(Finding).join(ScanJob).filter(Finding.id == finding_id, ScanJob.assessment_id == assessment_id).first()
     if not finding:
         raise HTTPException(status_code=404, detail="Finding not found")
         
@@ -51,8 +51,8 @@ def get_finding_retests(finding_id: int, db: Session = Depends(get_db)):
     return retests
 
 @router.get("/api/retests/{retest_request_id}", response_model=RetestRequestResponse)
-def get_retest(retest_request_id: int, db: Session = Depends(get_db)):
-    retest = db.query(RetestRequest).filter(RetestRequest.id == retest_request_id).first()
+def get_retest(retest_request_id: int, assessment_id: int, db: Session = Depends(get_db)):
+    retest = db.query(RetestRequest).join(Finding).join(ScanJob).filter(RetestRequest.id == retest_request_id, ScanJob.assessment_id == assessment_id).first()
     if not retest:
         raise HTTPException(status_code=404, detail="Retest request not found")
     return retest

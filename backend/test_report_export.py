@@ -107,7 +107,7 @@ class TestReportExport(unittest.TestCase):
 
     def test_export_html_security_and_format(self):
         """Verify HTML export escapes dangerous content and has correct MIME."""
-        response = self.client.get(f"/api/reports/{self.report.id}/export/html")
+        response = self.client.get(f"/api/reports/{self.report.id}/export/html?assessment_id={self.assessment.id}")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["content-type"], "text/html; charset=utf-8")
         self.assertIn("attachment; filename=", response.headers["content-disposition"])
@@ -122,7 +122,7 @@ class TestReportExport(unittest.TestCase):
 
     def test_export_pdf_format(self):
         """Verify PDF export returns valid PDF blob."""
-        response = self.client.get(f"/api/reports/{self.report.id}/export/pdf")
+        response = self.client.get(f"/api/reports/{self.report.id}/export/pdf?assessment_id={self.assessment.id}")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["content-type"], "application/pdf")
         self.assertIn("attachment; filename=", response.headers["content-disposition"])
@@ -140,7 +140,7 @@ class TestReportExport(unittest.TestCase):
         self.db.commit()
         
         # Request HTML export
-        response = self.client.get(f"/api/reports/{self.report.id}/export/html")
+        response = self.client.get(f"/api/reports/{self.report.id}/export/html?assessment_id={self.assessment.id}")
         self.assertEqual(response.status_code, 200)
         
         html_content = response.text
@@ -150,7 +150,7 @@ class TestReportExport(unittest.TestCase):
         self.assertTrue(re.search(r'Critical Findings.*?<div[^>]*>1</div>', html_content, re.DOTALL))
 
     def test_404_not_found(self):
-        response = self.client.get("/api/reports/999/export/html")
+        response = self.client.get(f"/api/reports/999/export/html?assessment_id={self.assessment.id}")
         self.assertEqual(response.status_code, 404)
 
 if __name__ == "__main__":

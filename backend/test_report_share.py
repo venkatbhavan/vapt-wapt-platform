@@ -72,7 +72,7 @@ class TestReportShareHardened(unittest.TestCase):
         # Create share
         future = datetime.now(timezone.utc) + timedelta(days=1)
         response = self.client.post(
-            f"/api/reports/{self.report.id}/shares",
+            f"/api/reports/{self.report.id}/shares?assessment_id={self.assessment.id}",
             json={"expires_at": future.isoformat()}
         )
         self.assertEqual(response.status_code, 200)
@@ -105,16 +105,16 @@ class TestReportShareHardened(unittest.TestCase):
 
     def test_multiple_shares_and_revoke(self):
         # Create share A
-        resp_a = self.client.post(f"/api/reports/{self.report.id}/shares", json={})
+        resp_a = self.client.post(f"/api/reports/{self.report.id}/shares?assessment_id={self.assessment.id}", json={})
         token_a = resp_a.json()["share_url"].split("/")[-1]
         share_id_a = resp_a.json()["id"]
 
         # Create share B
-        resp_b = self.client.post(f"/api/reports/{self.report.id}/shares", json={})
+        resp_b = self.client.post(f"/api/reports/{self.report.id}/shares?assessment_id={self.assessment.id}", json={})
         token_b = resp_b.json()["share_url"].split("/")[-1]
 
         # Revoke A
-        revoke_resp = self.client.post(f"/api/shares/{share_id_a}/revoke")
+        revoke_resp = self.client.post(f"/api/shares/{share_id_a}/revoke?assessment_id={self.assessment.id}")
         self.assertEqual(revoke_resp.status_code, 200)
 
         # Access A should fail
@@ -126,13 +126,13 @@ class TestReportShareHardened(unittest.TestCase):
     def test_expired_share(self):
         # Create share that expired yesterday
         past = datetime.now(timezone.utc) - timedelta(days=1)
-        resp = self.client.post(f"/api/reports/{self.report.id}/shares", json={"expires_at": past.isoformat()})
+        resp = self.client.post(f"/api/reports/{self.report.id}/shares?assessment_id={self.assessment.id}", json={"expires_at": past.isoformat()})
         token = resp.json()["share_url"].split("/")[-1]
 
         self.assertEqual(self.client.get(f"/api/shared/reports/{token}").status_code, 404)
 
     def test_snapshot_immutability(self):
-        resp = self.client.post(f"/api/reports/{self.report.id}/shares", json={})
+        resp = self.client.post(f"/api/reports/{self.report.id}/shares?assessment_id={self.assessment.id}", json={})
         token = resp.json()["share_url"].split("/")[-1]
 
         initial = self.client.get(f"/api/shared/reports/{token}").json()
@@ -147,10 +147,10 @@ class TestReportShareHardened(unittest.TestCase):
         self.assertEqual(subsequent["snapshot"]["executive_summary"]["critical_findings"], 1)
 
     def test_list_shares(self):
-        self.client.post(f"/api/reports/{self.report.id}/shares", json={})
-        self.client.post(f"/api/reports/{self.report.id}/shares", json={})
+        self.client.post(f"/api/reports/{self.report.id}/shares?assessment_id={self.assessment.id}", json={})
+        self.client.post(f"/api/reports/{self.report.id}/shares?assessment_id={self.assessment.id}", json={})
 
-        resp = self.client.get(f"/api/reports/{self.report.id}/shares")
+        resp = self.client.get(f"/api/reports/{self.report.id}/shares?assessment_id={self.assessment.id}")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.json()), 2)
         # Verify raw token is NOT in the list response

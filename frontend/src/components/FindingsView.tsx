@@ -157,8 +157,8 @@ export function FindingsView({ assessmentId, initialJobId, initialFindingId, onB
     setLoadingRetests(true);
     try {
       const [evRes, retRes] = await Promise.all([
-          fetch("http://localhost:8000/api/findings/" + finding.id + "/evidence"),
-          fetch("http://localhost:8000/api/findings/" + finding.id + "/retests")
+          fetch("http://localhost:8000/api/findings/" + finding.id + "/evidence?assessment_id=" + assessmentId),
+          fetch("http://localhost:8000/api/findings/" + finding.id + "/retests?assessment_id=" + assessmentId)
       ]);
       if (evRes.ok) {
           const data: Evidence[] = await evRes.json();
@@ -187,14 +187,14 @@ const handleTriggerRetest = async () => {
   setTriggeringRetest(true);
     setRetestError(null);
   try {
-    const res = await fetch("http://localhost:8000/api/findings/" + selectedFinding.id + "/retests", {
+    const res = await fetch("http://localhost:8000/api/findings/" + selectedFinding.id + "/retests?assessment_id=" + assessmentId, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({})
     });
     if (res.ok) {
       // Refresh retest history
-      const retRes = await fetch("http://localhost:8000/api/findings/" + selectedFinding.id + "/retests");
+      const retRes = await fetch("http://localhost:8000/api/findings/" + selectedFinding.id + "/retests?assessment_id=" + assessmentId);
       if (retRes.ok) {
           const data: RetestRequest[] = await retRes.json();
           data.sort((a, b) => new Date(b.requested_at).getTime() - new Date(a.requested_at).getTime());

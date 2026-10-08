@@ -51,15 +51,15 @@ def list_assessment_reports(assessment_id: int, db: Session = Depends(get_db)):
     return reports
 
 @router.get("/api/reports/{report_id}", response_model=ReportMetadataResponse)
-def get_report_metadata(report_id: int, db: Session = Depends(get_db)):
-    report = db.query(Report).filter(Report.id == report_id).options(defer(Report.snapshot)).first()
+def get_report_metadata(report_id: int, assessment_id: int, db: Session = Depends(get_db)):
+    report = db.query(Report).filter(Report.id == report_id, Report.assessment_id == assessment_id).options(defer(Report.snapshot)).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
     return report
 
 @router.get("/api/reports/{report_id}/dataset", response_model=ReportDataset)
-def get_report_dataset(report_id: int, db: Session = Depends(get_db)):
-    report = db.query(Report).filter(Report.id == report_id).first()
+def get_report_dataset(report_id: int, assessment_id: int, db: Session = Depends(get_db)):
+    report = db.query(Report).filter(Report.id == report_id, Report.assessment_id == assessment_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
 
@@ -69,8 +69,8 @@ def get_report_dataset(report_id: int, db: Session = Depends(get_db)):
     return report.snapshot
 
 @router.get("/api/reports/{report_id}/export/html")
-def export_html_report(report_id: int, db: Session = Depends(get_db)):
-    report = db.query(Report).filter(Report.id == report_id).first()
+def export_html_report(report_id: int, assessment_id: int, db: Session = Depends(get_db)):
+    report = db.query(Report).filter(Report.id == report_id, Report.assessment_id == assessment_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
 
@@ -90,8 +90,8 @@ def export_html_report(report_id: int, db: Session = Depends(get_db)):
     )
 
 @router.get("/api/reports/{report_id}/export/pdf")
-def export_pdf_report(report_id: int, db: Session = Depends(get_db)):
-    report = db.query(Report).filter(Report.id == report_id).first()
+def export_pdf_report(report_id: int, assessment_id: int, db: Session = Depends(get_db)):
+    report = db.query(Report).filter(Report.id == report_id, Report.assessment_id == assessment_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
 
@@ -120,8 +120,8 @@ def _get_share_status(share: ReportShareLink) -> str:
     return "active"
 
 @router.post("/api/reports/{report_id}/shares", response_model=ReportShareLinkResponse)
-def create_report_share(report_id: int, req: ReportShareLinkCreate, db: Session = Depends(get_db)):
-    report = db.query(Report).filter(Report.id == report_id).first()
+def create_report_share(report_id: int, assessment_id: int, req: ReportShareLinkCreate, db: Session = Depends(get_db)):
+    report = db.query(Report).filter(Report.id == report_id, Report.assessment_id == assessment_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
 
@@ -151,8 +151,8 @@ def create_report_share(report_id: int, req: ReportShareLinkCreate, db: Session 
     return resp
 
 @router.get("/api/reports/{report_id}/shares", response_model=List[ReportShareLinkResponse])
-def list_report_shares(report_id: int, db: Session = Depends(get_db)):
-    report = db.query(Report).filter(Report.id == report_id).first()
+def list_report_shares(report_id: int, assessment_id: int, db: Session = Depends(get_db)):
+    report = db.query(Report).filter(Report.id == report_id, Report.assessment_id == assessment_id).first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
 
@@ -167,8 +167,8 @@ def list_report_shares(report_id: int, db: Session = Depends(get_db)):
     return results
 
 @router.post("/api/shares/{share_id}/revoke", response_model=ReportShareLinkResponse)
-def revoke_report_share(share_id: int, db: Session = Depends(get_db)):
-    share = db.query(ReportShareLink).filter(ReportShareLink.id == share_id).first()
+def revoke_report_share(share_id: int, assessment_id: int, db: Session = Depends(get_db)):
+    share = db.query(ReportShareLink).join(Report).filter(ReportShareLink.id == share_id, Report.assessment_id == assessment_id).first()
     if not share:
         raise HTTPException(status_code=404, detail="Share link not found")
 

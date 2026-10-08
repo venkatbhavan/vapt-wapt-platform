@@ -84,7 +84,7 @@ class TestRetestAPI(unittest.TestCase):
             
         mock_run_retest.side_effect = fake_run
         
-        response = self.client.post(f"/api/findings/{self.finding_A.id}/retests")
+        response = self.client.post(f"/api/findings/{self.finding_A.id}/retests?assessment_id={self.assessment_A.id}")
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data["finding_id"], self.finding_A.id)
@@ -93,13 +93,13 @@ class TestRetestAPI(unittest.TestCase):
         self.assertEqual(data["result"]["result"], "fixed")
         
     def test_create_retest_not_found(self):
-        response = self.client.post("/api/findings/999/retests")
+        response = self.client.post(f"/api/findings/999/retests?assessment_id={self.assessment_A.id}")
         self.assertEqual(response.status_code, 404)
         
     def test_create_retest_unauthorized(self):
         self.assessment_A.authorization_confirmed = False
         self.db.commit()
-        response = self.client.post(f"/api/findings/{self.finding_A.id}/retests")
+        response = self.client.post(f"/api/findings/{self.finding_A.id}/retests?assessment_id={self.assessment_A.id}")
         self.assertEqual(response.status_code, 403)
         
     def test_get_finding_retests(self):
@@ -115,17 +115,17 @@ class TestRetestAPI(unittest.TestCase):
         self.db.add_all([r1, r2])
         self.db.commit()
         
-        response = self.client.get(f"/api/findings/{self.finding_A.id}/retests")
+        response = self.client.get(f"/api/findings/{self.finding_A.id}/retests?assessment_id={self.assessment_A.id}")
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(len(data), 2)
         
     def test_get_finding_retests_empty_and_not_found(self):
-        response = self.client.get(f"/api/findings/{self.finding_A.id}/retests")
+        response = self.client.get(f"/api/findings/{self.finding_A.id}/retests?assessment_id={self.assessment_A.id}")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 0)
         
-        response2 = self.client.get("/api/findings/999/retests")
+        response2 = self.client.get(f"/api/findings/999/retests?assessment_id={self.assessment_A.id}")
         self.assertEqual(response2.status_code, 404)
         
     def test_get_retest_by_id(self):
@@ -139,13 +139,13 @@ class TestRetestAPI(unittest.TestCase):
         self.db.add(r1)
         self.db.commit()
         
-        response = self.client.get(f"/api/retests/{r1.id}")
+        response = self.client.get(f"/api/retests/{r1.id}?assessment_id={self.assessment_A.id}")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["id"], r1.id)
         self.assertEqual(len(response.json()["result"]["evidence"]), 1)
         self.assertEqual(response.json()["result"]["evidence"][0]["title"], "Proof API")
         
-        response2 = self.client.get("/api/retests/999")
+        response2 = self.client.get(f"/api/retests/999?assessment_id={self.assessment_A.id}")
         self.assertEqual(response2.status_code, 404)
         
     def test_assessment_isolation(self):
