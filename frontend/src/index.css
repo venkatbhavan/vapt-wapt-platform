@@ -47,3 +47,56 @@ body {
   background-color: #060B12;
   color: #e2e8f0;
 }
+
+
+@keyframes radar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes draw-line {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-radar {
+  animation: radar-spin 4s linear infinite;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out forwards;
+}
+
+.animate-draw-line {
+  animation: draw-line 1.5s ease-out forwards;
+}
+
+.animate-blink {
+  animation: blink-cursor 1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-radar, .animate-pulse-ring, .animate-fade-in-up, .animate-draw-line, .animate-blink, .animate-pulse, .animate-spin {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

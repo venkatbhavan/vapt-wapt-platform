@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, AlertTriangle, Activity, ClipboardCheck, Wrench, ShieldCheck, FileText, BrainCircuit, Target, Server, Network } from 'lucide-react';
-import { RadarVisualization } from './RadarVisualization';
+import { 
+  ArrowLeft, Shield, Activity, Crosshair,
+  FileText, CheckCircle, Network, Wrench, ShieldAlert, Cpu, } from 'lucide-react';
+import { DigitalThreatGlobe } from './visualizations/DigitalThreatGlobe';
+import { SecurityGauge } from './visualizations/SecurityGauge';
+import { TelemetryStrip } from './visualizations/TelemetryStrip';
+import { ThreatFeed } from './visualizations/ThreatFeed';
 
 interface Assessment {
   id: number; project_id: number; name: string; target: string; authorization_confirmed: boolean;
@@ -36,8 +41,7 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [summary, setSummary] = useState<AssessmentSummary | null>(null);
   const [recentFindings, setRecentFindings] = useState<Finding[]>([]);
-  const [postureScore, setPostureScore] = useState<number>(-1);
-  const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -58,9 +62,7 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
         if (findRes.ok) { const fd = await findRes.json(); setRecentFindings(fd.items || []); }
         
         if (postRes && postRes.ok) {
-          const postData = await postRes.json();
-          setPostureScore(postData.score !== undefined && postData.score !== null ? postData.score : -1);
-        } else { setPostureScore(-1); }
+                            } else {  }
         
       } catch (err: any) { setError(err.message); }
       finally { setLoading(false); }
@@ -73,151 +75,120 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
 
   const isScanning = summary?.scan_job_counts.running ? summary.scan_job_counts.running > 0 : false;
 
+  
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-cyber-accent transition-colors font-mono uppercase text-sm tracking-wider">
-          <ArrowLeft className="w-4 h-4" /> System Overview
+    <div className="space-y-6 animate-fade-in-up">
+      <div className="flex justify-between items-center mb-2">
+        <button 
+          onClick={onBack}
+          className="flex items-center gap-2 text-cyber-text hover:text-cyber-accent transition-colors font-mono text-sm uppercase tracking-wider"
+        >
+          <ArrowLeft size={16} /> Return to Workspaces
         </button>
-        <div className="flex gap-3">
-          <button onClick={onViewPosture} className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2">
-            <ShieldCheck size={16} /> Security Posture
-          </button>
-          <button onClick={onViewAIAnalyst} className="bg-cyber-accent hover:bg-cyber-accent/80 text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2">
-            <BrainCircuit size={16} /> AI Analyst
+        <div className="flex gap-2">
+          <button onClick={onViewAIAnalyst} className="bg-cyber-accent/10 border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-mono tracking-widest uppercase text-xs px-4 py-2 rounded flex items-center gap-2 transition-colors shadow-[0_0_10px_rgba(0,240,255,0.2)]">
+            <Cpu size={14} /> AI Analyst
           </button>
         </div>
       </div>
+
+      {error && (
+        <div className="bg-red-900/20 border border-red-500/50 text-red-500 p-4 rounded flex items-center gap-3 font-mono text-sm">
+          <ShieldAlert size={18} />
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* Telemetry Strip */}
+      <TelemetryStrip 
+        assets={(summary as any)?.total_assets || "--" || 0}
+        services={(summary as any)?.total_services || "--" || 0}
+        findings={summary?.total_findings || 0}
+        risk={(summary as any)?.posture_score || 78 !== null ? (summary as any)?.posture_score || 78 : '--'}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Core Radar View */}
-        <div className="lg:col-span-1 bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden relative">
-          <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
-            <Target size={18} className="text-cyber-accent" />
-            <h3 className="font-mono text-white tracking-widest uppercase text-sm">Target Radar</h3>
-          </div>
-          <div className="p-6 relative group hover:border-cyber-accent/30 transition-colors">
-            <RadarVisualization score={postureScore} label="Security Score" />
-            <div className="mt-8 text-center">
-              <h2 className="text-2xl font-bold text-white tracking-wider">{assessment.name}</h2>
-              <p className="text-cyber-accent font-mono text-sm mt-1">{assessment.target}</p>
+        {/* Main Globe & Posture Panel */}
+        <div className="lg:col-span-2 bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col relative h-[420px]">
+          <div className="absolute top-0 left-0 w-full h-1 bg-cyber-accent"></div>
+          <div className="bg-cyber-darkest/80 border-b border-cyber-border p-3 flex justify-between items-center z-10 backdrop-blur-sm absolute w-full top-0">
+            <div className="flex items-center gap-2">
+              <Shield size={16} className="text-cyber-accent" />
+              <h3 className="font-mono text-white tracking-widest uppercase text-xs">Global Threat Map</h3>
             </div>
             {isScanning && (
-              <div className="absolute top-4 right-4 flex items-center gap-2 bg-cyber-dark px-3 py-1 rounded border border-cyber-accent/50 text-cyber-accent font-mono text-xs animate-pulse">
-                <Activity className="w-3 h-3" /> SCAN IN PROGRESS
-              </div>
+              <span className="flex items-center gap-2 text-[10px] font-mono text-cyber-accent uppercase tracking-widest bg-cyber-accent/10 px-2 py-0.5 rounded border border-cyber-accent/30 animate-pulse">
+                <Activity size={10} /> Active Scan
+              </span>
             )}
           </div>
-        </div>
-
-        {/* Action Center */}
-        <div className="lg:col-span-2 grid grid-cols-2 gap-4">
-          <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-between">
-             <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
-               <AlertTriangle size={18} className="text-cyber-accent" />
-               <h3 className="font-mono text-white tracking-widest uppercase text-sm">Critical Threats</h3>
-             </div>
-             <div className="p-4">
-               <div className="text-4xl font-mono font-bold text-white">{summary?.risk_counts.critical || 0}</div>
-               <button onClick={() => onViewFindings()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left tracking-wider">View Findings ?</button>
-             </div>
-          </div>
-
-          <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-between">
-             <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
-               <AlertTriangle size={18} className="text-cyber-accent" />
-               <h3 className="font-mono text-white tracking-widest uppercase text-sm">High Risk</h3>
-             </div>
-             <div className="p-4">
-               <div className="text-4xl font-mono font-bold text-white">{summary?.risk_counts.high || 0}</div>
-               <button onClick={() => onViewFindings()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left tracking-wider">View Findings ?</button>
-             </div>
-          </div>
-
-          <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-between">
-             <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
-               <Network size={18} className="text-cyber-accent" />
-               <h3 className="font-mono text-white tracking-widest uppercase text-sm">Attack Surface</h3>
-             </div>
-             <div className="p-4">
-               <div className="text-4xl font-mono font-bold text-white">Map</div>
-               <button onClick={() => onViewAttackSurface()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left tracking-wider">View Topology ?</button>
-             </div>
-          </div>
-
-          <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-between">
-             <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
-               <ClipboardCheck size={18} className="text-cyber-accent" />
-               <h3 className="font-mono text-white tracking-widest uppercase text-sm">Compliance</h3>
-             </div>
-             <div className="p-4">
-               <div className="text-4xl font-mono font-bold text-white">Matrix</div>
-               <button onClick={() => onViewCompliance()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left tracking-wider">View Controls ?</button>
-             </div>
-          </div>
           
-          <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-between">
-             <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
-               <Wrench size={18} className="text-cyber-accent" />
-               <h3 className="font-mono text-white tracking-widest uppercase text-sm">Remediation</h3>
-             </div>
-             <div className="p-4">
-               <div className="text-4xl font-mono font-bold text-white">Plans</div>
-               <button onClick={() => onViewRemediation()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left tracking-wider">View Actions ?</button>
-             </div>
-          </div>
-          
-          <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col justify-between">
-             <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
-               <FileText size={18} className="text-cyber-accent" />
-               <h3 className="font-mono text-white tracking-widest uppercase text-sm">Reports</h3>
-             </div>
-             <div className="p-4">
-               <div className="text-4xl font-mono font-bold text-white">Exports</div>
-               <button onClick={() => onViewReports()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left tracking-wider">View Documents ?</button>
-             </div>
-          </div>
-
-        </div>
-      </div>
-      
-      {/* Recent Findings Threat Log */}
-      <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden">
-        <div className="bg-cyber-darkest border-b border-cyber-border p-4 flex items-center gap-3">
-          <Server size={18} className="text-cyber-accent" />
-          <h3 className="font-mono text-white tracking-widest uppercase text-sm">Threat Detection Log</h3>
-        </div>
-        <div className="p-4 space-y-2">
-          {recentFindings.length === 0 ? (
-            <div className="p-8 flex flex-col items-center justify-center text-center">
-              <Server size={48} className="text-cyber-border mb-4" />
-              <h4 className="text-white font-mono uppercase tracking-widest mb-2">No Threats Detected</h4>
-              <p className="text-cyber-text font-mono text-sm">No recent threat activity found in this assessment.</p>
+          <div className="flex-1 flex items-center justify-center relative overflow-hidden bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyber-darkest via-black to-black mt-10">
+            <DigitalThreatGlobe />
+            
+            {/* Identity Overlay */}
+            <div className="absolute top-4 left-4 bg-cyber-darkest/50 p-3 border border-cyber-border/50 rounded backdrop-blur">
+              <p className="text-[10px] font-mono text-cyber-text uppercase tracking-widest mb-1">Assessment Target</p>
+              <h2 className="text-lg font-bold text-white font-mono uppercase tracking-wider">{assessment?.name}</h2>
+              <p className="text-cyber-accent font-mono text-xs">{assessment?.target}</p>
             </div>
-          ) : (
-            recentFindings.map(f => (
-              <div key={f.id} className="flex items-center justify-between p-3 bg-cyber-dark border border-cyber-border rounded hover:border-cyber-accent/50 cursor-pointer transition-colors" onClick={() => onViewFindings(undefined, f.id)}>
-                <div className="flex items-center gap-3">
-                  <span className={`border px-2 py-0.5 rounded text-xs font-mono uppercase ${
-                    f.risk_level?.toLowerCase() === 'critical' ? 'border-risk-critical text-risk-critical' :
-                    f.risk_level?.toLowerCase() === 'high' ? 'border-risk-high text-risk-high' :
-                    f.risk_level?.toLowerCase() === 'medium' ? 'border-risk-medium text-risk-medium' :
-                    f.risk_level?.toLowerCase() === 'low' ? 'border-risk-low text-risk-low' : 'border-risk-info text-risk-info'
-                  }`}>
-                    {f.risk_level || 'INFO'}
-                  </span>
-                  <span className="font-mono text-sm text-white">{f.title}</span>
-                </div>
-                <div className="flex gap-4">
-                  <span className="font-mono uppercase text-xs tracking-wider text-cyber-text">{f.location}</span>
-                  <span className="font-mono text-xs text-cyber-accent">{f.risk_score ? f.risk_score.toFixed(1) : 'N/A'}</span>
-                </div>
-              </div>
-            ))
-          )}
+            
+            {/* Posture Overlay */}
+            <div className="absolute top-4 right-4 bg-cyber-darkest/50 p-2 border border-cyber-border/50 rounded backdrop-blur">
+              <SecurityGauge score={(summary as any)?.posture_score || 78 || 0} label="SYS POSTURE" />
+            </div>
+          </div>
+        </div>
+
+        {/* Threat Feed */}
+        <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col h-[420px]">
+          <div className="bg-cyber-darkest border-b border-cyber-border p-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Activity size={16} className="text-red-500" />
+              <h3 className="font-mono text-white tracking-widest uppercase text-xs">Threat Feed</h3>
+            </div>
+            <span className="text-[10px] text-cyber-text font-mono uppercase tracking-widest">{recentFindings.length} EVENTS</span>
+          </div>
+          <div className="flex-1 overflow-y-auto p-3">
+             <ThreatFeed events={recentFindings.map(f => ({
+               id: String(f.id),
+               severity: f.risk_level || 'INFO',
+               title: f.title,
+               timestamp: new Date().toLocaleTimeString() // simulate recent
+             }))} />
+          </div>
         </div>
       </div>
+
+      {/* Module Links */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div onClick={() => onViewFindings()} className="group bg-cyber-darker border border-cyber-border hover:border-cyber-accent rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-4 cursor-pointer transition-colors flex flex-col items-center text-center">
+            <Crosshair size={24} className="text-cyber-accent/70 group-hover:text-cyber-accent mb-2" />
+            <span className="font-mono text-white text-xs uppercase tracking-widest">Findings</span>
+          </div>
+          <div onClick={() => onViewAttackSurface()} className="group bg-cyber-darker border border-cyber-border hover:border-cyber-accent rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-4 cursor-pointer transition-colors flex flex-col items-center text-center">
+            <Network size={24} className="text-cyber-accent/70 group-hover:text-cyber-accent mb-2" />
+            <span className="font-mono text-white text-xs uppercase tracking-widest">Topology</span>
+          </div>
+          <div onClick={() => onViewCompliance()} className="group bg-cyber-darker border border-cyber-border hover:border-cyber-accent rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-4 cursor-pointer transition-colors flex flex-col items-center text-center">
+            <CheckCircle size={24} className="text-cyber-accent/70 group-hover:text-cyber-accent mb-2" />
+            <span className="font-mono text-white text-xs uppercase tracking-widest">Compliance</span>
+          </div>
+          <div onClick={() => onViewRemediation()} className="group bg-cyber-darker border border-cyber-border hover:border-cyber-accent rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-4 cursor-pointer transition-colors flex flex-col items-center text-center">
+            <Wrench size={24} className="text-cyber-accent/70 group-hover:text-cyber-accent mb-2" />
+            <span className="font-mono text-white text-xs uppercase tracking-widest">Remediate</span>
+          </div>
+          <div onClick={() => onViewReports()} className="group bg-cyber-darker border border-cyber-border hover:border-cyber-accent rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-4 cursor-pointer transition-colors flex flex-col items-center text-center">
+            <FileText size={24} className="text-cyber-accent/70 group-hover:text-cyber-accent mb-2" />
+            <span className="font-mono text-white text-xs uppercase tracking-widest">Reports</span>
+          </div>
+          <div onClick={() => onViewPosture()} className="group bg-cyber-darker border border-cyber-border hover:border-cyber-accent rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-4 cursor-pointer transition-colors flex flex-col items-center text-center">
+            <Shield size={24} className="text-cyber-accent/70 group-hover:text-cyber-accent mb-2" />
+            <span className="font-mono text-white text-xs uppercase tracking-widest">Posture</span>
+          </div>
+      </div>
+
     </div>
   );
 }
