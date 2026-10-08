@@ -65,32 +65,32 @@ export function ProjectsView({ onSelectProject }: ProjectsViewProps) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+      <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
         <h3 className="text-xl font-bold text-white mb-4">Create Project</h3>
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Project Name *</label>
+            <label className="block text-sm font-medium text-cyber-text mb-1">Project Name *</label>
             <input 
               type="text" 
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full bg-gray-950 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-cyber-darkest border border-cyber-border rounded p-2 text-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
+            <label className="block text-sm font-medium text-cyber-text mb-1">Description</label>
             <textarea 
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="w-full bg-gray-950 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-cyber-darkest border border-cyber-border rounded p-2 text-white"
               rows={3}
             />
           </div>
           <button 
             type="submit" 
             disabled={!name || creating}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-cyber-dark hover:bg-cyber-border text-cyber-accent border border-cyber-accent/50 shadow-[0_0_10px_rgba(0,240,255,0.1)] text-white font-medium py-2 px-4 rounded transition-colors disabled:opacity-50"
           >
             <Plus size={18} />
             {creating ? 'Creating...' : 'Create Project'}
@@ -99,26 +99,26 @@ export function ProjectsView({ onSelectProject }: ProjectsViewProps) {
         {error && <p className="text-red-500 mt-4 text-sm">{error}</p>}
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+      <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
         <h3 className="text-xl font-bold text-white mb-4">Projects</h3>
         {loading ? (
-          <p className="text-gray-400">Loading projects...</p>
+          <p className="text-cyber-text">Loading projects...</p>
         ) : projects.length === 0 ? (
-          <p className="text-gray-400">No projects found. Create one above.</p>
+          <p className="text-cyber-text">No projects found. Create one above.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.map(p => (
               <div 
                 key={p.id} 
-                className="bg-gray-950 border border-gray-800 p-4 rounded-lg cursor-pointer hover:border-blue-500 transition-colors"
+                className="bg-cyber-darkest border border-cyber-border p-4 rounded-lg cursor-pointer hover:border-cyber-accent transition-colors"
                 onClick={() => onSelectProject(p.id)}
               >
                 <div className="flex items-start justify-between mb-2">
                   <h4 className="text-lg font-bold text-white truncate pr-2">{p.name}</h4>
-                  <Database size={16} className="text-gray-500 flex-shrink-0 mt-1" />
+                  <Database size={16} className="text-cyber-text flex-shrink-0 mt-1" />
                 </div>
-                <p className="text-sm text-gray-400 mb-4 line-clamp-2">{p.description || 'No description'}</p>
-                <p className="text-xs text-gray-600">ID: {p.id}</p>
+                <p className="text-sm text-cyber-text mb-4 line-clamp-2">{p.description || 'No description'}</p>
+                <p className="text-xs text-cyber-border">ID: {p.id}</p>
               </div>
             ))}
           </div>

@@ -50,8 +50,8 @@ const getSeverityColor = (severity: string) => {
     case 'high': return 'text-red-500 bg-red-500/10 border-red-500/20';
     case 'medium': return 'text-orange-500 bg-orange-500/10 border-orange-500/20';
     case 'low': return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
-    case 'info': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
-    default: return 'text-gray-400 bg-gray-800 border-gray-700';
+    case 'info': return 'text-cyber-accent bg-cyber-accent/10 border-cyber-accent/20';
+    default: return 'text-cyber-text bg-cyber-dark border-cyber-border';
   }
 };
 const getRiskColor = (riskLevel: string | null) => {
@@ -60,8 +60,8 @@ const getRiskColor = (riskLevel: string | null) => {
     case 'high': return 'text-red-400';
     case 'medium': return 'text-orange-400';
     case 'low': return 'text-yellow-400';
-    case 'info': return 'text-blue-400';
-    default: return 'text-gray-400';
+    case 'info': return 'text-cyber-accent';
+    default: return 'text-cyber-text';
   }
 };
 export function FindingsView({ assessmentId, initialJobId, initialFindingId, onBack }: FindingsViewProps) {
@@ -251,18 +251,18 @@ const handleTriggerRetest = async () => {
       {/* Active Scan Confirmation Modal */}
       {showActiveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-gray-900 border border-red-900/50 rounded-lg p-6 max-w-md w-full shadow-2xl">
+          <div className="bg-cyber-darker border border-red-900/50 rounded-lg p-6 max-w-md w-full shadow-2xl">
             <h3 className="text-xl font-semibold text-red-500 mb-2 flex items-center gap-2">
               <ShieldAlert size={24} />
               Active Scan Warning
             </h3>
-            <p className="text-gray-300 mb-6 text-sm">
+            <p className="text-cyber-textBright mb-6 text-sm">
               You are about to launch an active/deep scan. This may send intrusive payloads, test for vulnerabilities aggressively, and potentially impact the target's availability. Do you have explicit authorization to perform an active scan on this target?
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => { setShowActiveModal(false); setStartingScan(false); }}
-                className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white"
+                className="px-4 py-2 text-sm font-medium text-cyber-text hover:text-white"
               >
                 Cancel
               </button>
@@ -279,14 +279,14 @@ const handleTriggerRetest = async () => {
       <div className="flex justify-between items-center">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+          className="flex items-center gap-2 text-cyber-text hover:text-white transition-colors"
         >
           <ArrowLeft size={16} /> Back to Assessments
         </button>
         <button
           onClick={() => handleRunScan(false)}
           disabled={startingScan}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 bg-cyber-dark hover:bg-cyber-border text-cyber-accent border border-cyber-accent/50 shadow-[0_0_10px_rgba(0,240,255,0.1)] text-white px-4 py-2 rounded transition-colors disabled:opacity-50"
         >
           <Activity size={16} />
           {startingScan ? 'Starting...' : 'Run New Scan'}
@@ -299,12 +299,12 @@ const handleTriggerRetest = async () => {
         </div>
       )}
       {/* Top Controls: Scan Job Selection */}
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+      <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
         <h3 className="text-xl font-bold text-white mb-4">Scan Jobs</h3>
         {loadingJobs && scanJobs.length === 0 ? (
-          <p className="text-gray-400">Loading scan jobs...</p>
+          <p className="text-cyber-text">Loading scan jobs...</p>
         ) : scanJobs.length === 0 ? (
-          <p className="text-gray-400">No scan jobs run for this assessment yet.</p>
+          <p className="text-cyber-text">No scan jobs run for this assessment yet.</p>
         ) : (
           <div className="flex gap-4 overflow-x-auto pb-2">
             {scanJobs.map(job => (
@@ -313,8 +313,8 @@ const handleTriggerRetest = async () => {
                 onClick={() => setSelectedJob(job)}
                 className={`flex flex-col text-left p-3 rounded border min-w-[200px] transition-colors ${
                   selectedJob?.id === job.id
-                    ? 'bg-blue-900/20 border-blue-500 text-blue-100'
-                    : 'bg-gray-950 border-gray-800 text-gray-400 hover:border-gray-600'
+                    ? 'bg-blue-900/20 border-cyber-accent text-blue-100'
+                    : 'bg-cyber-darkest border-cyber-border text-cyber-text hover:border-cyber-border'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1 w-full">
@@ -337,7 +337,7 @@ const handleTriggerRetest = async () => {
       {selectedJob && (
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left: Findings List */}
-          <div className="flex-1 bg-gray-900 border border-gray-800 rounded-lg p-6">
+          <div className="flex-1 bg-cyber-darker border border-cyber-border rounded-lg p-6">
             <h3 className="text-xl font-bold text-white mb-4">
               Findings for Job #{selectedJob.id}
             </h3>
@@ -352,9 +352,9 @@ const handleTriggerRetest = async () => {
                 <p className="text-sm mt-1 opacity-80">{selectedJob.error_message}</p>
               </div>
             ) : loadingFindings ? (
-              <p className="text-gray-400">Loading findings...</p>
+              <p className="text-cyber-text">Loading findings...</p>
             ) : findings.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-8 text-gray-500 border border-dashed border-gray-700 rounded bg-gray-950/50">
+              <div className="flex flex-col items-center justify-center p-8 text-cyber-text border border-dashed border-cyber-border rounded bg-cyber-darkest/50">
                 <CheckCircle size={32} className="mb-2 text-green-500/50" />
                 <p>No findings reported.</p>
               </div>
@@ -366,8 +366,8 @@ const handleTriggerRetest = async () => {
                     onClick={() => handleSelectFinding(finding)}
                     className={`w-full text-left flex items-center justify-between p-3 rounded border transition-colors ${
                       selectedFinding?.id === finding.id
-                        ? 'bg-gray-800 border-gray-600'
-                        : 'bg-gray-950 border-gray-800 hover:border-gray-700'
+                        ? 'bg-cyber-dark border-cyber-border'
+                        : 'bg-cyber-darkest border-cyber-border hover:border-cyber-border'
                     }`}
                   >
                     <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -376,12 +376,12 @@ const handleTriggerRetest = async () => {
                       </span>
                       <div className="truncate">
                         <p className="text-white font-medium truncate">{finding.title}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs text-cyber-text mt-0.5">
                           Risk: <span className={getRiskColor(finding.risk_level)}>{finding.risk_level?.toUpperCase() || 'N/A'}</span> ({finding.risk_score?.toFixed(2) || '-'})
                         </p>
                       </div>
                     </div>
-                    <ChevronRight size={18} className="text-gray-600 shrink-0 ml-2" />
+                    <ChevronRight size={18} className="text-cyber-border shrink-0 ml-2" />
                   </button>
                 ))}
               </div>
@@ -389,51 +389,51 @@ const handleTriggerRetest = async () => {
           </div>
           {/* Right: Detail Panel */}
           {selectedFinding && (
-            <div className="flex-1 bg-gray-900 border border-gray-800 rounded-lg p-6 flex flex-col h-full max-h-[800px] overflow-y-auto">
-              <div className="flex items-start justify-between mb-4 border-b border-gray-800 pb-4">
+            <div className="flex-1 bg-cyber-darker border border-cyber-border rounded-lg p-6 flex flex-col h-full max-h-[800px] overflow-y-auto">
+              <div className="flex items-start justify-between mb-4 border-b border-cyber-border pb-4">
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-2">{selectedFinding.title}</h2>
                   <div className="flex flex-wrap gap-2 text-xs">
                     <span className={`px-2 py-1 rounded border ${getSeverityColor(selectedFinding.severity)}`}>
                       Severity: {selectedFinding.severity.toUpperCase()}
                     </span>
-                    <span className={`px-2 py-1 rounded border bg-gray-800 border-gray-700 text-gray-300`}>
+                    <span className={`px-2 py-1 rounded border bg-cyber-dark border-cyber-border text-cyber-textBright`}>
                       Confidence: {selectedFinding.confidence?.toUpperCase() || 'N/A'}
                     </span>
-                    <span className={`px-2 py-1 rounded border bg-gray-800 border-gray-700 text-gray-300`}>
+                    <span className={`px-2 py-1 rounded border bg-cyber-dark border-cyber-border text-cyber-textBright`}>
                       Status: {selectedFinding.status.toUpperCase()}
                     </span>
                   </div>
                 </div>
               </div>
-              <div className="space-y-6 text-sm text-gray-300">
+              <div className="space-y-6 text-sm text-cyber-textBright">
                 {/* Risk Panel */}
-                <div className="bg-gray-950 border border-gray-800 rounded p-4">
+                <div className="bg-cyber-darkest border border-cyber-border rounded p-4">
                   <h4 className="font-semibold text-white mb-2 flex items-center gap-2">
                     <Shield size={16} className={getRiskColor(selectedFinding.risk_level)} />
                     Risk Assessment
                   </h4>
                   <div className="grid grid-cols-2 gap-4 mb-2">
                     <div>
-                      <p className="text-gray-500">Risk Level</p>
+                      <p className="text-cyber-text">Risk Level</p>
                       <p className={`font-medium ${getRiskColor(selectedFinding.risk_level)}`}>
                         {selectedFinding.risk_level?.toUpperCase() || 'Unknown'}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-500">Risk Score</p>
+                      <p className="text-cyber-text">Risk Score</p>
                       <p className="font-medium text-white">{selectedFinding.risk_score?.toFixed(2) || 'N/A'}</p>
                     </div>
                   </div>
                   {selectedFinding.risk_rationale && (
-                    <div className="bg-gray-900 p-2 rounded text-xs text-gray-400 mt-2">
+                    <div className="bg-cyber-darker p-2 rounded text-xs text-cyber-text mt-2">
                       {selectedFinding.risk_rationale}
                     </div>
                   )}
                 </div>
                 <div>
                   <h4 className="font-semibold text-white mb-1">Description</h4>
-                  <p className="whitespace-pre-wrap text-gray-400">
+                  <p className="whitespace-pre-wrap text-cyber-text">
                     {selectedFinding.description || 'No description provided.'}
                   </p>
                 </div>
@@ -441,59 +441,59 @@ const handleTriggerRetest = async () => {
                   {selectedFinding.category && (
                     <div>
                       <h4 className="font-semibold text-white mb-1">Category</h4>
-                      <p className="text-gray-400">{selectedFinding.category}</p>
+                      <p className="text-cyber-text">{selectedFinding.category}</p>
                     </div>
                   )}
                   {selectedFinding.location && (
                     <div>
                       <h4 className="font-semibold text-white mb-1">Location</h4>
-                      <p className="text-gray-400">{selectedFinding.location}</p>
+                      <p className="text-cyber-text">{selectedFinding.location}</p>
                     </div>
                   )}
                 </div>
                 {selectedFinding.impact && (
                   <div>
                     <h4 className="font-semibold text-white mb-1">Impact</h4>
-                    <p className="whitespace-pre-wrap text-gray-400">{selectedFinding.impact}</p>
+                    <p className="whitespace-pre-wrap text-cyber-text">{selectedFinding.impact}</p>
                   </div>
                 )}
                 {selectedFinding.remediation && (
                   <div>
                     <h4 className="font-semibold text-white mb-1">Remediation</h4>
-                    <p className="whitespace-pre-wrap text-gray-400">{selectedFinding.remediation}</p>
+                    <p className="whitespace-pre-wrap text-cyber-text">{selectedFinding.remediation}</p>
                   </div>
                 )}
 {/* Retest History Section */}
-                  <div className="pt-4 border-t border-gray-800">
+                  <div className="pt-4 border-t border-cyber-border">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-semibold text-white flex items-center gap-2">
                         <RefreshCw size={16} /> Retest History
                       </h4>
-                      <button onClick={handleTriggerRetest} disabled={triggeringRetest || (retestHistory.length > 0 && retestHistory[0].status !== 'completed' && retestHistory[0].status !== 'failed')} className="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 transition-colors">
+                      <button onClick={handleTriggerRetest} disabled={triggeringRetest || (retestHistory.length > 0 && retestHistory[0].status !== 'completed' && retestHistory[0].status !== 'failed')} className="px-3 py-1.5 text-xs bg-cyber-dark hover:bg-cyber-border text-cyber-accent border border-cyber-accent/50 shadow-[0_0_10px_rgba(0,240,255,0.1)] text-white rounded font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 transition-colors">
                         {triggeringRetest ? (<><RefreshCw size={14} className="animate-spin" />Starting...</>) : (<><RefreshCw size={14} />Run Retest</>)}
                       </button>
                     </div>
                     {retestError && <div className="mb-3 p-2 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded">{retestError}</div>}
-                    {loadingRetests ? <p className="text-gray-500 italic">Loading retests...</p> : retestHistory.length === 0 ? <p className="text-gray-500 italic">No retests have been requested for this finding yet.</p> : (
+                    {loadingRetests ? <p className="text-cyber-text italic">Loading retests...</p> : retestHistory.length === 0 ? <p className="text-cyber-text italic">No retests have been requested for this finding yet.</p> : (
                       <div className="space-y-4">
                         {retestHistory.map(rt => (
-                          <div key={rt.id} className="bg-gray-950 border border-gray-800 rounded p-4">
+                          <div key={rt.id} className="bg-cyber-darkest border border-cyber-border rounded p-4">
                             <div className="flex justify-between items-start mb-2">
                               <div>
-                                <span className="font-medium text-white flex items-center gap-2">Retest #{rt.id} <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] uppercase border border-blue-500/20">{rt.status}</span></span>
-                                <div className="text-xs text-gray-500 mt-1">{new Date(rt.requested_at).toLocaleString()}</div>
+                                <span className="font-medium text-white flex items-center gap-2">Retest #{rt.id} <span className="px-2 py-0.5 rounded bg-cyber-accent/10 text-cyber-accent text-[10px] uppercase border border-cyber-accent/20">{rt.status}</span></span>
+                                <div className="text-xs text-cyber-text mt-1">{new Date(rt.requested_at).toLocaleString()}</div>
                               </div>
-                              {rt.result && <span className="px-2 py-1 rounded text-xs font-medium border uppercase bg-gray-800 text-gray-300 border-gray-700">{rt.result.result.replace('_', ' ')}</span>}
+                              {rt.result && <span className="px-2 py-1 rounded text-xs font-medium border uppercase bg-cyber-dark text-cyber-textBright border-cyber-border">{rt.result.result.replace('_', ' ')}</span>}
                             </div>
                             {rt.result && (
                               <div className="mt-3 text-sm">
-                                <div className="bg-gray-900 rounded p-3 text-gray-300 text-xs border border-gray-800">{rt.result.rationale}</div>
+                                <div className="bg-cyber-darker rounded p-3 text-cyber-textBright text-xs border border-cyber-border">{rt.result.rationale}</div>
                                 {rt.result.evidence && rt.result.evidence.length > 0 ? (
-                                  <div className="mt-4 border-t border-gray-800 pt-3"><h5 className="text-xs font-medium text-gray-400 mb-2">Retest Evidence</h5>
-                                  <div className="space-y-2">{rt.result.evidence.map((ev, i) => (<div key={i} className="bg-black border border-gray-800 rounded p-2 text-gray-400 text-xs"><div className="font-semibold text-gray-300 mb-1">{ev.title}</div><pre className="whitespace-pre-wrap break-all">{ev.content}</pre></div>))}</div>
+                                  <div className="mt-4 border-t border-cyber-border pt-3"><h5 className="text-xs font-medium text-cyber-text mb-2">Retest Evidence</h5>
+                                  <div className="space-y-2">{rt.result.evidence.map((ev, i) => (<div key={i} className="bg-black border border-cyber-border rounded p-2 text-cyber-text text-xs"><div className="font-semibold text-cyber-textBright mb-1">{ev.title}</div><pre className="whitespace-pre-wrap break-all">{ev.content}</pre></div>))}</div>
                                   </div>
                                 ) : (
-                                  <div className="mt-2 text-[11px] text-gray-500 italic">No scanner evidence recorded.</div>
+                                  <div className="mt-2 text-[11px] text-cyber-text italic">No scanner evidence recorded.</div>
                                 )}
                               </div>
                             )}
@@ -503,33 +503,33 @@ const handleTriggerRetest = async () => {
                     )}
                   </div>
                   {/* Evidence Section */}
-                <div className="pt-4 border-t border-gray-800">
+                <div className="pt-4 border-t border-cyber-border">
                   <h4 className="font-semibold text-white mb-3 flex items-center gap-2">
                     <FileText size={16} /> Evidence
                   </h4>
                   {loadingEvidence ? (
-                    <p className="text-gray-500 italic">Loading evidence...</p>
+                    <p className="text-cyber-text italic">Loading evidence...</p>
                   ) : evidenceList.length === 0 ? (
-                    <p className="text-gray-500 italic">No evidence items attached.</p>
+                    <p className="text-cyber-text italic">No evidence items attached.</p>
                   ) : (
                     <div className="space-y-3">
                       {evidenceList.map(ev => (
-                        <div key={ev.id} className="bg-gray-950 border border-gray-800 rounded overflow-hidden">
-                          <div className="bg-gray-900 border-b border-gray-800 px-3 py-2 flex justify-between items-center text-xs">
-                            <span className="font-medium text-gray-300">{ev.title || 'Evidence Item'}</span>
-                            <span className="text-gray-500 uppercase px-1.5 py-0.5 rounded border border-gray-700 bg-gray-950">
+                        <div key={ev.id} className="bg-cyber-darkest border border-cyber-border rounded overflow-hidden">
+                          <div className="bg-cyber-darker border-b border-cyber-border px-3 py-2 flex justify-between items-center text-xs">
+                            <span className="font-medium text-cyber-textBright">{ev.title || 'Evidence Item'}</span>
+                            <span className="text-cyber-text uppercase px-1.5 py-0.5 rounded border border-cyber-border bg-cyber-darkest">
                               {ev.evidence_type}
                             </span>
                           </div>
                           {ev.content && (
                             <div className="p-3">
-                              <pre className="text-[11px] text-gray-400 font-mono whitespace-pre-wrap break-all bg-black p-2 rounded">
+                              <pre className="text-[11px] text-cyber-text font-mono whitespace-pre-wrap break-all bg-black p-2 rounded">
                                 {ev.content}
                               </pre>
                             </div>
                           )}
                           {ev.source && (
-                            <div className="px-3 pb-2 text-xs text-gray-600">
+                            <div className="px-3 pb-2 text-xs text-cyber-border">
                               Source: {ev.source}
                             </div>
                           )}

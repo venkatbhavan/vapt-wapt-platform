@@ -14,7 +14,7 @@ const getPriorityColor = (priority: string) => {
     case 'high': return 'text-red-500 bg-red-500/10 border-red-500/20';
     case 'medium': return 'text-orange-500 bg-orange-500/10 border-orange-500/20';
     case 'low': return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
-    default: return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
+    default: return 'text-cyber-accent bg-cyber-accent/10 border-cyber-accent/20';
   }
 };
 
@@ -24,7 +24,7 @@ const getSeverityColor = (severity: string) => {
     case 'high': return 'text-red-500 bg-red-500/10 border-red-500/20';
     case 'medium': return 'text-orange-500 bg-orange-500/10 border-orange-500/20';
     case 'low': return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
-    default: return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
+    default: return 'text-cyber-accent bg-cyber-accent/10 border-cyber-accent/20';
   }
 };
 
@@ -171,7 +171,7 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyber-accent"></div>
       </div>
     );
   }
@@ -195,18 +195,18 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
     return (
       <div>
         <div className="mb-6 flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-gray-800 rounded-full transition-colors text-gray-400">
+          <button onClick={onBack} className="p-2 hover:bg-cyber-dark rounded-full transition-colors text-cyber-text">
             <ArrowLeft size={20} />
           </button>
           <div>
             <h2 className="text-2xl font-bold text-white">Remediation</h2>
-            <p className="text-sm text-gray-400">Actionable remediation guidance derived from the assessment findings.</p>
+            <p className="text-sm text-cyber-text">Actionable remediation guidance derived from the assessment findings.</p>
           </div>
         </div>
-        <div className="bg-gray-900 border border-gray-800 p-8 rounded-lg text-center">
-          <ShieldCheck className="mx-auto text-gray-600 mb-4" size={48} />
+        <div className="bg-cyber-darker border border-cyber-border p-8 rounded-lg text-center">
+          <ShieldCheck className="mx-auto text-cyber-border mb-4" size={48} />
           <h3 className="text-xl font-medium text-white mb-2">No remediation guidance available</h3>
-          <p className="text-gray-400">Remediation guidance will appear when findings have applicable remediation mappings.</p>
+          <p className="text-cyber-text">Remediation guidance will appear when findings have applicable remediation mappings.</p>
         </div>
       </div>
     );
@@ -216,54 +216,54 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <button onClick={onBack} className="p-2 hover:bg-gray-800 rounded-full transition-colors text-gray-400">
+        <button onClick={onBack} className="p-2 hover:bg-cyber-dark rounded-full transition-colors text-cyber-text">
           <ArrowLeft size={20} />
         </button>
         <div>
           <h2 className="text-2xl font-bold text-white">Remediation</h2>
-          <p className="text-sm text-gray-400">Actionable remediation guidance derived from the assessment findings.</p>
+          <p className="text-sm text-cyber-text">Actionable remediation guidance derived from the assessment findings.</p>
         </div>
       </div>
 
       {/* Summary Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg">
-          <p className="text-xs text-gray-400 mb-1">Remediation Guidance</p>
+        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg">
+          <p className="text-xs text-cyber-text mb-1">Remediation Guidance</p>
           <p className="text-2xl font-semibold text-white">{metrics.guidance}</p>
         </div>
-        <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg">
-          <p className="text-xs text-gray-400 mb-1">Affected Findings</p>
+        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg">
+          <p className="text-xs text-cyber-text mb-1">Affected Findings</p>
           <p className="text-2xl font-semibold text-white">{metrics.findings}</p>
         </div>
-        <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg">
-          <p className="text-xs text-gray-400 mb-1">Critical Findings</p>
+        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg">
+          <p className="text-xs text-cyber-text mb-1">Critical Findings</p>
           <p className="text-2xl font-semibold text-red-500">{metrics.criticalFindings}</p>
         </div>
-        <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg">
-          <p className="text-xs text-gray-400 mb-1">High Priority</p>
+        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg">
+          <p className="text-xs text-cyber-text mb-1">High Priority</p>
           <p className="text-2xl font-semibold text-white">{metrics.highPriority}</p>
         </div>
       </div>
 
       {/* Search & Filters */}
-      <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg space-y-4">
+      <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg space-y-4">
         <div className="relative">
-          <Search className="absolute left-3 top-2.5 text-gray-500" size={18} />
+          <Search className="absolute left-3 top-2.5 text-cyber-text" size={18} />
           <input
             type="text"
             placeholder="Search remediation guidance or findings..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-gray-950 border border-gray-700 rounded pl-10 pr-4 py-2 text-white focus:outline-none focus:border-blue-500"
+            className="w-full bg-cyber-darkest border border-cyber-border rounded pl-10 pr-4 py-2 text-white focus:outline-none focus:border-cyber-accent"
           />
         </div>
         <div className="flex flex-wrap gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">Priority:</span>
+            <span className="text-sm text-cyber-text">Priority:</span>
             <select
               value={filterPriority}
               onChange={(e) => setFilterPriority(e.target.value)}
-              className="bg-gray-950 border border-gray-700 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-blue-500"
+              className="bg-cyber-darkest border border-cyber-border rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-cyber-accent"
             >
               <option value="all">All Priorities</option>
               {availablePriorities.map(p => <option key={p} value={p}>{p}</option>)}
@@ -271,11 +271,11 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
           </div>
           
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">Severity:</span>
+            <span className="text-sm text-cyber-text">Severity:</span>
             <select
               value={filterSeverity}
               onChange={(e) => setFilterSeverity(e.target.value)}
-              className="bg-gray-950 border border-gray-700 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-blue-500"
+              className="bg-cyber-darkest border border-cyber-border rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-cyber-accent"
             >
               <option value="all">All Severities</option>
               {availableSeverities.map(s => <option key={s} value={s}>{s}</option>)}
@@ -283,11 +283,11 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">Type:</span>
+            <span className="text-sm text-cyber-text">Type:</span>
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="bg-gray-950 border border-gray-700 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-blue-500"
+              className="bg-cyber-darkest border border-cyber-border rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-cyber-accent"
             >
               <option value="all">All Types</option>
               {availableTypes.map(t => <option key={t} value={t}>{t}</option>)}
@@ -297,7 +297,7 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
           {(searchQuery || filterPriority !== 'all' || filterSeverity !== 'all' || filterType !== 'all') && (
             <button
               onClick={resetFilters}
-              className="text-sm text-blue-400 hover:text-blue-300 ml-auto"
+              className="text-sm text-cyber-accent hover:text-cyber-accent ml-auto"
             >
               Clear filters
             </button>
@@ -307,11 +307,11 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
 
       {/* Filtered Empty State */}
       {filteredRemediations.length === 0 && (
-        <div className="bg-gray-900 border border-gray-800 p-8 rounded-lg text-center">
-          <p className="text-gray-400 mb-4">No remediation items match your current filters.</p>
+        <div className="bg-cyber-darker border border-cyber-border p-8 rounded-lg text-center">
+          <p className="text-cyber-text mb-4">No remediation items match your current filters.</p>
           <button
             onClick={resetFilters}
-            className="text-blue-400 hover:text-blue-300"
+            className="text-cyber-accent hover:text-cyber-accent"
           >
             Reset search and filters
           </button>
@@ -324,53 +324,53 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
           const isExpanded = expandedCards.has(rem.id);
 
           return (
-            <div key={rem.id} className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
+            <div key={rem.id} className="bg-cyber-darker border border-cyber-border rounded-lg overflow-hidden">
               <button
                 onClick={() => toggleCard(rem.id)}
-                className="w-full text-left p-4 hover:bg-gray-800/50 transition-colors flex items-start gap-4"
+                className="w-full text-left p-4 hover:bg-cyber-dark/50 transition-colors flex items-start gap-4"
               >
-                <div className="mt-1 text-gray-500">
+                <div className="mt-1 text-cyber-text">
                   {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                 </div>
                 <div className="flex-1">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
                     <h3 className="text-lg font-semibold text-white">{rem.title}</h3>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-400">Priority:</span>
+                      <span className="text-xs text-cyber-text">Priority:</span>
                       <Badge text={rem.priority} colorClass={getPriorityColor(rem.priority)} />
-                      <span className="text-xs text-gray-400 ml-2">Type:</span>
-                      <span className="px-2 py-0.5 rounded text-xs border font-medium uppercase text-blue-400 bg-blue-500/10 border-blue-500/20">
+                      <span className="text-xs text-cyber-text ml-2">Type:</span>
+                      <span className="px-2 py-0.5 rounded text-xs border font-medium uppercase text-cyber-accent bg-cyber-accent/10 border-cyber-accent/20">
                         {rem.remediation_type}
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-300 mb-2">{rem.summary}</p>
-                  <div className="text-xs text-gray-500 flex items-center gap-1">
+                  <p className="text-sm text-cyber-textBright mb-2">{rem.summary}</p>
+                  <div className="text-xs text-cyber-text flex items-center gap-1">
                     <Wrench size={14} /> Affected findings: {rem.mappings.length}
                   </div>
                 </div>
               </button>
 
               {isExpanded && (
-                <div className="p-4 border-t border-gray-800 bg-gray-950/50 space-y-6">
+                <div className="p-4 border-t border-cyber-border bg-cyber-darkest/50 space-y-6">
                   {/* Guidance Detail */}
                   <div className="space-y-4">
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-400 mb-1 uppercase tracking-wider">Detailed Guidance</h4>
-                      <p className="text-sm text-gray-300 whitespace-pre-wrap">{rem.detailed_guidance}</p>
+                      <h4 className="text-sm font-semibold text-cyber-text mb-1 uppercase tracking-wider">Detailed Guidance</h4>
+                      <p className="text-sm text-cyber-textBright whitespace-pre-wrap">{rem.detailed_guidance}</p>
                     </div>
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-400 mb-1 uppercase tracking-wider">Verification Guidance</h4>
-                      <p className="text-sm text-gray-300 whitespace-pre-wrap">{rem.verification_guidance}</p>
+                      <h4 className="text-sm font-semibold text-cyber-text mb-1 uppercase tracking-wider">Verification Guidance</h4>
+                      <p className="text-sm text-cyber-textBright whitespace-pre-wrap">{rem.verification_guidance}</p>
                     </div>
                   </div>
 
                   {/* Affected Findings */}
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Affected Findings ({rem.mappings.length})</h4>
+                    <h4 className="text-sm font-semibold text-cyber-text mb-3 uppercase tracking-wider">Affected Findings ({rem.mappings.length})</h4>
                     <div className="space-y-2">
                       {rem.mappings.map((mapping) => (
-                        <div key={mapping.id} className="bg-gray-900 border border-gray-800 rounded p-3 flex flex-col md:flex-row justify-between md:items-center gap-4 hover:border-gray-700 transition-colors">
+                        <div key={mapping.id} className="bg-cyber-darker border border-cyber-border rounded p-3 flex flex-col md:flex-row justify-between md:items-center gap-4 hover:border-cyber-border transition-colors">
                           <div>
                             <div className="flex items-center gap-2 mb-1">
                               <Badge text={mapping.finding.severity} colorClass={getSeverityColor(mapping.finding.severity)} />
@@ -379,19 +379,19 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
                                   e.stopPropagation();
                                   onViewFinding(mapping.finding.id);
                                 }}
-                                className="text-blue-400 hover:text-blue-300 hover:underline font-medium text-sm text-left"
+                                className="text-cyber-accent hover:text-cyber-accent hover:underline font-medium text-sm text-left"
                               >
                                 {mapping.finding.title}
                               </button>
                             </div>
-                            <div className="flex flex-wrap gap-3 text-xs text-gray-500 mt-2">
+                            <div className="flex flex-wrap gap-3 text-xs text-cyber-text mt-2">
                               {mapping.finding.normalized_type && (
-                                <span>Type: <span className="text-gray-400">{mapping.finding.normalized_type}</span></span>
+                                <span>Type: <span className="text-cyber-text">{mapping.finding.normalized_type}</span></span>
                               )}
-                              <span>Status: <span className="text-gray-400">{mapping.finding.status}</span></span>
-                              <span>Mapping Confidence: <span className="text-gray-400">{mapping.mapping_confidence}</span></span>
+                              <span>Status: <span className="text-cyber-text">{mapping.finding.status}</span></span>
+                              <span>Mapping Confidence: <span className="text-cyber-text">{mapping.mapping_confidence}</span></span>
                             </div>
-                            <div className="text-xs text-gray-400 mt-2 border-l-2 border-gray-700 pl-2">
+                            <div className="text-xs text-cyber-text mt-2 border-l-2 border-cyber-border pl-2">
                               {mapping.rationale}
                             </div>
                           </div>

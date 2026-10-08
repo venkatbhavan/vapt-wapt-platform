@@ -37,19 +37,19 @@ export function SharedReportView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen bg-cyber-darkest flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyber-accent"></div>
       </div>
     );
   }
 
   if (error || !dataset) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-        <div className="bg-gray-900 border border-red-500/20 p-8 rounded-lg max-w-md w-full text-center space-y-4">
+      <div className="min-h-screen bg-cyber-darkest flex items-center justify-center p-4">
+        <div className="bg-cyber-darker border border-red-500/20 p-8 rounded-lg max-w-md w-full text-center space-y-4">
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto" />
           <h2 className="text-xl font-bold text-white">Unavailable</h2>
-          <p className="text-gray-400">{error || "Report not found."}</p>
+          <p className="text-cyber-text">{error || "Report not found."}</p>
         </div>
       </div>
     );
@@ -59,12 +59,12 @@ export function SharedReportView() {
 
   const renderSeverityBadge = (severity: string) => {
     const s = severity.toLowerCase();
-    let bg = 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+    let bg = 'bg-cyber-text/70/10 text-cyber-text border-cyber-text/70/20';
     let Icon = Info;
     if (s === 'critical') { bg = 'bg-red-500/10 text-red-400 border-red-500/20'; Icon = AlertOctagon; }
     if (s === 'high') { bg = 'bg-orange-500/10 text-orange-400 border-orange-500/20'; Icon = AlertTriangle; }
     if (s === 'medium') { bg = 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'; Icon = AlertTriangle; }
-    if (s === 'low') { bg = 'bg-blue-500/10 text-blue-400 border-blue-500/20'; Icon = Info; }
+    if (s === 'low') { bg = 'bg-cyber-accent/10 text-cyber-accent border-cyber-accent/20'; Icon = Info; }
     
     return (
       <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${bg}`}>
@@ -80,12 +80,12 @@ export function SharedReportView() {
         {/* Header */}
         <header className="bg-[#0f172a] text-white px-10 py-16 text-center space-y-6">
           <div className="flex justify-center mb-6">
-            <div className="bg-blue-600 p-3 rounded-xl shadow-lg">
+            <div className="bg-cyber-dark p-3 rounded-xl shadow-lg">
               <Shield className="w-10 h-10 text-white" />
             </div>
           </div>
           <h1 className="text-4xl font-extrabold tracking-tight">Security Assessment Report</h1>
-          <div className="w-24 h-1 bg-blue-500 mx-auto rounded-full"></div>
+          <div className="w-24 h-1 bg-cyber-accent mx-auto rounded-full"></div>
           <div className="space-y-2 text-slate-300">
             <p className="text-xl">{reportTitle || 'Comprehensive VAPT Scan'}</p>
             <p className="text-sm font-mono opacity-75">Historical Report Snapshot</p>
@@ -97,7 +97,7 @@ export function SharedReportView() {
           {/* Executive Summary */}
           <section className="space-y-6">
             <h2 className="text-2xl font-bold border-b border-gray-200 pb-2 text-slate-800 flex items-center gap-2">
-              <FileText className="w-6 h-6 text-blue-600" /> Executive Summary
+              <FileText className="w-6 h-6 text-cyber-accent" /> Executive Summary
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="bg-red-50 border border-red-100 p-4 rounded-xl text-center">
@@ -113,7 +113,7 @@ export function SharedReportView() {
                 <div className="text-xs font-semibold text-yellow-800 uppercase tracking-wide mt-1">Medium</div>
               </div>
               <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl text-center">
-                <div className="text-3xl font-black text-blue-600">{executive_summary.low_findings}</div>
+                <div className="text-3xl font-black text-cyber-accent">{executive_summary.low_findings}</div>
                 <div className="text-xs font-semibold text-blue-800 uppercase tracking-wide mt-1">Low</div>
               </div>
               <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
@@ -127,7 +127,7 @@ export function SharedReportView() {
           {risk_summary && (
             <section className="space-y-6">
               <h2 className="text-2xl font-bold border-b border-gray-200 pb-2 text-slate-800 flex items-center gap-2">
-                <AlertTriangle className="w-6 h-6 text-blue-600" /> Risk Summary
+                <AlertTriangle className="w-6 h-6 text-cyber-accent" /> Risk Summary
               </h2>
               <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 flex flex-col md:flex-row items-center gap-8">
                 <div className="flex-1 space-y-2">
@@ -149,7 +149,7 @@ export function SharedReportView() {
           {/* Attack Surface */}
           <section className="space-y-6">
             <h2 className="text-2xl font-bold border-b border-gray-200 pb-2 text-slate-800 flex items-center gap-2">
-              <Server className="w-6 h-6 text-blue-600" /> Attack Surface
+              <Server className="w-6 h-6 text-cyber-accent" /> Attack Surface
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
@@ -174,7 +174,7 @@ export function SharedReportView() {
           {/* Technical Findings */}
           <section className="space-y-6">
             <h2 className="text-2xl font-bold border-b border-gray-200 pb-2 text-slate-800 flex items-center gap-2">
-              <Shield className="w-6 h-6 text-blue-600" /> Technical Findings
+              <Shield className="w-6 h-6 text-cyber-accent" /> Technical Findings
             </h2>
             {technical_findings.length === 0 ? (
               <p className="text-slate-500 italic">No technical findings reported in this snapshot.</p>

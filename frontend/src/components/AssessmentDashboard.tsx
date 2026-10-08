@@ -1,465 +1,201 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, AlertTriangle, Shield, CheckCircle, Activity, BarChart2, ClipboardCheck, Wrench, ShieldCheck, FileText, BrainCircuit } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Activity, ClipboardCheck, Wrench, ShieldCheck, FileText, BrainCircuit, Target, Server, Network } from 'lucide-react';
+import { RadarVisualization } from './RadarVisualization';
 
 interface Assessment {
-  id: number;
-  project_id: number;
-  name: string;
-  target: string;
-  authorization_confirmed: boolean;
-  scan_profile: string;
-  scope: string;
-  status: string;
-  created_at: string;
+  id: number; project_id: number; name: string; target: string; authorization_confirmed: boolean;
+  scan_profile: string; scope: string; status: string; created_at: string;
 }
-
-interface SeverityCounts {
-  critical: int;
-  high: int;
-  medium: int;
-  low: int;
-  info: int;
-}
-
-type int = number;
-
-interface RiskCounts {
-  critical: int;
-  high: int;
-  medium: int;
-  low: int;
-  info: int;
-}
-
-interface StatusCounts {
-  open: int;
-  accepted: int;
-  false_positive: int;
-  resolved: int;
-}
-
-interface ScanJobCounts {
-  queued: int;
-  running: int;
-  completed: int;
-  failed: int;
-  cancelled: int;
-}
-
+interface SeverityCounts { critical: number; high: number; medium: number; low: number; info: number; }
+interface RiskCounts { critical: number; high: number; medium: number; low: number; info: number; }
+interface StatusCounts { open: number; accepted: number; false_positive: number; resolved: number; }
+interface ScanJobCounts { queued: number; running: number; completed: number; failed: number; cancelled: number; }
 interface AssessmentSummary {
-  assessment_id: number;
-  total_findings: number;
-  severity_counts: SeverityCounts;
-  risk_counts: RiskCounts;
-  status_counts: StatusCounts;
-  scan_job_counts: ScanJobCounts;
+  assessment_id: number; total_findings: number;
+  severity_counts: SeverityCounts; risk_counts: RiskCounts;
+  status_counts: StatusCounts; scan_job_counts: ScanJobCounts;
 }
-
-interface ScanJob {
-  id: number;
-  assessment_id: number;
-  scan_profile: string;
-  status: string;
-  created_at: string;
-  started_at: string | null;
-  completed_at: string | null;
-  error_message: string | null;
-}
-
+// interface ScanJob {
+  // id: number; assessment_id: number; scan_profile: string; status: string;
+  // created_at: string; started_at: string | null; completed_at: string | null; error_message: string | null;
+// }
 interface Finding {
-  id: number;
-  scan_job_id: number;
-  title: string;
-  description: string;
-  severity: string;
-  confidence: string;
-  category: string;
-  location: string;
-  impact: string;
-  remediation: string;
-  status: string;
-  risk_score: number | null;
-  risk_level: string | null;
-  risk_rationale: string | null;
-  created_at: string;
-  updated_at: string;
+  id: number; scan_job_id: number; title: string; description: string;
+  severity: string; confidence: string; category: string; location: string;
+  impact: string; remediation: string; status: string; risk_score: number | null;
+  risk_level: string | null; risk_rationale: string | null; created_at: string; updated_at: string;
 }
-
 interface AssessmentDashboardProps {
-  assessmentId: number;
-  onBack: () => void;
-  onViewFindings: (jobId?: number, findingId?: number) => void;
-  onViewAttackSurface: () => void;
-  onViewCompliance: () => void;
-  onViewRemediation: () => void;
-  onViewRetests: () => void;
-  onViewReports: () => void;
-  onViewPosture: () => void;
-  onViewAIAnalyst: () => void;
+  assessmentId: number; onBack: () => void; onViewFindings: (jobId?: number, findingId?: number) => void;
+  onViewAttackSurface: () => void; onViewCompliance: () => void; onViewRemediation: () => void;
+  onViewRetests: () => void; onViewReports: () => void; onViewPosture: () => void; onViewAIAnalyst: () => void;
 }
 
-const getSeverityColor = (severity: string) => {
-  switch (severity?.toLowerCase()) {
-    case 'critical': return 'text-purple-500 bg-purple-500/10 border-purple-500/20';
-    case 'high': return 'text-red-500 bg-red-500/10 border-red-500/20';
-    case 'medium': return 'text-orange-500 bg-orange-500/10 border-orange-500/20';
-    case 'low': return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
-    case 'info': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
-    default: return 'text-gray-400 bg-gray-800 border-gray-700';
-  }
-};
-
-const getRiskColor = (riskLevel: string | null) => {
-  switch (riskLevel?.toLowerCase()) {
-    case 'critical': return 'text-purple-400';
-    case 'high': return 'text-red-400';
-    case 'medium': return 'text-orange-400';
-    case 'low': return 'text-yellow-400';
-    case 'info': return 'text-blue-400';
-    default: return 'text-gray-400';
-  }
-};
-
-const getRiskBgColor = (riskLevel: string) => {
-  switch (riskLevel.toLowerCase()) {
-    case 'critical': return 'bg-purple-500';
-    case 'high': return 'bg-red-500';
-    case 'medium': return 'bg-orange-500';
-    case 'low': return 'bg-yellow-500';
-    case 'info': return 'bg-blue-500';
-    default: return 'bg-gray-500';
-  }
-};
-
+// @ts-ignore
 export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onViewAttackSurface, onViewCompliance, onViewRemediation, onViewRetests, onViewReports, onViewPosture, onViewAIAnalyst }: AssessmentDashboardProps) {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [summary, setSummary] = useState<AssessmentSummary | null>(null);
   const [recentFindings, setRecentFindings] = useState<Finding[]>([]);
-
+  const [postureScore, setPostureScore] = useState<number>(-1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-      setError('');
+      setLoading(true); setError('');
       try {
-        // Fetch Assessment Details
-        const assessRes = await fetch(`http://localhost:8000/api/assessments/${assessmentId}`);
-        if (!assessRes.ok) {
-            if (assessRes.status === 404) throw new Error('Assessment not found');
-            throw new Error('Failed to fetch assessment');
-        }
-        const assessData: Assessment = await assessRes.json();
-        setAssessment(assessData);
-
-        // Fetch Summary
-        const sumRes = await fetch(`http://localhost:8000/api/assessments/${assessmentId}/summary`);
-        if (!sumRes.ok) throw new Error('Failed to fetch assessment summary');
-        const sumData: AssessmentSummary = await sumRes.json();
-        setSummary(sumData);
-
-        // Fetch Recent Findings
-        const jobsRes = await fetch(`http://localhost:8000/api/assessments/${assessmentId}/scan-jobs`);
-        if (jobsRes.ok) {
-            const jobsData: ScanJob[] = await jobsRes.json();
-            const completedJobs = jobsData.filter(j => j.status === 'completed')
-                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
-            if (completedJobs.length > 0) {
-                const recentJob = completedJobs[0];
-                const findingsRes = await fetch(`http://localhost:8000/api/scan-jobs/${recentJob.id}/findings`);
-                if (findingsRes.ok) {
-                    const findingsData: Finding[] = await findingsRes.json();
-                    setRecentFindings(findingsData.slice(0, 5));
-                }
-            }
-        }
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-            setError(err.message || 'API error');
-        } else {
-            setError('API error');
-        }
-      } finally {
-        setLoading(false);
-      }
+        const [assessRes, sumRes, findRes, postRes] = await Promise.all([
+          fetch('http://localhost:8000/api/assessments/' + assessmentId),
+          fetch('http://localhost:8000/api/assessments/' + assessmentId + '/summary'),
+          fetch('http://localhost:8000/api/assessments/' + assessmentId + '/findings?limit=5'),
+          fetch('http://localhost:8000/api/assessments/' + assessmentId + '/posture').catch(() => null)
+        ]);
+        
+        if (!assessRes.ok) throw new Error('Assessment not found');
+        setAssessment(await assessRes.json());
+        
+        if (sumRes.ok) setSummary(await sumRes.json());
+        if (findRes.ok) { const fd = await findRes.json(); setRecentFindings(fd.items || []); }
+        
+        if (postRes && postRes.ok) {
+          const postData = await postRes.json();
+          setPostureScore(postData.score !== undefined && postData.score !== null ? postData.score : -1);
+        } else { setPostureScore(-1); }
+        
+      } catch (err: any) { setError(err.message); }
+      finally { setLoading(false); }
     };
     fetchData();
   }, [assessmentId]);
 
-  if (loading) {
-      return <div className="text-gray-400 p-8 flex gap-3 items-center"><Activity className="animate-spin" size={20} /> Loading dashboard...</div>;
-  }
+  if (loading) return <div className="flex justify-center p-12"><div className="w-12 h-12 border-4 border-cyber-accent border-t-transparent rounded-full animate-spin"></div></div>;
+  if (error || !assessment) return <div className="p-6 bg-red-900/20 text-red-400 border border-red-500/50 rounded">{error}</div>;
 
-  if (error || !assessment || !summary) {
-      return (
-          <div className="space-y-6">
-            <button onClick={onBack} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
-              <ArrowLeft size={16} /> Back to Assessments
-            </button>
-            <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-lg flex items-center gap-3">
-              <AlertTriangle size={20} />
-              <p>{error || 'Failed to load dashboard'}</p>
-            </div>
-          </div>
-      );
-  }
-
-  const { total_findings } = summary;
+  const isScanning = summary?.scan_job_counts.running ? summary.scan_job_counts.running > 0 : false;
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-        >
-          <ArrowLeft size={16} /> Back to Assessments
+      <div className="flex items-center justify-between">
+        <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-cyber-accent transition-colors font-mono uppercase text-sm tracking-wider">
+          <ArrowLeft className="w-4 h-4" /> System Overview
         </button>
-        <div className="flex gap-4">
-            <button
-              onClick={() => onViewRemediation()}
-              className="flex items-center gap-2 bg-emerald-900 hover:bg-emerald-800 text-white px-4 py-2 rounded transition-colors"
-            >
-              <Wrench size={16} />
-              View Remediation
-            </button>
-          <button
-            onClick={() => onViewCompliance()}
-            className="flex items-center gap-2 bg-indigo-900 hover:bg-indigo-800 text-white px-4 py-2 rounded transition-colors"
-          >
-            <ClipboardCheck size={16} />
-            View Compliance
+        <div className="flex gap-3">
+          <button onClick={onViewPosture} className="flex items-center gap-2 bg-cyber-dark hover:bg-cyber-border text-cyber-textBright px-4 py-2 rounded border border-cyber-border transition-colors font-mono text-sm uppercase">
+            <ShieldCheck size={16} className="text-cyber-accent" /> Security Posture
           </button>
-          <button
-            onClick={() => onViewAttackSurface()}
-            className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors"
-          >
-            <Activity size={16} />
-            View Attack Surface
-          </button>
-
-          <button
-            onClick={() => onViewRetests()}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded transition-colors"
-          >
-            <ShieldCheck size={16} />
-            View Retests
-          </button>
-            <button
-              onClick={() => onViewPosture()}
-              className="flex items-center gap-2 bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded transition-colors"
-            >
-              <BarChart2 size={16} />
-              Security Posture
-            </button>
-              <button
-                onClick={() => onViewAIAnalyst()}
-                className="flex items-center gap-2 bg-indigo-900 hover:bg-indigo-800 text-white px-4 py-2 rounded transition-colors"
-              >
-                <BrainCircuit size={16} />
-                AI Analyst
-              </button>
-            <button
-              onClick={() => onViewReports()}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded transition-colors"
-          >
-            <FileText size={16} />
-            Reports
+          <button onClick={onViewAIAnalyst} className="flex items-center gap-2 bg-cyber-darkest hover:bg-cyber-dark text-cyber-accent px-4 py-2 rounded border border-cyber-accent/50 shadow-[0_0_10px_rgba(0,240,255,0.1)] transition-colors font-mono text-sm uppercase">
+            <BrainCircuit size={16} /> AI Analyst
           </button>
         </div>
       </div>
 
-      {/* Assessment Info Header */}
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 flex flex-col md:flex-row justify-between md:items-start gap-4">
-        <div>
-            <h2 className="text-2xl font-bold text-white mb-2">{assessment.name}</h2>
-            <p className="text-gray-400 text-sm mb-4">{assessment.scope}</p>
-            <div className="flex flex-wrap gap-4 text-sm">
-                <div>
-                    <span className="text-gray-500 block text-xs">Target</span>
-                    <span className="text-blue-400">{assessment.target}</span>
-                </div>
-                <div>
-                    <span className="text-gray-500 block text-xs">Scan Profile</span>
-                    <span className="text-gray-300 uppercase">{assessment.scan_profile}</span>
-                </div>
-                <div>
-                    <span className="text-gray-500 block text-xs">Authorization</span>
-                    {assessment.authorization_confirmed ? (
-                        <span className="text-green-400">Confirmed</span>
-                    ) : (
-                        <span className="text-red-400">Missing</span>
-                    )}
-                </div>
-            </div>
-        </div>
-        <div className="bg-gray-950 border border-gray-800 p-4 rounded-lg min-w-[150px] text-center shrink-0">
-            <span className="text-gray-400 text-xs uppercase block mb-1">Total Findings</span>
-            <span className="text-4xl font-bold text-white">{total_findings}</span>
-        </div>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-gray-900 border border-purple-500/30 p-4 rounded-lg flex flex-col items-center justify-center">
-            <span className="text-purple-400 text-xs uppercase font-bold mb-1">CRITICAL</span>
-            <span className="text-3xl font-bold text-white">{summary.severity_counts.critical}</span>
-        </div>
-        <div className="bg-gray-900 border border-red-500/30 p-4 rounded-lg flex flex-col items-center justify-center">
-            <span className="text-red-400 text-xs uppercase font-bold mb-1">HIGH</span>
-            <span className="text-3xl font-bold text-white">{summary.severity_counts.high}</span>
-        </div>
-        <div className="bg-gray-900 border border-orange-500/30 p-4 rounded-lg flex flex-col items-center justify-center">
-            <span className="text-orange-400 text-xs uppercase font-bold mb-1">MEDIUM</span>
-            <span className="text-3xl font-bold text-white">{summary.severity_counts.medium}</span>
-        </div>
-        <div className="bg-gray-900 border border-yellow-500/30 p-4 rounded-lg flex flex-col items-center justify-center">
-            <span className="text-yellow-400 text-xs uppercase font-bold mb-1">LOW</span>
-            <span className="text-3xl font-bold text-white">{summary.severity_counts.low}</span>
-        </div>
-        <div className="bg-gray-900 border border-blue-500/30 p-4 rounded-lg flex flex-col items-center justify-center">
-            <span className="text-blue-400 text-xs uppercase font-bold mb-1">INFO</span>
-            <span className="text-3xl font-bold text-white">{summary.severity_counts.info}</span>
-        </div>
-      </div>
-
-      {/* Main Stats Split */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Risk Distribution */}
-        <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-lg p-6">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <BarChart2 size={18} className="text-blue-500" />
-                Risk Distribution
-            </h3>
-            {total_findings === 0 ? (
-                <div className="py-8 text-center text-gray-500">No findings to display risk distribution</div>
-            ) : (
-                <div className="space-y-4 mt-2">
-                    {['critical', 'high', 'medium', 'low', 'info'].map((level) => {
-                        const count = summary.risk_counts[level as keyof RiskCounts] as number;
-                        const pct = Math.max(0, Math.min(100, (count / total_findings) * 100));
-                        return (
-                            <div key={level}>
-                                <div className="flex justify-between text-xs mb-1">
-                                    <span className="uppercase text-gray-400 font-medium">{level}</span>
-                                    <span className="text-white font-mono">{count} ({pct.toFixed(1)}%)</span>
-                                </div>
-                                <div className="w-full bg-gray-950 rounded-full h-2.5">
-                                    <div className={`${getRiskBgColor(level)} h-2.5 rounded-full`} style={{ width: `${pct}%` }}></div>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
+        
+        {/* Core Radar View */}
+        <div className="lg:col-span-1 bg-cyber-darker border border-cyber-border rounded-lg p-6 relative overflow-hidden group hover:border-cyber-accent/30 transition-colors">
+          <h3 className="text-sm font-mono text-cyber-textBright uppercase tracking-widest mb-6 flex items-center gap-2">
+            <Target className="w-4 h-4 text-cyber-accent" /> Target Radar
+          </h3>
+          <RadarVisualization score={postureScore} label="Security Score" />
+          <div className="mt-8 text-center">
+            <h2 className="text-2xl font-bold text-cyber-textBright tracking-wider">{assessment.name}</h2>
+            <p className="text-cyber-accent font-mono text-sm mt-1">{assessment.target}</p>
+          </div>
+          {isScanning && (
+            <div className="absolute top-4 right-4 flex items-center gap-2 bg-cyber-dark px-3 py-1 rounded border border-cyber-accent/50 text-cyber-accent font-mono text-xs animate-pulse">
+              <Activity className="w-3 h-3" /> SCAN IN PROGRESS
+            </div>
+          )}
         </div>
 
-        {/* Statuses */}
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 space-y-6">
-            <div>
-                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Finding Status</h3>
-                <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                        <span className="text-gray-300">Open</span>
-                        <span className="text-white font-mono bg-gray-800 px-2 rounded">{summary.status_counts.open}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-300">Accepted</span>
-                        <span className="text-white font-mono bg-gray-800 px-2 rounded">{summary.status_counts.accepted}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-300">False Positive</span>
-                        <span className="text-white font-mono bg-gray-800 px-2 rounded">{summary.status_counts.false_positive}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-300">Resolved</span>
-                        <span className="text-white font-mono bg-gray-800 px-2 rounded">{summary.status_counts.resolved}</span>
-                    </div>
-                </div>
-            </div>
+        {/* Action Center */}
+        <div className="lg:col-span-2 grid grid-cols-2 gap-4">
+          <div className="bg-cyber-dark border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
+             <div className="flex items-center justify-between mb-2">
+               <span className="text-cyber-text font-mono text-xs uppercase tracking-widest">Critical Threats</span>
+               <AlertTriangle className="text-risk-critical w-5 h-5" />
+             </div>
+             <div className="text-4xl font-mono font-bold text-cyber-textBright">{summary?.risk_counts.critical || 0}</div>
+             <button onClick={() => onViewFindings()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left">View Findings ?</button>
+          </div>
 
-            <div className="pt-6 border-t border-gray-800">
-                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Scan Jobs</h3>
-                <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                        <span className="text-gray-300">Completed</span>
-                        <span className="text-green-400 font-mono bg-green-500/10 px-2 rounded">{summary.scan_job_counts.completed}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-300">Running</span>
-                        <span className="text-blue-400 font-mono bg-blue-500/10 px-2 rounded">{summary.scan_job_counts.running}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-300">Queued</span>
-                        <span className="text-yellow-400 font-mono bg-yellow-500/10 px-2 rounded">{summary.scan_job_counts.queued}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-300">Failed</span>
-                        <span className="text-red-400 font-mono bg-red-500/10 px-2 rounded">{summary.scan_job_counts.failed}</span>
-                    </div>
-                </div>
-            </div>
+          <div className="bg-cyber-dark border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
+             <div className="flex items-center justify-between mb-2">
+               <span className="text-cyber-text font-mono text-xs uppercase tracking-widest">High Risk</span>
+               <AlertTriangle className="text-risk-high w-5 h-5" />
+             </div>
+             <div className="text-4xl font-mono font-bold text-cyber-textBright">{summary?.risk_counts.high || 0}</div>
+             <button onClick={() => onViewFindings()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left">View Findings ?</button>
+          </div>
+
+          <div className="bg-cyber-dark border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
+             <div className="flex items-center justify-between mb-2">
+               <span className="text-cyber-text font-mono text-xs uppercase tracking-widest">Attack Surface</span>
+               <Network className="text-cyber-accent w-5 h-5" />
+             </div>
+             <div className="text-4xl font-mono font-bold text-cyber-textBright">Map</div>
+             <button onClick={() => onViewAttackSurface()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left">View Topology ?</button>
+          </div>
+
+          <div className="bg-cyber-dark border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
+             <div className="flex items-center justify-between mb-2">
+               <span className="text-cyber-text font-mono text-xs uppercase tracking-widest">Compliance</span>
+               <ClipboardCheck className="text-green-400 w-5 h-5" />
+             </div>
+             <div className="text-4xl font-mono font-bold text-cyber-textBright">Matrix</div>
+             <button onClick={() => onViewCompliance()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left">View Controls ?</button>
+          </div>
+          
+          <div className="bg-cyber-dark border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
+             <div className="flex items-center justify-between mb-2">
+               <span className="text-cyber-text font-mono text-xs uppercase tracking-widest">Remediation</span>
+               <Wrench className="text-purple-400 w-5 h-5" />
+             </div>
+             <div className="text-4xl font-mono font-bold text-cyber-textBright">Plans</div>
+             <button onClick={() => onViewRemediation()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left">View Actions ?</button>
+          </div>
+          
+          <div className="bg-cyber-dark border border-cyber-border p-4 rounded-lg flex flex-col justify-between">
+             <div className="flex items-center justify-between mb-2">
+               <span className="text-cyber-text font-mono text-xs uppercase tracking-widest">Reports</span>
+               <FileText className="text-cyber-textBright w-5 h-5" />
+             </div>
+             <div className="text-4xl font-mono font-bold text-cyber-textBright">Exports</div>
+             <button onClick={() => onViewReports()} className="mt-4 text-xs font-mono text-cyber-accent uppercase hover:underline text-left">View Documents ?</button>
+          </div>
+
         </div>
       </div>
-
-      {/* Recent Findings */}
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
-        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <Shield size={18} className="text-blue-500" />
-            Recent Findings
+      
+      {/* Recent Findings Threat Log */}
+      <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
+        <h3 className="text-sm font-mono text-cyber-textBright uppercase tracking-widest mb-4 flex items-center gap-2">
+          <Server className="w-4 h-4 text-cyber-accent" /> Threat Detection Log
         </h3>
-        {recentFindings.length === 0 ? (
-            <div className="py-8 text-center border border-dashed border-gray-700 rounded bg-gray-950 flex flex-col items-center">
-                <CheckCircle size={32} className="mb-2 text-green-500/50" />
-                <p className="text-gray-500">No recent findings reported.</p>
-            </div>
-        ) : (
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wider">
-                            <th className="pb-3 pr-4 font-medium">Severity</th>
-                            <th className="pb-3 pr-4 font-medium">Title</th>
-                            <th className="pb-3 pr-4 font-medium">Risk Level</th>
-                            <th className="pb-3 font-medium">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody className="text-sm">
-                        {recentFindings.map(f => (
-                            <tr
-                                key={f.id}
-                                onClick={() => onViewFindings(f.scan_job_id, f.id)}
-                                className="border-b border-gray-800/50 hover:bg-gray-800/50 cursor-pointer transition-colors group"
-                            >
-                                <td className="py-3 pr-4">
-                                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${getSeverityColor(f.severity)}`}>
-                                        {f.severity}
-                                    </span>
-                                </td>
-                                <td className="py-3 pr-4 font-medium text-white group-hover:text-blue-400 transition-colors">
-                                    {f.title}
-                                </td>
-                                <td className="py-3 pr-4">
-                                    <span className={getRiskColor(f.risk_level)}>
-                                        {f.risk_level?.toUpperCase() || 'N/A'}
-                                    </span>
-                                </td>
-                                <td className="py-3">
-                                    <span className="text-gray-300 uppercase text-xs">
-                                        {f.status}
-                                    </span>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        )}
+        <div className="space-y-2">
+          {recentFindings.length === 0 ? (
+            <div className="p-4 bg-cyber-dark text-cyber-text font-mono text-sm border border-cyber-border rounded">NO THREATS DETECTED</div>
+          ) : (
+            recentFindings.map(f => (
+              <div key={f.id} className="flex items-center justify-between p-3 bg-cyber-dark border border-cyber-border rounded hover:border-cyber-accent/50 cursor-pointer transition-colors" onClick={() => onViewFindings(undefined, f.id)}>
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full ${
+                    f.risk_level?.toLowerCase() === 'critical' ? 'bg-risk-critical' :
+                    f.risk_level?.toLowerCase() === 'high' ? 'bg-risk-high' :
+                    f.risk_level?.toLowerCase() === 'medium' ? 'bg-risk-medium' :
+                    f.risk_level?.toLowerCase() === 'low' ? 'bg-risk-low' : 'bg-risk-info'
+                  }`}></div>
+                  <span className="font-mono text-sm text-cyber-textBright">{f.title}</span>
+                </div>
+                <div className="flex gap-4">
+                  <span className="font-mono text-xs text-cyber-text uppercase">{f.location}</span>
+                  <span className="font-mono text-xs text-cyber-accent">{f.risk_score ? f.risk_score.toFixed(1) : 'N/A'}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
-
     </div>
   );
 }

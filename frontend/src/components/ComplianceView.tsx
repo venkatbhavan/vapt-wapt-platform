@@ -14,7 +14,7 @@ const getSeverityColor = (severity: string) => {
     case 'high': return 'text-red-500 bg-red-500/10 border-red-500/20';
     case 'medium': return 'text-orange-500 bg-orange-500/10 border-orange-500/20';
     case 'low': return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20';
-    default: return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
+    default: return 'text-cyber-accent bg-cyber-accent/10 border-cyber-accent/20';
   }
 };
 
@@ -147,13 +147,13 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
   }, [data]);
 
   if (loading) {
-    return <div className="text-gray-400 p-8 flex gap-3 items-center"><Activity className="animate-spin" size={20} /> Loading compliance...</div>;
+    return <div className="text-cyber-text p-8 flex gap-3 items-center"><Activity className="animate-spin" size={20} /> Loading compliance...</div>;
   }
 
   if (error) {
     return (
       <div className="space-y-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+        <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-white transition-colors">
           <ArrowLeft size={16} /> Back to Dashboard
         </button>
         <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-lg flex flex-col items-start gap-4">
@@ -172,13 +172,13 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
   if (data && data.frameworks.length === 0) {
     return (
       <div className="space-y-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+        <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-white transition-colors">
           <ArrowLeft size={16} /> Back to Dashboard
         </button>
-        <div className="bg-gray-900 border border-gray-800 p-8 rounded-lg text-center">
-          <ShieldAlert size={48} className="mx-auto text-gray-600 mb-4" />
-          <h3 className="text-xl font-bold text-gray-200 mb-2">No compliance mappings found for this assessment.</h3>
-          <p className="text-gray-500">Compliance mappings will appear here when findings are mapped to supported compliance controls.</p>
+        <div className="bg-cyber-darker border border-cyber-border p-8 rounded-lg text-center">
+          <ShieldAlert size={48} className="mx-auto text-cyber-border mb-4" />
+          <h3 className="text-xl font-bold text-cyber-textBright mb-2">No compliance mappings found for this assessment.</h3>
+          <p className="text-cyber-text">Compliance mappings will appear here when findings are mapped to supported compliance controls.</p>
         </div>
       </div>
     );
@@ -188,45 +188,45 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <button onClick={onBack} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4">
+          <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-white transition-colors mb-4">
             <ArrowLeft size={16} /> Back to Dashboard
           </button>
           <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Book size={24} className="text-blue-500" />
+            <Book size={24} className="text-cyber-accent" />
             Compliance
           </h2>
-          <p className="text-gray-400 mt-1">Framework and control coverage for this assessment</p>
+          <p className="text-cyber-text mt-1">Framework and control coverage for this assessment</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg shadow-sm">
-          <p className="text-sm text-gray-400">Frameworks</p>
+        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg shadow-sm">
+          <p className="text-sm text-cyber-text">Frameworks</p>
           <p className="text-2xl font-bold text-white mt-1">{summary.frameworks}</p>
         </div>
-        <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg shadow-sm">
-          <p className="text-sm text-gray-400">Controls</p>
+        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg shadow-sm">
+          <p className="text-sm text-cyber-text">Controls</p>
           <p className="text-2xl font-bold text-white mt-1">{summary.controls}</p>
         </div>
-        <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg shadow-sm">
-          <p className="text-sm text-gray-400">Mapped Findings</p>
+        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg shadow-sm">
+          <p className="text-sm text-cyber-text">Mapped Findings</p>
           <p className="text-2xl font-bold text-white mt-1">{summary.uniqueFindings}</p>
         </div>
-        <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg shadow-sm">
-          <p className="text-sm text-gray-400">Mappings</p>
+        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg shadow-sm">
+          <p className="text-sm text-cyber-text">Mappings</p>
           <p className="text-2xl font-bold text-white mt-1">{summary.mappings}</p>
         </div>
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg flex flex-col md:flex-row gap-4">
+      <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg flex flex-col md:flex-row gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 top-2.5 text-gray-500" size={18} />
+          <Search className="absolute left-3 top-2.5 text-cyber-text" size={18} />
           <input
             type="text"
             placeholder="Search frameworks, controls, findings..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-gray-950 border border-gray-800 rounded pl-10 pr-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+            className="w-full bg-cyber-darkest border border-cyber-border rounded pl-10 pr-4 py-2 text-white focus:outline-none focus:border-cyber-accent transition-colors"
           />
         </div>
 
@@ -234,7 +234,7 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="bg-gray-950 border border-gray-800 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+            className="bg-cyber-darkest border border-cyber-border rounded px-3 py-2 text-white focus:outline-none focus:border-cyber-accent"
           >
             <option value="all">All Types</option>
             <option value="direct">Direct</option>
@@ -243,7 +243,7 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
           <select
             value={filterConfidence}
             onChange={(e) => setFilterConfidence(e.target.value)}
-            className="bg-gray-950 border border-gray-800 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+            className="bg-cyber-darkest border border-cyber-border rounded px-3 py-2 text-white focus:outline-none focus:border-cyber-accent"
           >
             <option value="all">All Confidence</option>
             <option value="high">High</option>
@@ -253,7 +253,7 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
           <select
             value={filterSeverity}
             onChange={(e) => setFilterSeverity(e.target.value)}
-            className="bg-gray-950 border border-gray-800 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+            className="bg-cyber-darkest border border-cyber-border rounded px-3 py-2 text-white focus:outline-none focus:border-cyber-accent"
           >
             <option value="all">All Severity</option>
             <option value="critical">Critical</option>
@@ -267,91 +267,91 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
 
       <div className="space-y-4">
         {filteredFrameworks.length === 0 ? (
-          <div className="text-center p-8 text-gray-500 border border-gray-800 border-dashed rounded-lg">
+          <div className="text-center p-8 text-cyber-text border border-cyber-border border-dashed rounded-lg">
             No compliance mappings match your search criteria.
           </div>
         ) : (
           filteredFrameworks.map(fw => (
-            <div key={fw.id} className="border border-gray-800 rounded-lg overflow-hidden bg-gray-900">
+            <div key={fw.id} className="border border-cyber-border rounded-lg overflow-hidden bg-cyber-darker">
               <button
                 onClick={() => toggleFramework(fw.id)}
-                className="w-full flex items-center justify-between p-4 bg-gray-800/50 hover:bg-gray-800 transition-colors"
+                className="w-full flex items-center justify-between p-4 bg-cyber-dark/50 hover:bg-cyber-dark transition-colors"
               >
                 <div className="flex flex-col items-start text-left">
                   <div className="flex items-center gap-3">
                     <span className="text-lg font-bold text-white">{fw.name} {fw.version}</span>
                   </div>
-                  {fw.description && <p className="text-sm text-gray-400 mt-1">{fw.description}</p>}
+                  {fw.description && <p className="text-sm text-cyber-text mt-1">{fw.description}</p>}
                 </div>
                 <div className="flex items-center gap-6">
-                  <div className="flex gap-4 text-sm text-gray-400 text-right">
+                  <div className="flex gap-4 text-sm text-cyber-text text-right">
                     <span>Controls: <strong className="text-white">{fw.controls.length}</strong></span>
                     <span>Mapped Findings: <strong className="text-white">{fw.controls.reduce((acc, c) => acc + c.mappings.length, 0)}</strong></span>
                   </div>
-                  {expandedFrameworks.has(fw.id) ? <ChevronDown size={20} className="text-gray-400" /> : <ChevronRight size={20} className="text-gray-400" />}
+                  {expandedFrameworks.has(fw.id) ? <ChevronDown size={20} className="text-cyber-text" /> : <ChevronRight size={20} className="text-cyber-text" />}
                 </div>
               </button>
 
               {expandedFrameworks.has(fw.id) && (
                 <div className="p-4 space-y-3">
                   {fw.controls.map(ctrl => (
-                    <div key={ctrl.id} className="border border-gray-700/50 rounded bg-gray-950 overflow-hidden">
+                    <div key={ctrl.id} className="border border-cyber-border/50 rounded bg-cyber-darkest overflow-hidden">
                       <button
                         onClick={() => toggleControl(ctrl.id)}
-                        className="w-full flex items-center justify-between p-3 hover:bg-gray-900 transition-colors text-left"
+                        className="w-full flex items-center justify-between p-3 hover:bg-cyber-darker transition-colors text-left"
                       >
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-blue-400 text-sm">{ctrl.control_id}</span>
-                            <span className="font-medium text-gray-200">{ctrl.title}</span>
+                            <span className="font-mono text-cyber-accent text-sm">{ctrl.control_id}</span>
+                            <span className="font-medium text-cyber-textBright">{ctrl.title}</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-4 text-sm">
-                          <span className="text-gray-400">Mappings: <strong className="text-gray-200">{ctrl.mappings.length}</strong></span>
-                          {expandedControls.has(ctrl.id) ? <ChevronDown size={16} className="text-gray-500" /> : <ChevronRight size={16} className="text-gray-500" />}
+                          <span className="text-cyber-text">Mappings: <strong className="text-cyber-textBright">{ctrl.mappings.length}</strong></span>
+                          {expandedControls.has(ctrl.id) ? <ChevronDown size={16} className="text-cyber-text" /> : <ChevronRight size={16} className="text-cyber-text" />}
                         </div>
                       </button>
 
                       {expandedControls.has(ctrl.id) && (
-                        <div className="p-3 border-t border-gray-800 bg-gray-900/50 space-y-3">
-                          {ctrl.description && <p className="text-sm text-gray-400 mb-3 px-1">{ctrl.description}</p>}
+                        <div className="p-3 border-t border-cyber-border bg-cyber-darker/50 space-y-3">
+                          {ctrl.description && <p className="text-sm text-cyber-text mb-3 px-1">{ctrl.description}</p>}
 
                           <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
                             {ctrl.mappings.map(mapping => (
-                              <div key={mapping.id} className="bg-gray-950 border border-gray-800 p-3 rounded shadow-sm flex flex-col gap-2">
+                              <div key={mapping.id} className="bg-cyber-darkest border border-cyber-border p-3 rounded shadow-sm flex flex-col gap-2">
                                 <div className="flex justify-between items-start">
                                   <button
                                     onClick={() => onViewFinding(mapping.finding_id)}
-                                    className="text-white font-medium hover:text-blue-400 transition-colors text-left"
+                                    className="text-white font-medium hover:text-cyber-accent transition-colors text-left"
                                   >
                                     {mapping.finding_title}
                                   </button>
                                   {getSeverityBadge(mapping.finding_severity)}
                                 </div>
-                                <div className="flex items-center gap-3 text-xs text-gray-500 font-mono">
+                                <div className="flex items-center gap-3 text-xs text-cyber-text font-mono">
                                   <span>Finding #{mapping.finding_id}</span>
                                   <span>•</span>
                                   <span className="uppercase">Status: {mapping.finding_status}</span>
                                 </div>
 
-                                <div className="mt-1 pt-2 border-t border-gray-800/50 grid grid-cols-2 gap-2 text-xs">
+                                <div className="mt-1 pt-2 border-t border-cyber-border/50 grid grid-cols-2 gap-2 text-xs">
                                   <div>
-                                    <span className="text-gray-500 block">Mapping</span>
-                                    <span className="text-gray-300 capitalize">{mapping.mapping_type}</span>
+                                    <span className="text-cyber-text block">Mapping</span>
+                                    <span className="text-cyber-textBright capitalize">{mapping.mapping_type}</span>
                                   </div>
                                   <div>
-                                    <span className="text-gray-500 block">Confidence</span>
-                                    <span className="text-gray-300 capitalize">{mapping.mapping_confidence}</span>
+                                    <span className="text-cyber-text block">Confidence</span>
+                                    <span className="text-cyber-textBright capitalize">{mapping.mapping_confidence}</span>
                                   </div>
                                   {mapping.rationale && (
                                     <div className="col-span-2 mt-1">
-                                      <span className="text-gray-500 block">Rationale</span>
-                                      <span className="text-gray-400">{mapping.rationale}</span>
+                                      <span className="text-cyber-text block">Rationale</span>
+                                      <span className="text-cyber-text">{mapping.rationale}</span>
                                     </div>
                                   )}
                                   <div className="col-span-2 mt-1">
-                                    <span className="text-gray-500 block">Source</span>
-                                    <span className="text-gray-400">{mapping.source}</span>
+                                    <span className="text-cyber-text block">Source</span>
+                                    <span className="text-cyber-text">{mapping.source}</span>
                                   </div>
                                 </div>
                               </div>

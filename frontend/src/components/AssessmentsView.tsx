@@ -98,7 +98,7 @@ export function AssessmentsView({ projectId, onBack, onSelectAssessment }: Asses
     <div className="space-y-6">
       <button 
         onClick={onBack}
-        className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+        className="flex items-center gap-2 text-cyber-text hover:text-white transition-colors"
       >
         <ArrowLeft size={16} /> Back to Projects
       </button>
@@ -110,51 +110,51 @@ export function AssessmentsView({ projectId, onBack, onSelectAssessment }: Asses
         </div>
       )}
 
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+      <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
         <h3 className="text-xl font-bold text-white mb-4">Create Assessment</h3>
         <form onSubmit={handleCreate} className="space-y-4 max-w-2xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Assessment Name *</label>
+              <label className="block text-sm font-medium text-cyber-text mb-1">Assessment Name *</label>
               <input 
                 type="text" 
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="w-full bg-gray-950 border border-gray-700 rounded p-2 text-white"
+                className="w-full bg-cyber-darkest border border-cyber-border rounded p-2 text-white"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Target *</label>
+              <label className="block text-sm font-medium text-cyber-text mb-1">Target *</label>
               <input 
                 type="text" 
                 value={target}
                 onChange={e => setTarget(e.target.value)}
                 placeholder="e.g. https://example.com"
-                className="w-full bg-gray-950 border border-gray-700 rounded p-2 text-white"
+                className="w-full bg-cyber-darkest border border-cyber-border rounded p-2 text-white"
                 required
               />
             </div>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Scope *</label>
+            <label className="block text-sm font-medium text-cyber-text mb-1">Scope *</label>
             <textarea 
               value={scope}
               onChange={e => setScope(e.target.value)}
               placeholder="Define the testing scope..."
-              className="w-full bg-gray-950 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-cyber-darkest border border-cyber-border rounded p-2 text-white"
               rows={3}
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-1">Scan Profile</label>
+            <label className="block text-sm font-medium text-cyber-text mb-1">Scan Profile</label>
             <select 
               value={scanProfile}
               onChange={e => setScanProfile(e.target.value)}
-              className="w-full bg-gray-950 border border-gray-700 rounded p-2 text-white"
+              className="w-full bg-cyber-darkest border border-cyber-border rounded p-2 text-white"
             >
               <option value="passive">Passive</option>
               <option value="safe">Safe</option>
@@ -164,15 +164,15 @@ export function AssessmentsView({ projectId, onBack, onSelectAssessment }: Asses
             </select>
           </div>
 
-          <div className="bg-gray-950 border border-red-900/50 rounded p-4 mt-6">
+          <div className="bg-cyber-darkest border border-red-900/50 rounded p-4 mt-6">
             <label className="flex items-start gap-3 cursor-pointer">
               <input 
                 type="checkbox" 
                 checked={authConfirmed}
                 onChange={e => setAuthConfirmed(e.target.checked)}
-                className="mt-1 w-4 h-4 text-blue-600 rounded bg-gray-900 border-gray-700 focus:ring-blue-600 focus:ring-offset-gray-900"
+                className="mt-1 w-4 h-4 text-cyber-accent rounded bg-cyber-darker border-cyber-border focus:ring-cyber-accent focus:ring-offset-gray-900"
               />
-              <span className="text-sm text-gray-300">
+              <span className="text-sm text-cyber-textBright">
                 <strong className="block text-white mb-1">Authorization Required</strong>
                 I confirm that I am authorized to perform security testing against this target and that the target is within the stated scope.
               </span>
@@ -182,7 +182,7 @@ export function AssessmentsView({ projectId, onBack, onSelectAssessment }: Asses
           <button 
             type="submit" 
             disabled={!isValid || creating}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+            className="flex items-center gap-2 bg-cyber-dark hover:bg-cyber-border text-cyber-accent border border-cyber-accent/50 shadow-[0_0_10px_rgba(0,240,255,0.1)] text-white font-medium py-2 px-6 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
           >
             <Plus size={18} />
             {creating ? 'Creating...' : 'Create Assessment'}
@@ -190,17 +190,17 @@ export function AssessmentsView({ projectId, onBack, onSelectAssessment }: Asses
         </form>
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+      <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
         <h3 className="text-xl font-bold text-white mb-4">Project Assessments</h3>
         {loading ? (
-          <p className="text-gray-400">Loading assessments...</p>
+          <p className="text-cyber-text">Loading assessments...</p>
         ) : assessments.length === 0 ? (
-          <p className="text-gray-400">No assessments found for this project.</p>
+          <p className="text-cyber-text">No assessments found for this project.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-gray-800 text-gray-400 text-sm">
+                <tr className="border-b border-cyber-border text-cyber-text text-sm">
                   <th className="pb-3 pr-4 font-medium">Name</th>
                   <th className="pb-3 pr-4 font-medium">Target</th>
                   <th className="pb-3 pr-4 font-medium">Profile</th>
@@ -212,18 +212,18 @@ export function AssessmentsView({ projectId, onBack, onSelectAssessment }: Asses
               </thead>
               <tbody className="text-sm">
                 {assessments.map(a => (
-                  <tr key={a.id} className="border-b border-gray-800/50 hover:bg-gray-800/20">
+                  <tr key={a.id} className="border-b border-cyber-border/50 hover:bg-cyber-dark/20">
                     <td className="py-3 pr-4 font-medium text-white">{a.name}</td>
-                    <td className="py-3 pr-4 text-blue-400">{a.target}</td>
+                    <td className="py-3 pr-4 text-cyber-accent">{a.target}</td>
                     <td className="py-3 pr-4">
-                      <span className="bg-gray-800 text-gray-300 px-2 py-1 rounded text-xs uppercase tracking-wider">
+                      <span className="bg-cyber-dark text-cyber-textBright px-2 py-1 rounded text-xs uppercase tracking-wider">
                         {a.scan_profile}
                       </span>
                     </td>
                     <td className="py-3 pr-4">
                       <div className="flex items-center gap-1.5">
-                        <Activity size={14} className="text-gray-500" />
-                        <span className="capitalize text-gray-300">{a.status}</span>
+                        <Activity size={14} className="text-cyber-text" />
+                        <span className="capitalize text-cyber-textBright">{a.status}</span>
                       </div>
                     </td>
                     <td className="py-3 pr-4">
@@ -233,13 +233,13 @@ export function AssessmentsView({ projectId, onBack, onSelectAssessment }: Asses
                         <span className="text-red-500 text-xs">Missing</span>
                       )}
                     </td>
-                    <td className="py-3 pr-4 text-gray-500">
+                    <td className="py-3 pr-4 text-cyber-text">
                       {new Date(a.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-3 text-right">
                       <button
                         onClick={() => onSelectAssessment(a.id)}
-                        className="text-blue-400 hover:text-blue-300 text-sm font-medium px-3 py-1 bg-blue-500/10 hover:bg-blue-500/20 rounded transition-colors"
+                        className="text-cyber-accent hover:text-cyber-accent text-sm font-medium px-3 py-1 bg-cyber-accent/10 hover:bg-cyber-accent/20 rounded transition-colors"
                       >
                         View Dashboard
                       </button>

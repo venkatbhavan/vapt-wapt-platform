@@ -1,3 +1,49 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .bg-grid-pattern {
+    background-image: linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  
+  .radar-sweep {
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+  .radar-sweep::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    height: 50%;
+    background: conic-gradient(from 0deg, transparent 70%, rgba(34,211,238,0.4) 100%);
+    transform-origin: 0 0;
+    animation: radar 4s linear infinite;
+  }
+  @keyframes radar {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .glow-cyan {
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+  }
+  
+  .glow-red {
+    box-shadow: 0 0 10px rgba(248, 113, 113, 0.2);
+  }
+  
+  .font-tech {
+    font-family: 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', monospace;
+  }
+}
+
+body {
+  background-color: #060B12;
+  color: #e2e8f0;
+}

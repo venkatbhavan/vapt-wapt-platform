@@ -11,21 +11,21 @@ interface RetestViewProps {
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'completed': return 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20';
-    case 'running': return 'bg-blue-500/10 text-blue-500 border border-blue-500/20';
+    case 'running': return 'bg-cyber-accent/10 text-cyber-accent border border-cyber-accent/20';
     case 'requested': return 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20';
     case 'failed': return 'bg-red-500/10 text-red-500 border border-red-500/20';
-    default: return 'bg-gray-800 text-gray-400 border border-gray-700';
+    default: return 'bg-cyber-dark text-cyber-text border border-cyber-border';
   }
 };
 
 const getResultColor = (result?: string | null) => {
-  if (!result) return 'text-gray-500';
+  if (!result) return 'text-cyber-text';
   switch (result) {
     case 'fixed': return 'text-emerald-500';
     case 'still_present': return 'text-red-500';
     case 'changed': return 'text-orange-500';
     case 'inconclusive': return 'text-yellow-500';
-    default: return 'text-gray-400';
+    default: return 'text-cyber-text';
   }
 };
 
@@ -77,7 +77,7 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
 
   if (loading) {
     return (
-      <div className="text-gray-400 p-8 flex gap-3 items-center">
+      <div className="text-cyber-text p-8 flex gap-3 items-center">
         <Activity className="animate-spin" size={20} /> Loading retests...
       </div>
     );
@@ -86,7 +86,7 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
   if (error) {
     return (
       <div className="space-y-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+        <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-white transition-colors">
           <ArrowLeft size={16} /> Back to Dashboard
         </button>
         <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-lg flex items-center justify-between gap-3">
@@ -125,51 +125,51 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <button onClick={onBack} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+        <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-white transition-colors">
           <ArrowLeft size={16} /> Back to Dashboard
         </button>
-        <div className="flex items-center gap-2 text-indigo-400">
+        <div className="flex items-center gap-2 text-cyber-accent">
           <ShieldCheck size={20} />
           <h2 className="text-xl font-bold">Retest Dashboard</h2>
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Total Retests</p>
+        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg">
+          <p className="text-sm text-cyber-text">Total Retests</p>
           <p className="text-2xl font-bold text-white">{total}</p>
         </div>
-        <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Completed</p>
-          <p className="text-2xl font-bold text-blue-400">{completed}</p>
+        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg">
+          <p className="text-sm text-cyber-text">Completed</p>
+          <p className="text-2xl font-bold text-cyber-accent">{completed}</p>
         </div>
-        <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Fixed</p>
+        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg">
+          <p className="text-sm text-cyber-text">Fixed</p>
           <p className="text-2xl font-bold text-emerald-500">{fixed}</p>
         </div>
-        <div className="bg-gray-900 border border-gray-800 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Still Present</p>
+        <div className="bg-cyber-darker border border-cyber-border p-4 rounded-lg">
+          <p className="text-sm text-cyber-text">Still Present</p>
           <p className="text-2xl font-bold text-red-500">{stillPresent}</p>
         </div>
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+      <div className="bg-cyber-darker border border-cyber-border rounded-lg p-6">
         <div className="flex flex-col md:flex-row gap-4 justify-between mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-cyber-text" size={16} />
             <input
               type="text"
               placeholder="Search by ID, outcome, rationale..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-gray-950 border border-gray-800 rounded focus:border-indigo-500 focus:outline-none text-gray-200"
+              className="w-full pl-10 pr-4 py-2 bg-cyber-darkest border border-cyber-border rounded focus:border-cyber-accent focus:outline-none text-cyber-textBright"
             />
           </div>
           <div className="flex gap-4">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-gray-950 border border-gray-800 rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-indigo-500"
+              className="bg-cyber-darkest border border-cyber-border rounded px-3 py-2 text-sm text-cyber-textBright focus:outline-none focus:border-cyber-accent"
             >
               <option value="">All Statuses</option>
               <option value="requested">Requested</option>
@@ -180,7 +180,7 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
             <select
               value={resultFilter}
               onChange={(e) => setResultFilter(e.target.value)}
-              className="bg-gray-950 border border-gray-800 rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-indigo-500"
+              className="bg-cyber-darkest border border-cyber-border rounded px-3 py-2 text-sm text-cyber-textBright focus:outline-none focus:border-cyber-accent"
             >
               <option value="">All Outcomes</option>
               <option value="fixed">Fixed</option>
@@ -191,7 +191,7 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
             {(statusFilter || resultFilter || search) && (
               <button
                 onClick={() => { setStatusFilter(''); setResultFilter(''); setSearch(''); }}
-                className="p-2 text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 rounded transition-colors"
+                className="p-2 text-cyber-text hover:text-white border border-cyber-border hover:border-cyber-text/70 rounded transition-colors"
                 title="Reset Filters"
               >
                 <X size={16} />
@@ -201,14 +201,14 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
         </div>
 
         {filteredRetests.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-cyber-text">
             {retests.length === 0 ? "No retests have been requested for this assessment yet." : "No retests match the current filters."}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-gray-800 text-xs uppercase tracking-wider text-gray-500">
+                <tr className="border-b border-cyber-border text-xs uppercase tracking-wider text-cyber-text">
                   <th className="p-4 font-medium">Retest ID</th>
                   <th className="p-4 font-medium">Status</th>
                   <th className="p-4 font-medium">Outcome</th>
@@ -219,8 +219,8 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
               </thead>
               <tbody className="divide-y divide-gray-800/50">
                 {filteredRetests.map((retest) => (
-                  <tr key={retest.id} className="hover:bg-gray-800/20 transition-colors">
-                    <td className="p-4 text-sm font-mono text-gray-400">#{retest.id}</td>
+                  <tr key={retest.id} className="hover:bg-cyber-dark/20 transition-colors">
+                    <td className="p-4 text-sm font-mono text-cyber-text">#{retest.id}</td>
                     <td className="p-4">
                       <span className={`px-2.5 py-1 rounded text-xs uppercase font-medium ${getStatusColor(retest.status)}`}>
                         {retest.status}
@@ -232,10 +232,10 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
                           {retest.result.result.replace('_', ' ')}
                         </span>
                       ) : (
-                        <span className="text-gray-600 text-sm">-</span>
+                        <span className="text-cyber-border text-sm">-</span>
                       )}
                       {retest.result?.rationale && (
-                        <p className="text-xs text-gray-500 mt-1 max-w-xs truncate" title={retest.result.rationale}>
+                        <p className="text-xs text-cyber-text mt-1 max-w-xs truncate" title={retest.result.rationale}>
                           {retest.result.rationale}
                         </p>
                       )}
@@ -244,7 +244,7 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
                       <div className="flex flex-col gap-1">
                         <button
                           onClick={() => onViewFinding(retest.finding_id)}
-                          className="text-sm text-blue-400 hover:text-blue-300 text-left hover:underline"
+                          className="text-sm text-cyber-accent hover:text-cyber-accent text-left hover:underline"
                         >
                           Finding #{retest.finding_id}
                         </button>
@@ -258,14 +258,14 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
                         )}
                       </div>
                     </td>
-                    <td className="p-4 text-sm text-gray-400">
+                    <td className="p-4 text-sm text-cyber-text">
                       {new Date(retest.requested_at).toLocaleString()}
                     </td>
                     <td className="p-4">
                       <button
                         onClick={() => handleRetest(retest.finding_id)}
                         disabled={triggeringId === retest.finding_id || retest.status === 'requested' || retest.status === 'running'}
-                        className="flex items-center gap-2 text-sm bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800 disabled:text-gray-500 text-white px-3 py-1.5 rounded transition-colors"
+                        className="flex items-center gap-2 text-sm bg-cyber-dark hover:bg-cyber-border text-cyber-accent border border-cyber-accent/50 disabled:bg-cyber-dark disabled:text-cyber-text text-white px-3 py-1.5 rounded transition-colors"
                       >
                         {triggeringId === retest.finding_id ? <Activity size={14} className="animate-spin" /> : <RefreshCw size={14} />}
                         Retest Again
