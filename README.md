@@ -1,40 +1,218 @@
-# Security Assessment Intelligence Platform
+# VAPT/WAPT Security Assessment Platform
 
-> **An explainable, evidence-driven VAPT/WAPT platform that connects technical findings to risk, compliance, remediation, and verified retesting.**
-
-[![Backend](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-61DAFB?logo=react&logoColor=black)](https://react.dev/)
-[![Database](https://img.shields.io/badge/Database-PostgreSQL-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Security](https://img.shields.io/badge/Security-VAPT%20%2F%20WAPT-red)](#security-model)
-[![Status](https://img.shields.io/badge/Status-In%20Development-orange)](#roadmap)
-
----
+An explainable, evidence-driven Vulnerability Assessment and Penetration Testing (VAPT/WAPT) platform that orchestrates security scans and connects technical findings to risk, attack surface, compliance, remediation, retesting, and AI-assisted analysis.
 
 ## Overview
 
-The **Security Assessment Intelligence Platform** is an authorized security assessment platform designed to bring vulnerability assessment and penetration testing workflows into a single, explainable system.
+Modern vulnerability scanning often produces disconnected, noisy outputs. The VAPT/WAPT Security Assessment Platform solves this by providing a unified cybersecurity engineering console. It wraps raw scanner capabilities (Nmap, OWASP ZAP) in a deterministic intelligence layer that normalizes findings, deduces risk, maps compliance, preserves immutable evidence, and safely scopes AI-assisted security analysis within strict assessment boundaries.
 
-Instead of simply reporting scanner output, the platform connects:
+## Key Capabilities
+
+- **Assessment Management**: Strict scoping and authorization tracking for target environments.
+- **Scope / Authorization Controls**: Verifies targets before scan execution.
+- **Scanner Integration**: Modular workers for Nmap and OWASP ZAP.
+- **Finding Normalization & Deduplication**: Merges overlapping observations from multiple scanners deterministically.
+- **Risk Scoring**: Immutable backend logic enforcing confidence-weighted severity ratings.
+- **Attack Surface Intelligence**: Hierarchical asset mapping (Endpoints, Services, Web Apps).
+- **Compliance Mapping**: Automated cross-referencing against OWASP Top 10 and NIST frameworks.
+- **Remediation Guidance**: Deterministic, context-aware remediation instructions.
+- **Retesting**: Tracks fixed/failed revalidation attempts while preserving original scan evidence.
+- **Evidence Preservation**: Logs raw scanner output directly attached to specific finding lifecycles.
+- **Security Posture**: Automated metric calculation of overall assessment health.
+- **Historical Reporting**: Point-in-time snapshot generation with HTML/PDF export.
+- **Secure Report Sharing**: One-way SHA-256 hashed share-links with expiration/revocation.
+- **AI Security Analyst**: Read-only, context-bounded LLM reasoning over validated scan evidence.
+
+## Security Architecture
+
+```mermaid
+flowchart TD
+    A[Analyst / User] -->|React / Vite / TS| UI(Frontend UI)
+    UI -->|REST API| API[FastAPI Backend]
+    
+    subgraph Assessment Scope [Assessment Isolation Boundary]
+        API --> DB[(SQLite DB)]
+        
+        API --> Orchestrator[Scan Orchestration]
+        Orchestrator --> Nmap[Nmap Worker]
+        Orchestrator --> ZAP[OWASP ZAP Worker]
+        
+        Nmap --> EV[Evidence Collection]
+        ZAP --> EV
+        
+        EV --> FE[Finding Intelligence]
+        FE --> Risk[Risk Engine]
+        FE --> AS[Attack Surface]
+        FE --> Comp[Compliance Mapping]
+        
+        Risk --> Rem[Remediation]
+        Rem --> Retest[Retesting Engine]
+        
+        Retest --> Posture[Security Posture]
+        Posture --> Report[Reporting / Export]
+        
+        EV -.-> AI[AI Security Analyst]
+        AI -.-> API
+    end
+```
+
+## Security Engineering Highlights
+
+### Scanner Command Safety
+Scanner integrations (e.g., `nmap.py`) are strictly executed using Python's `subprocess.run` with argument arrays. The platform physically bypasses `shell=True` concatenation, effectively neutralizing command injection risks even if malicious target IPs are provided.
+
+### Assessment Isolation
+As of Phase 15A hardening, strict Object-Level Authorization boundaries are enforced. Cross-tenant access is structurally mitigated by ensuring that all direct-object retrievals (findings, retests, reports) validate `assessment_id` ownership constraints prior to resolving the requested entity.
+
+### Evidence Integrity
+Evidence structures maintain absolute ownership. An evidence log belongs exclusively to exactly one logical owner: a `Finding` (initial discovery) or a `RetestResult` (validation attempt). It cannot be orphaned or cross-polluted.
+
+### Retesting Integrity
+A finding is never marked "Fixed" merely because a secondary scan failed to connect. The retesting engine explicitly requires positive scanner confirmation of the absent vulnerability, avoiding false-negatives in remediation tracking.
+
+### Report Immutability
+Generated security reports capture a deep-copied JSON snapshot of the assessment state. Future modifications to the live database (e.g., a finding being closed later) do not silently retroactively alter a finalized historical report.
+
+### Share-Link Security
+Public report share links rely on cryptographically secure random token generation (`secrets` module). The database only persists a one-way `SHA-256` token hash, neutralizing the impact of potential database read-leaks.
+
+### AI Security Boundaries
+The AI feature is strictly a read-only reasoning layer, not an autonomous agent. It operates within a secure Context Builder that:
+- Isolates context exclusively to the authorized assessment boundary.
+- Operates in strict read-only mode (cannot execute commands or alter DB state).
+- Programmatically strips fabricated "hallucinated" entity references before returning payloads to the client.
+- Performs all provider orchestration server-side, never exposing API keys to the client.
+
+## AI Security Analyst
+
+The AI feature provides **evidence-grounded security analysis rather than autonomous security execution.** 
+
+Instead of allowing an LLM to indiscriminately scan targets or mutate finding states, the AI acts as an explanation layer. The system feeds the AI a tightly bounded, sanitized JSON context window of confirmed finding evidence. The AI then structures a deterministic response (via Pydantic schema validation) to help analysts interpret complex vulnerability chains. The AI's recommendations **do not** replace the deterministic risk engine or human analyst verification.
+
+## Feature Workflow
+
+```mermaid
+flowchart LR
+    Start([Assessment Scope]) --> Auth[Authorized Scan]
+    Auth --> Ev[Evidence Collection]
+    Ev --> Norm[Finding Normalization]
+    Norm --> Risk[Risk Assessment]
+    Risk --> Attack[Attack Surface]
+    Risk --> Comp[Compliance]
+    Comp --> Rem[Remediation]
+    Rem --> Retest[Retesting]
+    Retest --> Posture[Security Posture]
+    Posture --> Rep[Report Generation]
+    Rep --> AI[AI Analysis]
+```
+
+## Tech Stack
+
+**Frontend:**
+- React (18)
+- Vite
+- TypeScript
+- Tailwind CSS
+
+**Backend:**
+- FastAPI
+- Pydantic
+- SQLAlchemy
+- Python `unittest`
+
+**Database:**
+- SQLite (Development)
+
+**Scanning Engines:**
+- Nmap
+- OWASP ZAP (Local API Integration)
+
+## Project Structure
 
 ```text
-Target
-   ↓
-Scope & Authorization
-   ↓
-Security Assessment
-   ↓
-Controlled Scanning
-   ↓
-Technical Findings
-   ↓
-Evidence
-   ↓
-Risk & Severity
-   ↓
-Compliance Mapping
-   ↓
-Remediation
-   ↓
-Verified Retesting
-   ↓
-Security Posture
+vapt-wapt-platform/
+├── backend/
+│   ├── app/              # FastAPI application (API, schemas, models, services)
+│   ├── tests/            # Python unittest suite
+│   ├── requirements.txt
+│   └── seed_test_data.py # Local development seed script
+├── frontend/
+│   ├── src/              # React/TypeScript source (components, views)
+│   ├── tailwind.config.js
+│   └── package.json
+├── docs/                 # Architecture and security documentation
+├── worker/               # Dedicated worker implementations
+├── demo-lab/             # Local target configuration
+├── docker-compose.yml
+└── README.md
+```
+
+## Local Demo
+
+To test the platform safely, you can spin up a local instance of OWASP Juice Shop as an authorized target. **Do NOT scan targets you do not own or are not explicitly authorized to assess.**
+
+```bash
+docker run -d --name juice-shop -p 127.0.0.1:3000:3000 bkimminich/juice-shop
+```
+Once running, you can create a new Assessment in the platform with the target `127.0.0.1` and execute safe standard web scans against it.
+
+## Running the Platform
+
+### 1. Backend
+Ensure Python 3.10+ is installed.
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate  # Or .venv\Scripts\Activate.ps1 on Windows
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
+
+### 2. Frontend
+Ensure Node.js 18+ is installed.
+```bash
+cd frontend
+npm install
+npm run dev
+```
+The application will be accessible at `http://localhost:5173`.
+
+## Testing
+
+**Targeted Security/Product Tests: PASS**
+Targeted test execution successfully validates business logic (e.g., `python -m unittest backend.test_retest_api`).
+
+**Full Test Suite: KNOWN LIMITATION**
+Running the global discovery suite (`python -m unittest discover`) currently produces known teardown failures. This is due to a recognized infrastructural issue where FastAPI `dependency_override` lifecycle hooks leak across isolated in-memory SQLite fixtures during sequential execution.
+
+**Frontend Build: PASS**
+The React frontend compiles successfully (`npm run build`) with strict TypeScript enforcement.
+
+## Current Limitations
+
+- **No User Authentication/RBAC:** Authentication and user-level ownership are intentionally deferred for the current MVP portfolio scope. The platform securely isolates data vertically by `assessment_id`, but does not yet differentiate between distinct human users.
+- **SQLite Development Environment:** Production scaling would require swapping the SQLAlchemy engine to PostgreSQL.
+- **Known Test-Fixture Lifecycle Issue:** As noted above, global unittest runs exhibit teardown bleed.
+- **AI Sanitization Limitations:** While the AI context engine truncates strings and strips basic secrets (e.g., `Bearer` tokens), it cannot definitively scrub every entropy-based secret from raw scanner evidence.
+
+## Security Model
+
+This platform is built on strict cybersecurity engineering principles:
+- **Authorized Scanning Only:** The system requires explicit user confirmation of scope authorization before invoking scanner integrations.
+- **Command Injection Prevention:** All scanners execute via array-based subprocesses; no dynamic shell strings.
+- **Assessment Isolation:** Hardened API layer enforcing Object-Level Authorization checks on direct primary-key lookups.
+- **Report Snapshot Integrity:** Finalized reports are immutable JSON clones, immune to downstream DB modifications.
+- **AI Read-Only Boundary:** The LLM is mathematically prevented from mutating findings or dictating scanner execution.
+
+## Portfolio Value
+
+This project was built to demonstrate complex security automation, deterministic security intelligence, and secure software design. Rather than merely rendering a generic CRUD dashboard, the platform elegantly handles the orchestration of hostile security tools (Nmap/ZAP) while enforcing strict evidence preservation, retesting logic, and safe AI containment.
+
+## Screenshots
+
+*Screenshots will be added after the final local demo capture.*
+
+## Documentation Links
+
+- [AI Security Analyst Architecture](docs/ai-security-analyst.md)
+- [Security Posture Methodology](docs/security-posture.md)
