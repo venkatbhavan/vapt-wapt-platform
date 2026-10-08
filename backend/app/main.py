@@ -32,13 +32,14 @@ app.include_router(assessments.router)
 app.include_router(scan_jobs.router)
 app.include_router(findings.router)
 
-from app.api import attack_surface, compliance, remediation, retests, reports, posture
+from app.api import attack_surface, compliance, remediation, retests, reports, posture, ai_analyst
 app.include_router(attack_surface.router)
 app.include_router(compliance.router)
 app.include_router(remediation.router)
 app.include_router(retests.router)
 app.include_router(reports.router)
 app.include_router(posture.router)
+app.include_router(ai_analyst.router)
 
 
 
