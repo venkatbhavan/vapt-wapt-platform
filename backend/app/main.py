@@ -3,16 +3,10 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import projects, assessments, scan_jobs, findings
-from app.models.assessment import Base
-import app.models.attack_surface
-import app.models.compliance
-import app.models.remediation
-import app.models.retest
-import app.models.report
-from app.core.database import engine
+from app.core.init_db import init_db
 
 # Create tables
-Base.metadata.create_all(bind=engine)
+init_db()
 
 app = FastAPI(
     title="Security Assessment Intelligence Platform API",

@@ -29,7 +29,7 @@ export function SharedReportView() {
         setDataset(data.snapshot);
         setReportTitle(data.title || "Security Assessment Report");
         // Best-effort Open Graph for SPA
-        document.title = `Security Assessment Report - ${data.title || 'VAPT Platform'}`;
+        document.title = `Security Assessment Report - ${data.title || 'VulnSentinel'}`;
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
@@ -90,7 +90,7 @@ export function SharedReportView() {
           <h1 className="text-4xl font-mono uppercase tracking-widest font-bold">Security Assessment Report</h1>
           <div className="w-24 h-1 bg-cyber-accent mx-auto rounded-full shadow-[0_0_10px_theme(colors.cyber.accent)]"></div>
           <div className="space-y-2 text-cyber-text">
-            <p className="text-xl font-mono uppercase tracking-widest text-white">{reportTitle || 'Comprehensive VAPT Scan'}</p>
+            <p className="text-xl font-mono uppercase tracking-widest text-white">{reportTitle || 'Comprehensive Security Scan'}</p>
             <p className="text-sm font-mono opacity-75 uppercase tracking-wider">Historical Report Snapshot</p>
           </div>
         </header>
@@ -221,7 +221,7 @@ export function SharedReportView() {
 
         {/* Footer */}
         <footer className="bg-cyber-darker border-t border-cyber-border text-cyber-text text-center py-8 text-sm mt-12">
-          <p className="font-mono uppercase tracking-widest text-xs text-cyber-accent">Generated with VAPT/WAPT Platform</p>
+          <p className="font-mono uppercase tracking-widest text-xs text-cyber-accent">Generated with VulnSentinel</p>
           <p className="mt-2 opacity-75 font-mono text-xs uppercase tracking-wider">Confidential Security Assessment Document</p>
         </footer>
       </div>

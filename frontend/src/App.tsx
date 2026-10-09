@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, Activity, Database, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, Activity, Database, ShieldAlert } from 'lucide-react';
 import { ProjectsView } from './components/ProjectsView';
 import { AssessmentsView } from './components/AssessmentsView';
 import { AssessmentDashboard } from './components/AssessmentDashboard';
@@ -43,12 +43,13 @@ function App() {
     <div className="min-h-screen bg-cyber-darkest bg-grid-pattern relative text-cyber-textBright p-8 font-sans">
       <header className="flex justify-between items-center mb-8 pb-4 border-b border-cyber-border">
         <div className="flex items-center gap-4">
-          <div className="p-2 bg-cyber-accent/10 border border-cyber-accent/30 rounded">
-            <Shield className="text-cyber-accent" size={28} />
+          <div className="p-2 bg-cyber-accent/10 border border-cyber-accent/30 rounded shadow-[0_0_10px_rgba(0,255,255,0.2)] relative">
+            <div className="absolute inset-0 bg-violet-500/20 rounded mix-blend-screen"></div>
+            <ShieldCheck className="text-cyber-accent relative z-10" size={28} />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-widest text-white font-mono uppercase">VAPT Command Center</h1>
-            <p className="text-cyber-accent text-xs font-mono uppercase tracking-widest mt-1">Security Operations & Intelligence</p>
+            <h1 className="text-xl font-bold tracking-widest text-white font-mono uppercase">VulnSentinel</h1>
+            <p className="text-cyber-accent text-xs font-mono uppercase tracking-widest mt-1">Detect. Prioritize. Defend.</p>
           </div>
         </div>
         <div className="flex items-center gap-6">
@@ -65,13 +66,22 @@ function App() {
       </header>
 
       {import.meta.env.VITE_DEMO_MODE === 'true' && (
-        <div className="mb-8 border border-cyber-accent bg-cyber-darker p-4 rounded flex flex-col gap-1 max-w-xl shadow-[0_0_15px_rgba(0,255,255,0.15)] relative overflow-hidden">
+        <div className="mb-8 border border-cyber-accent bg-cyber-darker p-4 rounded flex flex-col gap-2 max-w-3xl shadow-[0_0_15px_rgba(0,255,255,0.15)] relative overflow-hidden">
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyber-accent"></div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-cyber-accent animate-pulse"></div>
-            <h2 className="text-cyber-accent font-bold tracking-wider text-sm uppercase font-mono">DEMO MODE — READ ONLY</h2>
+            <h2 className="text-cyber-accent font-bold tracking-wider text-sm uppercase font-mono">PORTFOLIO DEMONSTRATION — READ ONLY</h2>
           </div>
-          <p className="text-cyber-text text-sm ml-4 font-mono uppercase">Simulated security assessment. Scanner execution is disabled.</p>
+          <div className="text-cyber-text text-xs ml-4 font-mono uppercase space-y-1">
+            <p>This is a portfolio demonstration of the VulnSentinel platform featuring:</p>
+            <ul className="list-disc ml-5 space-y-0.5 text-cyber-accent/80">
+              <li>Vulnerability assessment & finding management</li>
+              <li>Attack-surface visibility & risk prioritization</li>
+              <li>Remediation, retesting, compliance & reporting</li>
+              <li>Mock AI-assisted analysis (deterministic, no external LLM)</li>
+            </ul>
+            <p className="text-cyber-accent pt-1">All data is fictional. Live scanner execution is disabled.</p>
+          </div>
         </div>
       )}
 
