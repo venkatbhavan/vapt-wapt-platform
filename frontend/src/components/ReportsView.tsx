@@ -199,9 +199,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSelectedReportId(null)}
-              className="p-2 hover:bg-cyber-dark rounded transition-colors text-cyber-text hover:text-white"
+              className="flex items-center gap-2 text-cyber-text hover:text-cyber-accent transition-colors font-mono text-sm uppercase tracking-wider"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft size={16} /> BACK
             </button>
             <div>
               <h2 className="text-2xl font-bold text-white flex items-center gap-3">
@@ -375,9 +375,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-2 hover:bg-cyber-dark rounded transition-colors text-cyber-text hover:text-white"
+            className="flex items-center gap-2 text-cyber-text hover:text-cyber-accent transition-colors font-mono text-sm uppercase tracking-wider"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft size={16} /> BACK
           </button>
           <div>
             <h2 className="text-2xl font-bold text-white flex items-center gap-3">

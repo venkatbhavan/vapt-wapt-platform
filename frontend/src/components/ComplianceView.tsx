@@ -154,7 +154,7 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
     return (
       <div className="space-y-6">
         <button onClick={onBack} className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2">
-          <ArrowLeft size={16} /> Back to Dashboard
+          <ArrowLeft size={16} /> BACK
         </button>
         <div className="bg-red-500/10 border border-red-500 p-4 rounded flex flex-col items-start gap-4">
           <div className="flex items-center gap-3 text-red-500">
@@ -173,7 +173,7 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
     return (
       <div className="space-y-6">
         <button onClick={onBack} className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2">
-          <ArrowLeft size={16} /> Back to Dashboard
+          <ArrowLeft size={16} /> BACK
         </button>
         <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden p-8 text-center flex flex-col items-center justify-center">
           <ShieldAlert size={48} className="text-cyber-border mb-4" />
@@ -189,7 +189,7 @@ export function ComplianceView({ assessmentId, onBack, onViewFinding }: Complian
       <div className="flex justify-between items-center">
         <div>
           <button onClick={onBack} className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2 mb-4">
-            <ArrowLeft size={16} /> Back to Dashboard
+            <ArrowLeft size={16} /> BACK
           </button>
           <div className="bg-cyber-darkest border border-cyber-border p-4 flex items-center gap-3 rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] mb-2">
             <Book size={18} className="text-cyber-accent" />

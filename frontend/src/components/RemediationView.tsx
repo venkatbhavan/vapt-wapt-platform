@@ -196,8 +196,8 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
     return (
       <div>
         <div className="mb-6 flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-cyber-dark rounded-full transition-colors text-cyber-text">
-            <ArrowLeft size={20} />
+          <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-cyber-accent transition-colors font-mono text-sm uppercase tracking-wider">
+            <ArrowLeft size={16} /> BACK
           </button>
           <div>
             <h2 className="text-2xl font-bold text-white">Remediation</h2>
@@ -217,7 +217,7 @@ export function RemediationView({ assessmentId, onBack, onViewFinding }: Remedia
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <button onClick={onBack} className="p-2 hover:bg-cyber-dark rounded-full transition-colors text-cyber-text">
+        <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-cyber-accent transition-colors font-mono text-sm uppercase tracking-wider">
           <ArrowLeft size={20} />
         </button>
         <div>

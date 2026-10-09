@@ -87,7 +87,7 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
     return (
       <div className="space-y-6">
         <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-white transition-colors font-mono uppercase text-sm tracking-wider">
-          <ArrowLeft size={16} /> Back to Dashboard
+          <ArrowLeft size={16} /> BACK
         </button>
         <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded flex items-center justify-between gap-3 font-mono">
           <div className="flex items-center gap-3">
@@ -126,7 +126,7 @@ export function RetestView({ assessmentId, onBack, onViewFinding }: RetestViewPr
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <button onClick={onBack} className="flex items-center gap-2 text-cyber-text hover:text-white transition-colors font-mono uppercase text-sm tracking-wider">
-          <ArrowLeft size={16} /> Back to Dashboard
+          <ArrowLeft size={16} /> BACK
         </button>
         <div className="flex items-center gap-2 text-cyber-accent">
           <ShieldCheck size={20} />

@@ -93,7 +93,7 @@ export function AssessmentsView({ projectId, onSelectAssessment, onBack }: Asses
         onClick={onBack}
         className="flex items-center gap-2 text-cyber-text hover:text-cyber-accent transition-colors font-mono text-sm uppercase tracking-wider"
       >
-        <ArrowLeft size={16} /> RETURN TO WORKSPACES
+        <ArrowLeft size={16} /> BACK
       </button>
 
       {error && (

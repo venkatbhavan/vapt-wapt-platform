@@ -82,8 +82,7 @@ export function AIAnalystView({ assessmentId, onBack }: AIAnalystViewProps) {
           onClick={onBack}
           className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2"
         >
-          <ArrowLeft size={18} />
-          Back
+          <ArrowLeft size={16} /> BACK
         </button>
       </div>
 

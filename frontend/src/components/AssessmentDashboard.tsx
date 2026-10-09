@@ -83,7 +83,7 @@ export function AssessmentDashboard({ assessmentId, onBack, onViewFindings, onVi
           onClick={onBack}
           className="flex items-center gap-2 text-cyber-text hover:text-cyber-accent transition-colors font-mono text-sm uppercase tracking-wider"
         >
-          <ArrowLeft size={16} /> Return to Workspaces
+          <ArrowLeft size={16} /> BACK
         </button>
         <div className="flex gap-2">
           <button onClick={onViewAIAnalyst} className="bg-cyber-accent/10 border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-mono tracking-widest uppercase text-xs px-4 py-2 rounded flex items-center gap-2 transition-colors shadow-[0_0_10px_rgba(0,240,255,0.2)]">

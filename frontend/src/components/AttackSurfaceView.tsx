@@ -78,7 +78,7 @@ export function AttackSurfaceView({ assessmentId, onBack, onViewFinding }: Attac
     return (
       <div className="space-y-6">
         <button onClick={onBack} className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2">
-          <ArrowLeft size={16} /> BACK TO DASHBOARD
+          <ArrowLeft size={16} /> BACK
         </button>
         <div className="bg-red-500/10 border border-red-500 text-red-500 p-6 rounded flex items-center gap-4">
           <AlertCircle size={24} />
@@ -96,7 +96,7 @@ export function AttackSurfaceView({ assessmentId, onBack, onViewFinding }: Attac
     return (
       <div className="space-y-6">
         <button onClick={onBack} className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2">
-          <ArrowLeft size={16} /> BACK TO DASHBOARD
+          <ArrowLeft size={16} /> BACK
         </button>
         <div className="bg-cyber-darker border border-cyber-border rounded shadow-[0_0_15px_rgba(0,0,0,0.5)] overflow-hidden">
           <div className="p-12 text-center">
@@ -165,7 +165,7 @@ export function AttackSurfaceView({ assessmentId, onBack, onViewFinding }: Attac
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <button onClick={onBack} className="border border-cyber-accent text-cyber-accent hover:bg-cyber-accent hover:text-black font-bold uppercase tracking-widest py-2 px-4 rounded transition-colors font-mono text-sm flex items-center gap-2">
-          <ArrowLeft size={16} /> BACK TO DASHBOARD
+          <ArrowLeft size={16} /> BACK
         </button>
       </div>
 

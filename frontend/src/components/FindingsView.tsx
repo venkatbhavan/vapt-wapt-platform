@@ -281,7 +281,7 @@ const handleTriggerRetest = async () => {
           onClick={onBack}
           className="flex items-center gap-2 text-cyber-text hover:text-white transition-colors"
         >
-          <ArrowLeft size={16} /> Back to Assessments
+          <ArrowLeft size={16} /> BACK
         </button>
         <button
           onClick={() => handleRunScan(false)}
