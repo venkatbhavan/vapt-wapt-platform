@@ -82,7 +82,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch('/api/assessments/' + assessmentId + '/reports');
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/assessments/${assessmentId}/reports`);
       if (!res.ok) throw new Error('Failed to fetch reports');
       const data = await res.json();
       setReports(data);
@@ -100,7 +100,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
   const handleGenerateReport = async () => {
     try {
       setGenerating(true);
-      const res = await fetch('/api/assessments/' + assessmentId + '/reports', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/assessments/${assessmentId}/reports`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: 'Assessment Report - ' + new Date().toLocaleDateString() }),
@@ -155,7 +155,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ assessmentId, onBack }
     setDatasetError(null);
     setDataset(null);
     try {
-      const res = await fetch('/api/reports/' + reportId + '/dataset?assessment_id=' + assessmentId);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/reports/${reportId}/dataset?assessment_id=${assessmentId}`);
       if (!res.ok) {
           const body = await res.json();
           throw new Error(body.detail || 'Failed to fetch report dataset');
