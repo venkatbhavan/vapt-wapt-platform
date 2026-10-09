@@ -1,7 +1,7 @@
-fastapi
-uvicorn
-sqlalchemy
-pydantic
-xhtml2pdf
-jinja2
-httpx
+fastapi==0.141.1
+uvicorn==0.54.0
+SQLAlchemy==2.1.1
+pydantic==2.13.5
+xhtml2pdf==0.2.21
+Jinja2==3.1.6
+httpx==0.28.1
