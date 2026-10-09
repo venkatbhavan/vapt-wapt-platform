@@ -1,6 +1,6 @@
 <div align="center">
 
-# VAPT / WAPT Security Platform
+# VulnSentinel — VAPT / WAPT Security Platform
 
 **Evidence-driven vulnerability assessment, security intelligence, retesting, and reporting platform.**
 
@@ -28,7 +28,7 @@
 ![OWASP ZAP](https://img.shields.io/badge/OWASP_ZAP-00559F?style=for-the-badge&logo=owasp&logoColor=white)
 <br><br>
 
-[Architecture](#security-architecture) • [Security Engineering](#security-engineering-highlights) • [AI Analyst](#ai-security-analyst) • [Demo](#local-demo) • [Installation](#running-the-platform)
+[Live Demo](#live-demo) • [Screenshots](#screenshots) • [Architecture](#security-architecture) • [Security Engineering](#security-engineering-highlights) • [AI Analyst](#ai-security-analyst) • [Demo](#local-demo) • [Installation](#running-the-platform)
 
 </div>
 
@@ -53,7 +53,7 @@ Modern vulnerability scanning often produces disconnected, noisy outputs. The VA
 - **Security Posture**: Automated metric calculation of overall assessment health.
 - **Historical Reporting**: Point-in-time snapshot generation with HTML/PDF export.
 - **Secure Report Sharing**: One-way SHA-256 hashed share-links with expiration/revocation.
-- **AI Security Analyst**: Read-only, context-bounded LLM reasoning over validated scan evidence.
+- **AI Security Analyst**: Read-only, context-bounded analysis over validated scan evidence (provider-based; the public demo uses a deterministic mock provider).
 
 ## Security Architecture
 
@@ -186,7 +186,9 @@ vapt-wapt-platform/
 
 ## Live Demo
 
-Recruiter Demo — deployment planned.
+**Live read-only demo: [vapt-wapt-platform.vercel.app](https://vapt-wapt-platform.vercel.app/)**
+
+The hosted demo uses fictional data only. Live scanner execution is disabled, and the AI analyst runs as a deterministic mock provider (no external LLM).
 
 *Note: Demo mode operates in a strict read-only boundary. Scanner execution and mutations are prevented by a server-side request boundary in demo state.*
 
@@ -253,7 +255,7 @@ This platform is built on strict cybersecurity engineering principles:
 - **Command Injection Prevention:** All scanners execute via array-based subprocesses; no dynamic shell strings.
 - **Assessment Isolation:** Hardened API layer enforcing Object-Level Authorization checks on direct primary-key lookups.
 - **Report Snapshot Integrity:** Finalized reports are immutable JSON clones, immune to downstream DB modifications.
-- **AI Read-Only Boundary:** The LLM is mathematically prevented from mutating findings or dictating scanner execution.
+- **AI Read-Only Boundary:** The AI layer is read-only by design: it cannot mutate findings or trigger scanner execution.
 
 ## Portfolio Value
 
@@ -261,7 +263,18 @@ This project was built to demonstrate complex security automation, deterministic
 
 ## Screenshots
 
-*Screenshots will be added after the final local demo capture.*
+Captured from the live read-only demo (fictional data).
+
+| | |
+|---|---|
+| ![Workspaces](docs/images/01-workspaces.png) | ![Assessments](docs/images/02-assessments.png) |
+| **Workspaces:** scoped assessment environments | **Assessments:** authorization-gated scan setup |
+| ![Command center](docs/images/03-command-center.png) | ![Findings](docs/images/04-scan-findings.png) |
+| **Command center:** posture score, findings, risk | **Findings:** severity and risk score per scan job |
+| ![Attack surface](docs/images/05-attack-surface.png) | ![Compliance](docs/images/06-compliance.png) |
+| **Attack surface:** assets, services, web apps, endpoints | **Compliance:** findings mapped to NIST CSF 2.0 and OWASP Top 10 |
+| ![Remediation](docs/images/07-remediation.png) | |
+| **Remediation:** prioritized, finding-linked guidance | |
 
 ## Documentation Links
 
@@ -270,7 +283,7 @@ This project was built to demonstrate complex security automation, deterministic
 
 ## Deployment Status
 
-Controlled recruiter demo is ready. Production deployment remains intentionally deferred.
+The read-only portfolio demo is deployed on Vercel (frontend) with a seeded SQLite backend; scanners are disabled. A production deployment remains intentionally deferred.
 
 ### Recruiter Demo vs Production VAPT Platform
 - **Recruiter Demo**: A safe, isolated, read-only viewer demonstrating the UI, workflows, and AI Analyst over a controlled local Juice Shop scan dataset. Scanner dispatch is disabled.
