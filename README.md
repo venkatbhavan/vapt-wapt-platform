@@ -283,7 +283,7 @@ Captured from the live read-only demo (fictional data).
 
 ## Deployment Status
 
-The read-only portfolio demo is deployed on Vercel (frontend) with a seeded SQLite backend; scanners are disabled. A production deployment remains intentionally deferred.
+The read-only portfolio demo is deployed at vapt-wapt-platform.vercel.app; scanners are disabled. A production deployment remains intentionally deferred.
 
 ### Recruiter Demo vs Production VAPT Platform
 - **Recruiter Demo**: A safe, isolated, read-only viewer demonstrating the UI, workflows, and AI Analyst over a controlled local Juice Shop scan dataset. Scanner dispatch is disabled.
